@@ -1,0 +1,28 @@
+{
+  "name": "js2wasm",
+  "version": "0.0.1",
+  "description": "JavaScript to WebAssembly cross compiler",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --require ts-node/register test/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InverseIntegral/js2wasm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/InverseIntegral/js2wasm/issues"
+  },
+  "homepage": "https://github.com/InverseIntegral/js2wasm#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.5",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3"
+  }
+}

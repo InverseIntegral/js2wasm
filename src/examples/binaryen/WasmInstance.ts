@@ -4,7 +4,7 @@ class WasmInstance {
 
     private instance: Instance;
 
-    constructor(binary: Uint8Array) {
+    public constructor(binary: Uint8Array) {
         this.instance = new WebAssembly.Instance(new WebAssembly.Module(binary), {});
     }
 

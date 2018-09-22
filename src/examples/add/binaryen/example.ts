@@ -1,16 +1,36 @@
 import Core from './Core';
 import WasmInstance from './WasmInstance';
 
-const core = new Core();
-const wasmInstance = new WasmInstance(core.binaryArray);
+function information(core: Core, wasmInstance: WasmInstance) {
+    const unoptimizedEmitTextElement = document.getElementById('unoptimized-emit-text') as HTMLElement;
+    const optimizedEmitTextElement = document.getElementById('optimized-emit-text') as HTMLElement;
+    const arrayTextElement = document.getElementById('array-text') as HTMLElement;
+    const arrayLengthElement = document.getElementById('array-length') as HTMLElement;
+    const functionsElement = document.getElementById('functions') as HTMLElement;
 
-console.log(core.unoptEmitText);
+    unoptimizedEmitTextElement.innerText = unoptimizedEmitTextElement.innerText + '\n' + core.unoptEmitText;
+    optimizedEmitTextElement.innerText = optimizedEmitTextElement.innerText + '\n' + core.optEmitText;
+    arrayTextElement.innerText = arrayTextElement.innerText + ' ' + String(core.binaryArray);
+    arrayLengthElement.innerText = arrayLengthElement.innerText + ' ' + String(core.binaryArray.length);
+    functionsElement.innerText = functionsElement.innerText + ' ' + wasmInstance.functions;
+}
 
-console.log('Optimized:\n' + core.optEmitText);
+function calculator(wasmInstance: WasmInstance) {
+    const leftInputElement = document.getElementById('left') as HTMLInputElement;
+    const rightInputElement = document.getElementById('right') as HTMLInputElement;
+    const resultElement = document.getElementById('result') as HTMLElement;
 
-console.log('Binary: ' + core.binaryText);
-console.log('Binary size: ' + core.binaryArray.length);
-console.log();
+    (document.getElementById('calculate') as HTMLElement).addEventListener('click', () => {
+        const left: number = Number(leftInputElement.value);
+        const right: number = Number(rightInputElement.value);
+        resultElement.innerText = String(wasmInstance.add(left, right));
+    });
+}
 
-console.log('Functions: ' + wasmInstance.functions);
-console.log('Call: ' + wasmInstance.add(1, 2));
+window.onload = () => {
+    const core = new Core();
+    const wasmInstance = new WasmInstance(core.binaryArray);
+
+    information(core, wasmInstance);
+    calculator(wasmInstance);
+};

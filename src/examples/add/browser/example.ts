@@ -9,6 +9,6 @@ window.onload = () => {
     (document.getElementById('calculate') as HTMLElement).addEventListener('click', () => {
         const left: number = Number(leftInputElement.value);
         const right: number = Number(rightInputElement.value);
-        resultElement.innerHTML = String(wasmInstance.add(left, right));
+        resultElement.innerText = String(wasmInstance.add(left, right));
     });
 };

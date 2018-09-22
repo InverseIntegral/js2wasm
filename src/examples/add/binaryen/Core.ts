@@ -44,10 +44,6 @@ class Core {
         return this.binary;
     }
 
-    public get binaryText(): string {
-        return String(this.binary);
-    }
-
 }
 
 export default Core;

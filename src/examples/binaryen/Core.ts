@@ -6,7 +6,7 @@ class Core {
     private readonly optimizedEmitText: string;
     private readonly binary: Uint8Array;
 
-    constructor() {
+    public constructor() {
         const binaryenModule = this.createModule();
         this.unoptimizedEmitText = binaryenModule.emitText();
         binaryenModule.optimize();

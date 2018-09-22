@@ -1,1 +1,1 @@
-# JS2WebAssembly
+# JavaScript to WebAssembly Cross Compiler

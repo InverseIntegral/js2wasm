@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import WasmInstance from '../../../src/examples/browser/WasmInstance';
+import WasmInstance from '../../../../src/examples/add/browser/WasmInstance';
 
 let instance: WasmInstance;
 

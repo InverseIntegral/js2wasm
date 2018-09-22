@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
     "test": "mocha --require ts-node/register test/**/*.ts",
-    "browserify-binaryen-example": "browserify src/examples/binaryen_add_example.js -o src/examples/binaryen_add_example_bundle.js"
+    "build-examples": "webpack --config webpack-examples.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,12 +24,13 @@
     "@types/mocha": "^5.2.5",
     "@types/webassembly-js-api": "0.0.1",
     "binaryen": "^51.0.0",
-    "browserify": "^16.2.2",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.0.3",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
   },
   "dependencies": {}
 }

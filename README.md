@@ -1,6 +1,6 @@
 # JS2WebAssembly
 
-## Run the following command to browserify the binaryen_add_example
+## Run the following command to webpack all examples
 ```shell
-npm run browserify-binaryen-example
+npm run build-examples
 ```

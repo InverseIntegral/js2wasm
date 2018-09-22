@@ -6,7 +6,7 @@ module.exports = {
     },
     mode: 'development',
     entry: {
-        binaryen_add_example: './src/examples/binaryen_add_example.js',
+        binaryen_add_example: './src/examples/binaryen/example.js',
         browser_add_example: './src/examples/browser_add_example.js'
     },
     output: {

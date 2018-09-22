@@ -8,7 +8,8 @@
   },
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
-    "test": "mocha --require ts-node/register test/**/*.ts"
+    "test": "mocha --require ts-node/register test/**/*.ts",
+    "browserify-binaryen-example": "browserify src/examples/binaryen_add_example.js -o src/examples/binaryen_add_example_bundle.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "binaryen": "^51.0.0"
+    "binaryen": "^51.0.0",
+    "browserify": "^16.2.2"
   }
 }

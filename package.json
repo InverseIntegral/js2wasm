@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "JavaScript to WebAssembly cross compiler",
   "main": "index.js",
+  "license": "MIT",
   "directories": {
     "test": "test"
   },

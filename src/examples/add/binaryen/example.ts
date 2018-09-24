@@ -1,7 +1,7 @@
 import Core from './Core';
 import WasmInstance from './WasmInstance';
 
-function information(core: Core, wasmInstance: WasmInstance) {
+function appendStatistics(core: Core, wasmInstance: WasmInstance) {
     const unoptimizedEmitTextElement = document.getElementById('unoptimized-emit-text') as HTMLElement;
     const optimizedEmitTextElement = document.getElementById('optimized-emit-text') as HTMLElement;
     const arrayTextElement = document.getElementById('array-text') as HTMLElement;
@@ -15,7 +15,7 @@ function information(core: Core, wasmInstance: WasmInstance) {
     functionsElement.innerText = functionsElement.innerText + ' ' + wasmInstance.functions;
 }
 
-function calculator(wasmInstance: WasmInstance) {
+function registerListener(wasmInstance: WasmInstance) {
     const leftInputElement = document.getElementById('left') as HTMLInputElement;
     const rightInputElement = document.getElementById('right') as HTMLInputElement;
     const resultElement = document.getElementById('result') as HTMLElement;
@@ -31,6 +31,6 @@ window.onload = () => {
     const core = new Core();
     const wasmInstance = new WasmInstance(core.binaryArray);
 
-    information(core, wasmInstance);
-    calculator(wasmInstance);
+    appendStatistics(core, wasmInstance);
+    registerListener(wasmInstance);
 };

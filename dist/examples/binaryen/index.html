@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Binaryen example</title>
+    </head>
+    <body>
+        <section>
+            <header>
+                <h1>Information</h1>
+            </header>
+
+            <article>
+                <header>
+                    <h2>Emit text</h2>
+                </header>
+
+                <span id="unoptimized-emit-text">Unoptimized:</span>
+                <br />
+                <span id="optimized-emit-text">Optimized:</span>
+            </article>
+            <article>
+                <header>
+                    <h2>Binary</h2>
+                </header>
+
+                <span id="array-text">Binary:</span>
+                <br />
+                <span id="array-length">Binary size:</span>
+            </article>
+            <article>
+                <header>
+                    <h2>Functions</h2>
+                </header>
+
+                <span id="functions">Functions:</span>
+            </article>
+        </section>
+        <section>
+            <header>
+                <h1>Calculator</h1>
+            </header>
+
+            <input id="left" />
+            <span>+</span>
+            <input id="right" />
+            <span>=</span>
+            <span id="result">0</span>
+            <button id="calculate">Calculate</button>
+        </section>
+        <script src="bundle.js"></script>
+    </body>
+</html>

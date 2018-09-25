@@ -4,7 +4,9 @@
     "removeComments": true,
     "strictNullChecks": true,
     "preserveConstEnums": true,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    // this can not be set to es6 because of binaryen
+    "target": "es5"
   },
   "include": [
     "src/**/*"

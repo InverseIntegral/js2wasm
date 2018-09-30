@@ -1,47 +1,20 @@
 import test_algorithm from './test_algorithm.js';
+import Measurement from './Measurement.js';
 
 const algorithms = {
     test_algorithm: test_algorithm
 };
 
-const warmupRounds = 5;
-const measureRounds = 100;
-
-function appendResult(result, log) {
+function appendResult(result, log, selectedAlgorithm, warmupRounds, measureRounds) {
     let currentLogContent = log.innerText;
-    log.innerText = 'Name: ' + result.selectedAlgorithm + '\n';
+    log.innerText = 'Name: ' + selectedAlgorithm + '\n';
     log.innerText += 'JavaScript Time: ' + result.jsTime + '\n';
     log.innerText += 'WebAssembly Time: ' + result.wasmTime + '\n';
     log.innerText += 'Time improvement: ' + (result.jsTime - result.wasmTime) + '\n';
+    log.innerText += 'Warmup rounds amount: ' + warmupRounds + '\n';
+    log.innerText += 'Measure rounds amount: ' + measureRounds + '\n';
     log.innerText += '\n';
     log.innerText += currentLogContent;
-}
-
-function executeAlgorithm(algorithm, rounds) {
-    for (let i = 0; i < rounds; i++) {
-        algorithm();
-    }
-}
-
-function measureTime(algorithm) {
-    let startTime = Date.now();
-    executeAlgorithm(algorithm, measureRounds);
-    let endTime = Date.now();
-    return endTime - startTime;
-}
-
-function executeMeasurement(selectedAlgorithmName) {
-    let jsAlgorithm = algorithms[selectedAlgorithmName];
-
-    executeAlgorithm(jsAlgorithm, warmupRounds);
-    let jsTime = measureTime(jsAlgorithm);
-
-    // cross compile here
-    let wasmAlgorithm = jsAlgorithm; // change to cross compiled function
-    executeAlgorithm(wasmAlgorithm, warmupRounds);
-    let wasmTime = measureTime(wasmAlgorithm);
-
-    return {selectedAlgorithm: selectedAlgorithmName, jsTime, wasmTime};
 }
 
 function createSelection(selectionElement) {
@@ -56,11 +29,16 @@ function createSelection(selectionElement) {
 window.onload = () => {
     const selectionElement = document.getElementById('selected-algorithm');
     const resultLog = document.getElementById('result-log');
+    const warmupRoundsElement = document.getElementById('warmup-rounds');
+    const measureRoundsElement = document.getElementById('measure-rounds');
     createSelection(selectionElement);
 
     document.getElementById('start-measurement-button').addEventListener('click', () => {
         let selectedAlgorithm = selectionElement.options[selectionElement.selectedIndex].value;
-        let result = executeMeasurement(selectedAlgorithm);
-        appendResult(result, resultLog);
+        let warmupRounds = Number(warmupRoundsElement.value);
+        let measureRounds = Number(measureRoundsElement.value);
+        let measurement = new Measurement(warmupRounds, measureRounds);
+        let result = measurement.executeMeasurement(algorithms[selectedAlgorithm]);
+        appendResult(result, resultLog, selectedAlgorithm, warmupRounds, measureRounds);
     });
 };

@@ -11,6 +11,8 @@
             </header>
             <select id="selected-algorithm">
             </select>
+            <input id="warmup-rounds" value="5" />
+            <input id="measure-rounds" value="100" />
             <button id="start-measurement-button">Run</button>
         </section>
         <section>
@@ -20,7 +22,8 @@
             <span id="result-log"></span>
         </section>
 
-        <script src="measurement.js" type="module"></script>
+        <script src="listeners.js" type="module"></script>
+        <script src="Measurement.js" type="module"></script>
         <script src="test_algorithm.js" type="module"></script>
     </body>
 </html>

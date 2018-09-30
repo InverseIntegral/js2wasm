@@ -6,7 +6,9 @@
     "preserveConstEnums": true,
     "typeRoots": ["./node_modules/@types"],
     // this can not be set to es6 because of binaryen
-    "target": "es5"
+    "target": "es2016",
+    "moduleResolution": "node",
+    "lib": ["es2016", "dom"]
   },
   "include": [
     "src/**/*"

@@ -1,8 +1,10 @@
 function sum() {
     var sum = 0;
+    var i = 1;
 
-    for (var i = 1; i < 100000; i++) {
+    while (i < 100000) {
         sum += i;
+        i++;
     }
 
     return sum;

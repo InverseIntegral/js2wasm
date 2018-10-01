@@ -6,10 +6,12 @@ function isPrime(toTest) {
     var i = 2;
     var s = Math.sqrt(toTest);
 
-    for (; i <= s; i++) {
+    while (i <= s) {
         if (toTest % i === 0) {
             return false;
         }
+
+        i++;
     }
 
     return true;
@@ -19,10 +21,12 @@ function countPrimes(max) {
     var counter = 0;
     var i = 2;
 
-    for (; i < max; i++) {
+    while (i < max) {
         if (isPrime(i)) {
             counter++;
         }
+
+        i++;
     }
 
     return counter;

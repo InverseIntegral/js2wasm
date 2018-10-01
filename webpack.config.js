@@ -15,12 +15,11 @@ module.exports = {
         extensions: [ '.tsx', '.ts', '.js' ]
     },
     entry: {
-        binaryen: './src/examples/add/binaryen/example.ts',
-        browser: './src/examples/add/browser/example.ts'
+        benchmark: './src/benchmark/listeners.ts'
     },
     output: {
         filename: '[name]/bundle.js',
-        path: path.resolve(__dirname, 'dist/examples')
+        path: path.resolve(__dirname, 'dist')
     },
     target: "node" // because of require in binaryen
 };

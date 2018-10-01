@@ -5,3 +5,9 @@ function fibonacci(current) {
 
     return fibonacci(current - 2) + fibonacci(current - 1);
 }
+
+function calculateFibonacci() {
+    fibonacci(13);
+}
+
+module.exports = calculateFibonacci;

@@ -6,14 +6,14 @@ import sumDoubles from './cases/sum_doubles';
 import sumIntegers from './cases/sum_integers';
 import Measurement from './Measurement';
 
-const algorithms: any = {
-    fibonacci,
-    newtonsMethod,
-    primeCounter,
-    quickSort,
-    sumDoubles,
-    sumIntegers,
-};
+const algorithms = new Map<string, () => void>([
+    ['Fibonacci', fibonacci],
+    ['Newtons Method', newtonsMethod],
+    ['Prime Counter', primeCounter],
+    ['Quick Sort', quickSort],
+    ['Sum Doubles', sumDoubles],
+    ['Sum Integers', sumIntegers],
+]);
 
 function sum(value1: number, value2: number): number {
     return value1 + value2;
@@ -60,13 +60,11 @@ function appendResult(result: [number[], number[]], log: HTMLElement,
 }
 
 function createSelection(selectionElement: HTMLSelectElement) {
-    for (const algorithm in algorithms) {
-        if (algorithms.hasOwnProperty(algorithm)) {
-            const option: HTMLOptionElement = document.createElement('option');
-            option.value = String(algorithm);
-            option.text = String(algorithm);
-            selectionElement.add(option);
-        }
+    for (const algorithm of algorithms.keys()) {
+        const option: HTMLOptionElement = document.createElement('option');
+        option.value = String(algorithm);
+        option.text = String(algorithm);
+        selectionElement.add(option);
     }
 }
 
@@ -82,7 +80,7 @@ window.onload = () => {
         const warmupRounds = Number(warmupRoundsElement.value);
         const measureRounds = Number(measureRoundsElement.value);
         const measurement = new Measurement(warmupRounds, measureRounds);
-        const result = measurement.measure(algorithms[selectedAlgorithm]);
+        const result = measurement.measure(algorithms.get(selectedAlgorithm) as () => void);
         appendResult(result, resultLog, selectedAlgorithm, warmupRounds, measureRounds);
     });
 };

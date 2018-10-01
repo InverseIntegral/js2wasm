@@ -9,6 +9,26 @@ function sum(value1: number, value2: number): number {
     return value1 + value2;
 }
 
+function median(values: number[]): number {
+    if (values.length === 0) {
+        return 0;
+    }
+
+    if (values.length === 1) {
+        return values[0];
+    }
+
+    values.sort((a, b) => a - b);
+
+    const half = Math.floor(values.length / 2);
+
+    if (values.length % 2 === 0) {
+        return values[half];
+    } else {
+        return (values[half - 1] + values[half]) / 2;
+    }
+}
+
 function appendResult(result: [number[], number[]], log: HTMLElement,
                       selectedAlgorithm: string, warmupRounds: number, measureRounds: number) {
     const totalJsTime = result[0].reduce(sum, 0);
@@ -19,6 +39,10 @@ function appendResult(result: [number[], number[]], log: HTMLElement,
     log.innerText += 'Total JavaScript time: ' + totalJsTime + '\n';
     log.innerText += 'Total WebAssembly time: ' + totalWasmTime + '\n';
     log.innerText += 'Total time improvement: ' + (totalJsTime - totalWasmTime) + '\n';
+    log.innerText += 'Average JavaScript time: ' + (totalJsTime / measureRounds) + '\n';
+    log.innerText += 'Average WebAssembly time: ' + (totalWasmTime / measureRounds) + '\n';
+    log.innerText += 'JavaScript median: ' + median(result[0]) + '\n';
+    log.innerText += 'WebAssembly median: ' + median(result[1]) + '\n';
     log.innerText += 'Warmup rounds amount: ' + warmupRounds + '\n';
     log.innerText += 'Measure rounds amount: ' + measureRounds + '\n';
     log.innerText += '\n';

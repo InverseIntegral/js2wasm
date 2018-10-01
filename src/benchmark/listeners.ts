@@ -1,8 +1,18 @@
 import * as fibonacci from './cases/fibonacci';
+import * as newtonsMethod from './cases/newtons_method';
+import * as primeCounter from './cases/prime_counter';
+import * as quickSort from './cases/quicksort';
+import * as sumDoubles from './cases/sum_doubles';
+import * as sumIntegers from './cases/sum_integers';
 import Measurement from './Measurement';
 
 const algorithms: any = {
     fibonacci,
+    newtonsMethod,
+    primeCounter,
+    quickSort,
+    sumDoubles,
+    sumIntegers,
 };
 
 function sum(value1: number, value2: number): number {

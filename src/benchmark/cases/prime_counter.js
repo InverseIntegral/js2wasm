@@ -31,3 +31,10 @@ function countPrimes(max) {
 
     return counter;
 }
+
+
+function executePrimeCounter() {
+    countPrimes(100000);
+}
+
+module.exports = executePrimeCounter;

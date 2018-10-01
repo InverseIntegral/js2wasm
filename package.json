@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
-    "test": "mocha  --require ts-node/register \"test/**/*.ts\"",
+    "test": "mocha --require ts-node/register \"test/**/*.ts\"",
     "build": "webpack"
   },
   "repository": {

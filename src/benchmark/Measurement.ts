@@ -8,29 +8,29 @@ class Measurement {
         this.measureRounds = measureRounds;
     }
 
-    public executeMeasurement(jsAlgorithm: () => void): [number, number] {
+    public measure(jsAlgorithm: () => void): [number[], number[]] {
         this.executeAlgorithm(jsAlgorithm, this.warmupRounds);
-        const jsTime: number = this.measureTime(jsAlgorithm);
+        const jsTimes = this.executeAlgorithm(jsAlgorithm, this.measureRounds);
 
         // cross compile here
-        const wasmAlgorithm: () => void = jsAlgorithm; // change to cross compiled function
+        const wasmAlgorithm = jsAlgorithm; // change to cross compiled function
         this.executeAlgorithm(wasmAlgorithm, this.warmupRounds);
-        const wasmTime: number = this.measureTime(wasmAlgorithm);
+        const wasmTimes = this.executeAlgorithm(wasmAlgorithm, this.measureRounds);
 
-        return [jsTime, wasmTime];
+        return [jsTimes, wasmTimes];
     }
 
-    private measureTime(algorithm: () => void): number {
-        const startTime: number = Date.now();
-        this.executeAlgorithm(algorithm, this.measureRounds);
-        const endTime: number = Date.now();
-        return endTime - startTime;
-    }
+    private executeAlgorithm(algorithm: () => void, rounds: number): number[] {
+        const times: number[] = [];
 
-    private executeAlgorithm(algorithm: () => void, rounds: number): void {
         for (let i = 0; i < rounds; i++) {
+            const startTime: number = Date.now();
             algorithm();
+            const endTime: number = Date.now();
+            times.push(endTime - startTime);
         }
+
+        return times;
     }
 }
 

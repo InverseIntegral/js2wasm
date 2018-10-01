@@ -2,17 +2,20 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Measurement Webpage</title>
+        <title>Benchmark</title>
     </head>
     <body>
         <section>
-            <header>
-                <h1>Select an algorithm to measure it's speed</h1>
-            </header>
-            <select id="selected-algorithm">
-            </select>
-            <input id="warmup-rounds" value="5" />
-            <input id="measure-rounds" value="100" />
+            <select id="selected-algorithm"></select>
+            <br />
+            <label>Warmup Rounds
+                <input id="warmup-rounds" value="5" />
+            </label>
+            <br />
+            <label>Measure Rounds
+                <input id="measure-rounds" value="100" />
+            </label>
+            <br />
             <button id="start-measurement-button">Run</button>
         </section>
         <section>
@@ -22,6 +25,6 @@
             <span id="result-log"></span>
         </section>
 
-        <script src="bundle.js" type="module"></script>
+        <script src="bundle.js"></script>
     </body>
 </html>

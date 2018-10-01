@@ -1,1 +1,1 @@
-export function calculateFibonacci(): void;
+export default function calculateFibonacci(): void;

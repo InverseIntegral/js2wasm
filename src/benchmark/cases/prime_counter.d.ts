@@ -1,1 +1,1 @@
-export function executePrimeCounter(): void;
+export default function executePrimeCounter(): void;

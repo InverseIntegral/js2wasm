@@ -1,1 +1,1 @@
-export function sum(): void;
+export default function sum(): void;

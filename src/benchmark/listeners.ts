@@ -1,9 +1,9 @@
-import * as fibonacci from './cases/fibonacci';
-import * as newtonsMethod from './cases/newtons_method';
-import * as primeCounter from './cases/prime_counter';
-import * as quickSort from './cases/quicksort';
-import * as sumDoubles from './cases/sum_doubles';
-import * as sumIntegers from './cases/sum_integers';
+import fibonacci from './cases/fibonacci';
+import newtonsMethod from './cases/newtons_method';
+import primeCounter from './cases/prime_counter';
+import quickSort from './cases/quicksort';
+import sumDoubles from './cases/sum_doubles';
+import sumIntegers from './cases/sum_integers';
 import Measurement from './Measurement';
 
 const algorithms: any = {

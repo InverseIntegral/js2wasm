@@ -1,1 +1,1 @@
-export function executeQuickSort(): void;
+export default function executeQuickSort(): void;

@@ -11,19 +11,19 @@ import {
     traverse,
 } from '@babel/types';
 import {i32, Module} from 'binaryen';
-import VisitingState from './VisitingState';
+import VisitorState from './VisitorState';
 
 class Generator {
 
     private readonly module: Module;
 
     private parameterMapping: Map<string, number>;
-    private readonly state: VisitingState;
+    private readonly state: VisitorState;
 
     constructor() {
         this.module = new Module();
         this.parameterMapping = new Map<string, number>();
-        this.state = new VisitingState();
+        this.state = new VisitorState();
     }
 
     public generate(tree: FunctionExpression): Module {
@@ -57,7 +57,7 @@ class Generator {
         }, this);
     }
 
-    private visit(node: Node, _: TraversalAncestors, state: VisitingState) {
+    private visit(node: Node, _: TraversalAncestors, state: VisitorState) {
         if (isNumericLiteral(node)) {
             this.visitNumericLiteral(node.value, state);
         } else if (isIdentifier(node)) {
@@ -73,11 +73,11 @@ class Generator {
         }
     }
 
-    private visitNumericLiteral(value: number, state: VisitingState) {
+    private visitNumericLiteral(value: number, state: VisitorState) {
         state.expressions.push(this.module.i32.const(value));
     }
 
-    private visitIdentifier(name: string, state: VisitingState) {
+    private visitIdentifier(name: string, state: VisitorState) {
         const index = this.parameterMapping.get(name);
 
         if (index === undefined) {
@@ -87,11 +87,11 @@ class Generator {
         state.expressions.push(this.module.getLocal(index, i32));
     }
 
-    private visitReturn(state: VisitingState) {
+    private visitReturn(state: VisitorState) {
         state.statements.push(this.module.return(state.expressions.pop()));
     }
 
-    private visitBinaryExpression(operator: string, state: VisitingState) {
+    private visitBinaryExpression(operator: string, state: VisitorState) {
         const right = state.expressions.pop();
         const left = state.expressions.pop();
 
@@ -111,7 +111,7 @@ class Generator {
         }
     }
 
-    private visitBlockStatement(state: VisitingState) {
+    private visitBlockStatement(state: VisitorState) {
         state.body = this.module.block('', state.statements);
     }
 

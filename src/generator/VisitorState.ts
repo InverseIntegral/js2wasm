@@ -1,6 +1,6 @@
 import {Expression, Statement} from 'binaryen';
 
-class VisitingState {
+class VisitorState {
 
     public expressions: Expression[] = [];
     public statements: Statement[] = [];
@@ -8,4 +8,4 @@ class VisitingState {
 
 }
 
-export default VisitingState;
+export default VisitorState;

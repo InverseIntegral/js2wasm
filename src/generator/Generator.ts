@@ -18,12 +18,10 @@ class Generator {
     private readonly module: Module;
 
     private parameterMapping: Map<string, number>;
-    private readonly state: VisitorState;
 
     constructor() {
         this.module = new Module();
         this.parameterMapping = new Map<string, number>();
-        this.state = new VisitorState();
     }
 
     public generate(tree: FunctionExpression): Module {
@@ -39,11 +37,13 @@ class Generator {
         // Currently the function has to return an integer
         const functionType = this.module.addFunctionType(functionName, i32, params);
 
+        const visitorState = new VisitorState();
+
         traverse(tree.body, {
             exit: this.visit.bind(this),
-        }, this.state);
+        }, visitorState);
 
-        this.module.addFunction(functionName, functionType, [], this.state.body);
+        this.module.addFunction(functionName, functionType, [], visitorState.body);
         this.module.addFunctionExport(functionName, functionName);
 
         return this.module;

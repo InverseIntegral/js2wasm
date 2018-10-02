@@ -74,7 +74,7 @@ class Generator {
     }
 
     private visitNumericLiteral(value: number, state: VisitorState) {
-        state.expressions.push(this.module.i32.const(value));
+        state.expressionStack.push(this.module.i32.const(value));
     }
 
     private visitIdentifier(name: string, state: VisitorState) {
@@ -84,16 +84,16 @@ class Generator {
             throw new Error(`Unknown identifier ${name}`);
         }
 
-        state.expressions.push(this.module.getLocal(index, i32));
+        state.expressionStack.push(this.module.getLocal(index, i32));
     }
 
     private visitReturn(state: VisitorState) {
-        state.statements.push(this.module.return(state.expressions.pop()));
+        state.statements.push(this.module.return(state.expressionStack.pop()));
     }
 
     private visitBinaryExpression(operator: string, state: VisitorState) {
-        const right = state.expressions.pop();
-        const left = state.expressions.pop();
+        const right = state.expressionStack.pop();
+        const left = state.expressionStack.pop();
 
         if (left === undefined || right === undefined) {
             throw new Error('Malformed AST');
@@ -101,10 +101,10 @@ class Generator {
 
         switch (operator) {
             case '+':
-                state.expressions.push(this.module.i32.add(left, right));
+                state.expressionStack.push(this.module.i32.add(left, right));
                 break;
             case '-':
-                state.expressions.push(this.module.i32.sub(left, right));
+                state.expressionStack.push(this.module.i32.sub(left, right));
                 break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);

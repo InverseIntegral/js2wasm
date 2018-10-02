@@ -2,7 +2,7 @@ import {Expression, Statement} from 'binaryen';
 
 class VisitorState {
 
-    public expressions: Expression[] = [];
+    public expressionStack: Expression[] = [];
     public statements: Statement[] = [];
     public body: Statement;
 

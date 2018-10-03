@@ -45,3 +45,10 @@ function quickSort(items, left, right) {
 
     return items;
 }
+
+function executeQuickSort() {
+    let size = 10000;
+    quickSort([...Array(size).keys()].reverse(), 0, size);
+}
+
+module.exports = executeQuickSort;

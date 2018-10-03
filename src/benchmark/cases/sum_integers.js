@@ -9,3 +9,5 @@ function sum() {
 
     return sum;
 }
+
+module.exports = sum;

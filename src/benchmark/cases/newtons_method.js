@@ -16,3 +16,9 @@ function solve(iterations, initial) {
 
     return initial;
 }
+
+function calculateNewtonsMethod() {
+    solve(200, 32);
+}
+
+module.exports = calculateNewtonsMethod;

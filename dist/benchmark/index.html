@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Benchmark</title>
+    </head>
+    <body>
+        <section>
+            <select id="selected-algorithm"></select>
+            <br />
+            <label>Warmup Rounds
+                <input id="warmup-rounds" value="5" />
+            </label>
+            <br />
+            <label>Measure Rounds
+                <input id="measure-rounds" value="100" />
+            </label>
+            <br />
+            <button id="start-measurement-button">Run</button>
+        </section>
+        <section>
+            <header>
+                <h1>Result log</h1>
+            </header>
+            <span id="result-log"></span>
+        </section>
+
+        <script src="bundle.js"></script>
+    </body>
+</html>

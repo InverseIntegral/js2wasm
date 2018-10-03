@@ -30,5 +30,13 @@ describe('Transpiler', () => {
             const {sub} = Transpiler.transpile('function sub(a, b) { return (a + 3) - (b + 2); }');
             expect(sub(10, 2)).to.equal(9);
         });
+
+        it('should handle boolean literals', () => {
+            const {alwaysTrue} = Transpiler.transpile('function alwaysTrue() { return true; }');
+            expect(alwaysTrue()).to.equal(1);
+
+            const {alwaysFalse} = Transpiler.transpile('function alwaysFalse() { return false; }');
+            expect(alwaysFalse()).to.equal(0);
+        });
     });
 });

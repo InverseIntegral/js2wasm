@@ -1,7 +1,7 @@
 import {
     FunctionExpression,
     isBinaryExpression,
-    isBlockStatement,
+    isBlockStatement, isBooleanLiteral,
     isIdentifier,
     isNumericLiteral,
     isReturnStatement,
@@ -60,6 +60,8 @@ class Generator {
     private visit(node: Node, _: TraversalAncestors, state: VisitorState) {
         if (isNumericLiteral(node)) {
             this.visitNumericLiteral(node.value, state);
+        } else if (isBooleanLiteral(node)) {
+            this.visitBooleanLiteral(node.value, state);
         } else if (isIdentifier(node)) {
             this.visitIdentifier(node.name, state);
         } else if (isReturnStatement(node)) {
@@ -75,6 +77,10 @@ class Generator {
 
     private visitNumericLiteral(value: number, state: VisitorState) {
         state.expressionStack.push(this.module.i32.const(value));
+    }
+
+    private visitBooleanLiteral(value: boolean, state: VisitorState) {
+        state.expressionStack.push(this.module.i32.const(value ? 1 : 0));
     }
 
     private visitIdentifier(name: string, state: VisitorState) {
@@ -114,7 +120,6 @@ class Generator {
     private visitBlockStatement(state: VisitorState) {
         state.body = this.module.block('', state.statements);
     }
-
 }
 
 export default Generator;

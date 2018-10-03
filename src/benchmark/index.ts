@@ -23,26 +23,6 @@ function mean(values: number[]): number {
     return values.reduce(sum, 0) / values.length;
 }
 
-function median(values: number[]): number {
-    if (values.length === 0) {
-        return 0;
-    }
-
-    if (values.length === 1) {
-        return values[0];
-    }
-
-    values.sort((a, b) => a - b);
-
-    const half = Math.floor(values.length / 2);
-
-    if (values.length % 2 === 0) {
-        return values[half];
-    } else {
-        return (values[half - 1] + values[half]) / 2;
-    }
-}
-
 function variance(values: number[]): number {
     const m = mean(values);
     return mean(values.map((n) => Math.pow(n - m, 2)));
@@ -60,8 +40,6 @@ function appendResult(result: [number[], number[]], log: HTMLElement,
     log.innerText += 'Total time improvement: ' + (totalJsTime - totalWasmTime) + '\n';
     log.innerText += 'Average JavaScript time: ' + mean(result[0]) + '\n';
     log.innerText += 'Average WebAssembly time: ' + mean(result[1]) + '\n';
-    log.innerText += 'JavaScript median: ' + median(result[0]) + '\n';
-    log.innerText += 'WebAssembly median: ' + median(result[1]) + '\n';
     log.innerText += 'JavaScript variance: ' + variance(result[0]) + '\n';
     log.innerText += 'WebAssembly variance: ' + variance(result[1]) + '\n';
     log.innerText += 'Warmup rounds amount: ' + warmupRounds + '\n';

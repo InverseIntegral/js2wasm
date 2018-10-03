@@ -42,8 +42,6 @@ function appendResult(result: [number[], number[]], log: HTMLElement,
     log.innerText += 'Average WebAssembly time: ' + mean(result[1]) + '\n';
     log.innerText += 'JavaScript variance: ' + variance(result[0]) + '\n';
     log.innerText += 'WebAssembly variance: ' + variance(result[1]) + '\n';
-    log.innerText += 'Warmup rounds amount: ' + warmupRounds + '\n';
-    log.innerText += 'Measure rounds amount: ' + measureRounds + '\n';
     log.innerText += '\n';
     log.innerText += currentLogContent;
 }

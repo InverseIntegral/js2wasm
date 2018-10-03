@@ -24,8 +24,8 @@ function mean(values: number[]): number {
 }
 
 function variance(values: number[]): number {
-    const m = mean(values);
-    return mean(values.map((n) => Math.pow(n - m, 2)));
+    const meanValue = mean(values);
+    return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
 function appendResult(result: [number[], number[]], log: HTMLElement,

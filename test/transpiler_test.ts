@@ -25,5 +25,10 @@ describe('Transpiler', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);
         });
+
+        it('should handle parenthesis', () => {
+            const {sub} = Transpiler.transpile('function sub(a, b) { return (a + 3) - (b + 2); }');
+            expect(sub(10, 2)).to.equal(9);
+        });
     });
 });

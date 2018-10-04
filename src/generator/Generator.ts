@@ -1,8 +1,11 @@
 import {
     FunctionExpression,
+    IfStatement,
     isBinaryExpression,
-    isBlockStatement, isBooleanLiteral,
+    isBlockStatement,
+    isBooleanLiteral,
     isIdentifier,
+    isIfStatement,
     isNumericLiteral,
     isReturnStatement,
     LVal,
@@ -14,6 +17,16 @@ import {i32, Module} from 'binaryen';
 import VisitorState from './VisitorState';
 
 class Generator {
+
+    private static getImmediateParent(parent: TraversalAncestors): Node | undefined {
+        const last = parent[parent.length - 1];
+
+        if (last !== undefined) {
+            return last.node;
+        } else {
+            return undefined;
+        }
+    }
 
     private readonly module: Module;
 
@@ -57,7 +70,7 @@ class Generator {
         }, this);
     }
 
-    private visit(node: Node, _: TraversalAncestors, state: VisitorState) {
+    private visit(node: Node, parent: TraversalAncestors, state: VisitorState) {
         if (isNumericLiteral(node)) {
             this.visitNumericLiteral(node.value, state);
         } else if (isBooleanLiteral(node)) {
@@ -68,8 +81,10 @@ class Generator {
             this.visitReturn(state);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node.operator, state);
+        } else if (isIfStatement(node)) {
+            this.visitIfStatement(node, state);
         } else if (isBlockStatement(node)) {
-            this.visitBlockStatement(state);
+            this.visitBlockStatement(state, parent);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
@@ -117,8 +132,42 @@ class Generator {
         }
     }
 
-    private visitBlockStatement(state: VisitorState) {
-        state.body = this.module.block('', state.statements);
+    private visitIfStatement(node: IfStatement, state: VisitorState) {
+        const condition = state.expressionStack.pop();
+
+        if (condition === undefined) {
+            throw new Error('Malformed AST');
+        }
+
+        const branches = state.branches.get(node);
+
+        if (branches === undefined) {
+            throw new Error('Missing branch statement');
+        } else {
+            const [ifPart, elsePart] = branches;
+
+            const ifStatement = this.module.if(condition, ifPart, elsePart);
+            state.statements.push(ifStatement);
+        }
+    }
+
+    private visitBlockStatement(state: VisitorState, parent: TraversalAncestors) {
+        const block = this.module.block('', state.statements);
+        state.statements = []; // clear all current statements
+
+        const immediateParent = Generator.getImmediateParent(parent);
+
+        if (immediateParent !== undefined && isIfStatement(immediateParent)) {
+            const branches = state.branches.get(immediateParent);
+
+            if (branches === undefined) {
+                state.branches.set(immediateParent, [block, undefined]);
+            } else {
+                branches[1] = block;
+            }
+        } else {
+            state.body = block;
+        }
     }
 }
 

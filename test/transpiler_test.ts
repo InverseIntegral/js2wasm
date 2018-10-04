@@ -26,6 +26,12 @@ describe('Transpiler', () => {
             expect(answer()).to.equal(42);
         });
 
+        it('should return correct boolean value', () => {
+            const {id} = Transpiler.transpile('function id(a) { return a; }');
+            expect(id(true)).to.equal(1);
+            expect(id(false)).to.equal(0);
+        });
+
         it('should handle parenthesis', () => {
             const {sub} = Transpiler.transpile('function sub(a, b) { return (a + 3) - (b + 2); }');
             expect(sub(10, 2)).to.equal(9);
@@ -37,6 +43,22 @@ describe('Transpiler', () => {
 
             const {alwaysFalse} = Transpiler.transpile('function alwaysFalse() { return false; }');
             expect(alwaysFalse()).to.equal(0);
+        });
+
+        it('should handle if else statements', () => {
+            const content = 'function alwaysOne() { if (false) { return 100; } else { return 1; } }';
+            const {alwaysOne} = Transpiler.transpile(content);
+            expect(alwaysOne()).to.equal(1);
+        });
+
+        it('should handle if statements without else part', () => {
+            const content = 'function alwaysOne() { if (false) { return 100; } return 1; }';
+            const {alwaysOne} = Transpiler.transpile(content);
+            expect(alwaysOne()).to.equal(1);
+
+            const content2 = 'function alwaysTwo() { if (true) { return 2; } return 1; }';
+            const {alwaysTwo} = Transpiler.transpile(content2);
+            expect(alwaysTwo()).to.equal(2);
         });
     });
 });

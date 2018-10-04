@@ -1,13 +1,15 @@
 import { expect } from 'chai';
-import WasmInstance from '../../../../src/examples/add/browser/WasmInstance';
+import Core from '../../src/example/Core';
+import WasmInstance from '../../src/example/WasmInstance';
 
 let instance: WasmInstance;
 
 beforeEach('Setting up the WasmInstance', () => {
-    instance = new WasmInstance();
+    const core = new Core();
+    instance = new WasmInstance(core.binaryArray);
 });
 
-describe('Direct binary code add example', () => {
+describe('Binaryen created add example', () => {
     it('Add two positive numbers', () => {
         expect(instance.add(21, 21)).to.equal(42);
     });

@@ -70,6 +70,34 @@ describe('Transpiler', () => {
             expect(div(3, 10, 5)).to.equal(1);
         });
 
+        it('should handle modulo', () => {
+            const {mod} = Transpiler.transpile('function mod(a, b) { return a % b }');
+
+            expect(mod(1, 2)).to.equal(1);
+            expect(mod(10, 2)).to.equal(0);
+            expect(mod(-10, 2)).to.equal(0);
+            expect(mod(NaN, 2)).to.equal(0);
+        });
+
+        it('should handle modulo by 0', () => {
+            const {mod} = Transpiler.transpile('function mod(a, b) { return a % b }');
+
+            expect(() => mod(2, 0)).to.throw();
+            expect(() => mod(2, NaN)).to.throw();
+        });
+
+        it('should handle modulo before addition', () => {
+            const {mod} = Transpiler.transpile('function mod(a, b, c) { return a + b % c }');
+
+            expect(mod(3, 10, 6)).to.equal(7);
+        });
+
+        it('should handle modulo before subtraction', () => {
+            const {mod} = Transpiler.transpile('function mod(a, b, c) { return a - b % c }');
+
+            expect(mod(3, 10, 6)).to.equal(-1);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

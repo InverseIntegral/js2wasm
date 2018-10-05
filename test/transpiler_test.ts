@@ -112,6 +112,16 @@ describe('Transpiler', () => {
             expect(neq(3, 3)).to.equal(0);
         });
 
+        it('should handle less than', () => {
+            const {lt} = Transpiler.transpile('function lt(a, b) { return a < b }');
+
+            expect(lt(3, 2)).to.equal(0);
+            expect(lt(3, 3)).to.equal(0);
+            expect(lt(3, 4)).to.equal(1);
+            expect(lt(-3, -4)).to.equal(0);
+            expect(lt(-4, -3)).to.equal(1);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

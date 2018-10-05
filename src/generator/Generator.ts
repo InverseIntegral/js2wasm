@@ -121,6 +121,9 @@ class Generator {
             case '!=':
                 state.expressionStack.push(this.module.i32.ne(left, right));
                 break;
+            case '<':
+                state.expressionStack.push(this.module.i32.lt_s(left, right));
+                break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);
         }

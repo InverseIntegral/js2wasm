@@ -98,6 +98,13 @@ describe('Transpiler', () => {
             expect(mod(3, 10, 6)).to.equal(-1);
         });
 
+        it('should handle equality', () => {
+            const {eq} = Transpiler.transpile('function eq(a, b) { return a == b }');
+
+            expect(eq(3, 3)).to.equal(1);
+            expect(eq(3, 2)).to.equal(0);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

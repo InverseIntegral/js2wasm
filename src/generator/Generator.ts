@@ -115,6 +115,9 @@ class Generator {
             case '%':
                 state.expressionStack.push(this.module.i32.rem_s(left, right));
                 break;
+            case '==':
+                state.expressionStack.push(this.module.i32.eq(left, right));
+                break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);
         }

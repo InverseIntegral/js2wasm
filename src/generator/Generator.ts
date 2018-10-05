@@ -82,7 +82,7 @@ class Generator {
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node.operator, state);
         } else if (isIfStatement(node)) {
-            this.visitIfStatement(node, state);
+            this.visitIfStatement(node, parent, state);
         } else if (isBlockStatement(node)) {
             this.visitBlockStatement(state, parent);
         } else {
@@ -132,21 +132,33 @@ class Generator {
         }
     }
 
-    private visitIfStatement(node: IfStatement, state: VisitorState) {
+    private visitIfStatement(node: IfStatement, parent: TraversalAncestors, state: VisitorState) {
         const condition = state.expressionStack.pop();
 
         if (condition === undefined) {
-            throw new Error('Malformed AST');
+            throw new Error('Undefined condition in if statement');
         }
 
         const branches = state.branches.get(node);
 
         if (branches === undefined) {
             throw new Error('Missing branch statement');
-        } else {
-            const [ifPart, elsePart] = branches;
+        }
 
-            const ifStatement = this.module.if(condition, ifPart, elsePart);
+        const [ifPart, elsePart] = branches;
+        const ifStatement = this.module.if(condition, ifPart, elsePart);
+        const immediateParent = Generator.getImmediateParent(parent);
+
+        if (immediateParent !== undefined && isIfStatement(immediateParent)) {
+            const parentBranches = state.branches.get(immediateParent);
+
+            if (parentBranches === undefined) {
+                throw Error('Parent branches are undefined');
+            }
+
+            parentBranches[1] = ifStatement;
+            state.branches.set(immediateParent, parentBranches);
+        } else {
             state.statements.push(ifStatement);
         }
     }
@@ -158,15 +170,15 @@ class Generator {
         const immediateParent = Generator.getImmediateParent(parent);
 
         if (immediateParent !== undefined && isIfStatement(immediateParent)) {
-            const branches = state.branches.get(immediateParent);
+            const parentBranches = state.branches.get(immediateParent);
 
-            if (branches === undefined) {
+            if (parentBranches === undefined) {
                 state.branches.set(immediateParent, [block, undefined]);
             } else {
-                branches[1] = block;
+                parentBranches[1] = block;
             }
         } else {
-            state.body = block;
+            state.body = block; // top statement block
         }
     }
 }

@@ -17,6 +17,13 @@ describe('Transpiler', () => {
             expect(func(-2)).to.equal(-38);
         });
 
+        it('should handle unary not', () => {
+            const {func} = Transpiler.transpile('function func(a) { return !a }');
+
+            expect(func(1)).to.equal(0);
+            expect(func(0)).to.equal(1);
+        });
+
         it('should handle addition', () => {
             const {add} = Transpiler.transpile('function add(a, b) { return a + b; }');
 

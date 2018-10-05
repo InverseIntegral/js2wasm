@@ -10,6 +10,13 @@ describe('Transpiler', () => {
             expect(func(-2)).to.equal(38);
         });
 
+        it('should handle unary minus', () => {
+            const {func} = Transpiler.transpile('function func(a) { return -a + -40 }');
+
+            expect(func(2)).to.equal(-42);
+            expect(func(-2)).to.equal(-38);
+        });
+
         it('should handle addition', () => {
             const {add} = Transpiler.transpile('function add(a, b) { return a + b; }');
 

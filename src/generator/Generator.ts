@@ -105,6 +105,9 @@ class Generator {
             case '+':
                 state.expressionStack.push(expression);
                 break;
+            case '-':
+                state.expressionStack.push(this.module.i32.sub(this.module.i32.const(0), expression));
+                break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);
         }

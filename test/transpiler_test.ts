@@ -21,6 +21,27 @@ describe('Transpiler', () => {
             expect(sub(NaN, 2)).to.equal(-2);
         });
 
+        it('should handle multiplication', () => {
+            const {mul} = Transpiler.transpile('function mul(a, b) { return a * b }');
+
+            expect(mul(1, 2)).to.equal(2);
+            expect(mul(10, 2)).to.equal(20);
+            expect(mul(-10, 2)).to.equal(-20);
+            expect(mul(NaN, 2)).to.equal(0);
+        });
+
+        it('should handle multiplication before addition', () => {
+            const {mul} = Transpiler.transpile('function mul(a, b, c) { return a + b * c }');
+
+            expect(mul(3, 2, 5)).to.equal(13);
+        });
+
+        it('should handle multiplication before subtraction', () => {
+            const {mul} = Transpiler.transpile('function mul(a, b, c) { return a - b * c }');
+
+            expect(mul(3, 2, 5)).to.equal(-7);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

@@ -142,6 +142,16 @@ describe('Transpiler', () => {
             expect(gt(-4, -3)).to.equal(0);
         });
 
+        it('should handle greater than or equal to', () => {
+            const {ge} = Transpiler.transpile('function ge(a, b) { return a >= b }');
+
+            expect(ge(3, 2)).to.equal(1);
+            expect(ge(3, 3)).to.equal(1);
+            expect(ge(3, 4)).to.equal(0);
+            expect(ge(-3, -4)).to.equal(1);
+            expect(ge(-4, -3)).to.equal(0);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

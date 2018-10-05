@@ -3,6 +3,13 @@ import Transpiler from '../src/Transpiler';
 
 describe('Transpiler', () => {
     describe('#transpile()', () => {
+        it('should handle unary plus', () => {
+            const {func} = Transpiler.transpile('function func(a) { return +a + +40 }');
+
+            expect(func(2)).to.equal(42);
+            expect(func(-2)).to.equal(38);
+        });
+
         it('should handle addition', () => {
             const {add} = Transpiler.transpile('function add(a, b) { return a + b; }');
 

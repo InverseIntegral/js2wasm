@@ -5,6 +5,7 @@ import {
     isIdentifier,
     isNumericLiteral,
     isReturnStatement,
+    isUnaryExpression,
     LVal,
     Node,
     TraversalAncestors,
@@ -64,6 +65,8 @@ class Generator {
             this.visitIdentifier(node.name, state);
         } else if (isReturnStatement(node)) {
             this.visitReturn(state);
+        } else if (isUnaryExpression(node)) {
+            this.visitUnaryExpression(node.operator, state);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node.operator, state);
         } else if (isBlockStatement(node)) {
@@ -89,6 +92,22 @@ class Generator {
 
     private visitReturn(state: VisitorState) {
         state.statements.push(this.module.return(state.expressionStack.pop()));
+    }
+
+    private visitUnaryExpression(operator: string, state: VisitorState) {
+        const expression = state.expressionStack.pop();
+
+        if (expression === undefined) {
+            throw new Error('Malformed AST');
+        }
+
+        switch (operator) {
+            case '+':
+                state.expressionStack.push(expression);
+                break;
+            default:
+                throw new Error(`Unhandled operator ${operator}`);
+        }
     }
 
     private visitBinaryExpression(operator: string, state: VisitorState) {

@@ -95,22 +95,22 @@ class Generator {
     }
 
     private visitUnaryExpression(operator: string, state: VisitorState) {
-        const expression = state.expressionStack.pop();
+        const operand = state.expressionStack.pop();
 
-        if (expression === undefined) {
+        if (operand === undefined) {
             throw new Error('Malformed AST');
         }
 
         switch (operator) {
             case '+':
-                state.expressionStack.push(expression);
+                state.expressionStack.push(operand);
                 break;
             case '-':
-                state.expressionStack.push(this.module.i32.sub(this.module.i32.const(0), expression));
+                state.expressionStack.push(this.module.i32.sub(this.module.i32.const(0), operand));
                 break;
             case '!':
                 state.expressionStack.push(this.module.i32.rem_s(
-                    this.module.i32.add(expression, this.module.i32.const(1)), this.module.i32.const(2)));
+                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
                 break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);

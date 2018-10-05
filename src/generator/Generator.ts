@@ -116,7 +116,7 @@ class Generator {
         const left = state.expressionStack.pop();
 
         if (left === undefined || right === undefined) {
-            throw new Error('Malformed AST');
+            throw new Error('Left or right expression of binary operation is undefined');
         }
 
         switch (operator) {

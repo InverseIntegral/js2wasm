@@ -42,6 +42,34 @@ describe('Transpiler', () => {
             expect(mul(3, 2, 5)).to.equal(-7);
         });
 
+        it('should handle division', () => {
+            const {div} = Transpiler.transpile('function div(a, b) { return a / b }');
+
+            expect(div(1, 2)).to.equal(0);
+            expect(div(10, 2)).to.equal(5);
+            expect(div(-10, 2)).to.equal(-5);
+            expect(div(NaN, 2)).to.equal(0);
+        });
+
+        it('should handle division by 0', () => {
+            const {div} = Transpiler.transpile('function div(a, b) { return a / b }');
+
+            expect(() => div(2, 0)).to.throw();
+            expect(() => div(2, NaN)).to.throw();
+        });
+
+        it('should handle division before addition', () => {
+            const {div} = Transpiler.transpile('function div(a, b, c) { return a + b / c }');
+
+            expect(div(3, 10, 5)).to.equal(5);
+        });
+
+        it('should handle division before subtraction', () => {
+            const {div} = Transpiler.transpile('function div(a, b, c) { return a - b / c }');
+
+            expect(div(3, 10, 5)).to.equal(1);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

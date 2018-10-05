@@ -109,6 +109,9 @@ class Generator {
             case '*':
                 state.expressionStack.push(this.module.i32.mul(left, right));
                 break;
+            case '/':
+                state.expressionStack.push(this.module.i32.div_s(left, right));
+                break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);
         }

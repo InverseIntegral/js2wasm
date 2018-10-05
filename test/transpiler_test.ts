@@ -105,6 +105,13 @@ describe('Transpiler', () => {
             expect(eq(3, 2)).to.equal(0);
         });
 
+        it('should handle inequality', () => {
+            const {neq} = Transpiler.transpile('function neq(a, b) { return a != b }');
+
+            expect(neq(3, 2)).to.equal(1);
+            expect(neq(3, 3)).to.equal(0);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

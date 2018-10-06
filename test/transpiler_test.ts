@@ -62,7 +62,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle else if statements', () => {
-            const content = 'function elseIf(a, b) { if (a) { return 0; } else if (b) { return 1;} return 2; }';
+            const content = 'function elseIf(a, b) { if (a) { return 0; } else if (b) { return 1; } return 2; }';
             const {elseIf} = Transpiler.transpile(content);
 
             expect(elseIf(true, false)).to.equal(0);

@@ -15,7 +15,7 @@ import {
     traverse,
 } from '@babel/types';
 import {i32, Module} from 'binaryen';
-import VisitorState from './VisitorState';
+import VisitorState from './visitor_state';
 
 class Generator {
 

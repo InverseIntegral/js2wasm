@@ -4,7 +4,7 @@ import primeCounter from './cases/prime_counter';
 import quickSort from './cases/quicksort';
 import sumDoubles from './cases/sum_doubles';
 import sumIntegers from './cases/sum_integers';
-import Measurement from './Measurement';
+import Measurement from './measurement';
 
 const algorithms = new Map<string, () => void>([
     ['Fibonacci', fibonacci],

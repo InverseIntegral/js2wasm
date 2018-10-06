@@ -17,6 +17,12 @@ describe('Transpiler', () => {
             expect(func(-2)).to.equal(-38);
         });
 
+        it('should handle multiple consecutive unary operators', () => {
+            const {func} = Transpiler.transpile('function func(a) { return a + -+-+-40 }');
+
+            expect(func(2)).to.equal(-38);
+        });
+
         it('should handle unary not', () => {
             const {func} = Transpiler.transpile('function func(a) { return !a }');
 

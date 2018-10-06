@@ -156,7 +156,6 @@ class Generator {
             }
 
             parentBranches[1] = ifStatement;
-            state.branches.set(immediateParent, parentBranches);
         } else {
             state.statements.push(ifStatement);
         }

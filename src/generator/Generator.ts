@@ -1,8 +1,11 @@
 import {
     FunctionExpression,
+    IfStatement,
     isBinaryExpression,
     isBlockStatement,
+    isBooleanLiteral,
     isIdentifier,
+    isIfStatement,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
@@ -16,13 +19,22 @@ import VisitorState from './VisitorState';
 
 class Generator {
 
-    private readonly module: Module;
+    private static getImmediateParent(parent: TraversalAncestors): Node | undefined {
+        const last = parent[parent.length - 1];
 
+        if (last !== undefined) {
+            return last.node;
+        } else {
+            return undefined;
+        }
+    }
+
+    private readonly module: Module;
     private parameterMapping: Map<string, number>;
 
     constructor() {
         this.module = new Module();
-        this.parameterMapping = new Map<string, number>();
+        this.parameterMapping = new Map();
     }
 
     public generate(tree: FunctionExpression): Module {
@@ -31,12 +43,12 @@ class Generator {
         }
 
         const functionName = tree.id.name;
-        const params = new Array(tree.params.length).fill(i32);
+        const parameters = new Array(tree.params.length).fill(i32);
 
         this.setParameterMappings(tree.params);
 
         // Currently the function has to return an integer
-        const functionType = this.module.addFunctionType(functionName, i32, params);
+        const functionType = this.module.addFunctionType(functionName, i32, parameters);
 
         const visitorState = new VisitorState();
 
@@ -58,9 +70,11 @@ class Generator {
         }, this);
     }
 
-    private visit(node: Node, _: TraversalAncestors, state: VisitorState) {
+    private visit(node: Node, parent: TraversalAncestors, state: VisitorState) {
         if (isNumericLiteral(node)) {
             this.visitNumericLiteral(node.value, state);
+        } else if (isBooleanLiteral(node)) {
+            this.visitBooleanLiteral(node.value, state);
         } else if (isIdentifier(node)) {
             this.visitIdentifier(node.name, state);
         } else if (isReturnStatement(node)) {
@@ -69,8 +83,10 @@ class Generator {
             this.visitUnaryExpression(node.operator, state);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node.operator, state);
+        } else if (isIfStatement(node)) {
+            this.visitIfStatement(node, parent, state);
         } else if (isBlockStatement(node)) {
-            this.visitBlockStatement(state);
+            this.visitBlockStatement(state, parent);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
@@ -78,6 +94,10 @@ class Generator {
 
     private visitNumericLiteral(value: number, state: VisitorState) {
         state.expressionStack.push(this.module.i32.const(value));
+    }
+
+    private visitBooleanLiteral(value: boolean, state: VisitorState) {
+        state.expressionStack.push(this.module.i32.const(value ? 1 : 0));
     }
 
     private visitIdentifier(name: string, state: VisitorState) {
@@ -122,7 +142,7 @@ class Generator {
         const left = state.expressionStack.pop();
 
         if (left === undefined || right === undefined) {
-            throw new Error('Malformed AST');
+            throw new Error('Left or right expression of binary operation is undefined');
         }
 
         switch (operator) {
@@ -132,15 +152,86 @@ class Generator {
             case '-':
                 state.expressionStack.push(this.module.i32.sub(left, right));
                 break;
+            case '*':
+                state.expressionStack.push(this.module.i32.mul(left, right));
+                break;
+            case '/':
+                state.expressionStack.push(this.module.i32.div_s(left, right));
+                break;
+            case '%':
+                state.expressionStack.push(this.module.i32.rem_s(left, right));
+                break;
+            case '==':
+                state.expressionStack.push(this.module.i32.eq(left, right));
+                break;
+            case '!=':
+                state.expressionStack.push(this.module.i32.ne(left, right));
+                break;
+            case '<':
+                state.expressionStack.push(this.module.i32.lt_s(left, right));
+                break;
+            case '<=':
+                state.expressionStack.push(this.module.i32.le_s(left, right));
+                break;
+            case '>':
+                state.expressionStack.push(this.module.i32.gt_s(left, right));
+                break;
+            case '>=':
+                state.expressionStack.push(this.module.i32.ge_s(left, right));
+                break;
             default:
                 throw new Error(`Unhandled operator ${operator}`);
         }
     }
 
-    private visitBlockStatement(state: VisitorState) {
-        state.body = this.module.block('', state.statements);
+    private visitIfStatement(node: IfStatement, parent: TraversalAncestors, state: VisitorState) {
+        const condition = state.expressionStack.pop();
+
+        if (condition === undefined) {
+            throw new Error('Undefined condition in if statement');
+        }
+
+        const branches = state.branches.get(node);
+
+        if (branches === undefined) {
+            throw new Error('Missing branch statement');
+        }
+
+        const [ifPart, elsePart] = branches;
+        const ifStatement = this.module.if(condition, ifPart, elsePart);
+        const immediateParent = Generator.getImmediateParent(parent);
+
+        if (immediateParent !== undefined && isIfStatement(immediateParent)) {
+            const parentBranches = state.branches.get(immediateParent);
+
+            if (parentBranches === undefined) {
+                throw Error('Parent branches are undefined');
+            }
+
+            parentBranches[1] = ifStatement;
+        } else {
+            state.statements.push(ifStatement);
+        }
     }
 
+    private visitBlockStatement(state: VisitorState, parent: TraversalAncestors) {
+        const block = this.module.block('', state.statements);
+        state.statements = []; // clear all current statements
+
+        const immediateParent = Generator.getImmediateParent(parent);
+
+        if (immediateParent !== undefined && isIfStatement(immediateParent)) {
+            const parentBranches = state.branches.get(immediateParent);
+
+            if (parentBranches === undefined) {
+                state.branches.set(immediateParent, [block, undefined]);
+            } else {
+                parentBranches[1] = block;
+            }
+        } else {
+            state.body = block; // top statement block
+        }
+    }
 }
 
 export default Generator;

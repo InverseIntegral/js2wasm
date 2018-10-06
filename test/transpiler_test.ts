@@ -26,8 +26,8 @@ describe('Transpiler', () => {
         it('should handle unary not', () => {
             const {func} = Transpiler.transpile('function func(a) { return !a; }');
 
-            expect(func(1)).to.equal(0);
-            expect(func(0)).to.equal(1);
+            expect(func(true)).to.equal(0);
+            expect(func(false)).to.equal(1);
         });
 
         it('should handle addition', () => {

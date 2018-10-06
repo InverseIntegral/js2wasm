@@ -8,6 +8,7 @@ import {
     isIfStatement,
     isNumericLiteral,
     isReturnStatement,
+    isUnaryExpression,
     LVal,
     Node,
     TraversalAncestors,
@@ -78,6 +79,8 @@ class Generator {
             this.visitIdentifier(node.name, state);
         } else if (isReturnStatement(node)) {
             this.visitReturn(state);
+        } else if (isUnaryExpression(node)) {
+            this.visitUnaryExpression(node.operator, state);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node.operator, state);
         } else if (isIfStatement(node)) {
@@ -109,6 +112,29 @@ class Generator {
 
     private visitReturn(state: VisitorState) {
         state.statements.push(this.module.return(state.expressionStack.pop()));
+    }
+
+    private visitUnaryExpression(operator: string, state: VisitorState) {
+        const operand = state.expressionStack.pop();
+
+        if (operand === undefined) {
+            throw new Error('Malformed AST');
+        }
+
+        switch (operator) {
+            case '+':
+                state.expressionStack.push(operand);
+                break;
+            case '-':
+                state.expressionStack.push(this.module.i32.sub(this.module.i32.const(0), operand));
+                break;
+            case '!':
+                state.expressionStack.push(this.module.i32.rem_s(
+                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${operator}`);
+        }
     }
 
     private visitBinaryExpression(operator: string, state: VisitorState) {

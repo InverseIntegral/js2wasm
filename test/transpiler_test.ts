@@ -4,27 +4,27 @@ import Transpiler from '../src/Transpiler';
 describe('Transpiler', () => {
     describe('#transpile()', () => {
         it('should handle unary plus', () => {
-            const {func} = Transpiler.transpile('function func(a) { return +a + +40 }');
+            const {func} = Transpiler.transpile('function func(a) { return +a + +40; }');
 
             expect(func(2)).to.equal(42);
             expect(func(-2)).to.equal(38);
         });
 
         it('should handle unary minus', () => {
-            const {func} = Transpiler.transpile('function func(a) { return -a + -40 }');
+            const {func} = Transpiler.transpile('function func(a) { return -a + -40; }');
 
             expect(func(2)).to.equal(-42);
             expect(func(-2)).to.equal(-38);
         });
 
         it('should handle multiple consecutive unary operators', () => {
-            const {func} = Transpiler.transpile('function func(a) { return a + -+-+-40 }');
+            const {func} = Transpiler.transpile('function func(a) { return a + -+-+-40; }');
 
             expect(func(2)).to.equal(-38);
         });
 
         it('should handle unary not', () => {
-            const {func} = Transpiler.transpile('function func(a) { return !a }');
+            const {func} = Transpiler.transpile('function func(a) { return !a; }');
 
             expect(func(1)).to.equal(0);
             expect(func(0)).to.equal(1);

@@ -1,5 +1,5 @@
-import Generator from './generator/Generator';
-import Parser from './parser/Parser';
+import Generator from './generator/generator';
+import Parser from './parser/parser';
 
 class Transpiler {
 

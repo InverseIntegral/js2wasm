@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import Transpiler from '../src/Transpiler';
+import Transpiler from '../src/transpiler';
 
 describe('Transpiler', () => {
     describe('#transpile()', () => {

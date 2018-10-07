@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import Core from '../../src/example/Core';
-import WasmInstance from '../../src/example/WasmInstance';
+import Core from '../../src/example/core';
+import WasmInstance from '../../src/example/wasm_instance';
 
 let instance: WasmInstance;
 

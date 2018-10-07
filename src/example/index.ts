@@ -1,5 +1,5 @@
-import Core from './Core';
-import WasmInstance from './WasmInstance';
+import Core from './core';
+import WasmInstance from './wasm_instance';
 
 function appendStatistics(core: Core, wasmInstance: WasmInstance) {
     const unoptimizedEmitTextElement = document.getElementById('unoptimized-emit-text') as HTMLElement;

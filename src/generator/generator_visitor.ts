@@ -16,7 +16,7 @@ class GeneratorVisitor extends Visitor {
     private readonly module: Module;
     private readonly parameterMapping: Map<string, number>;
 
-    private statements: Statement[] = [];
+    private statements: Statement[][] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
@@ -51,7 +51,8 @@ class GeneratorVisitor extends Visitor {
             this.visit(argument);
         }
 
-        this.statements.push(this.module.return(this.expressions.pop()));
+        const returnStatement = this.module.return(this.expressions.pop());
+        this.statements[this.statements.length - 1].push(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
@@ -146,16 +147,25 @@ class GeneratorVisitor extends Visitor {
         }
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
-        this.statements.push(ifStatement);
+
+        this.statements[this.statements.length - 1].push(ifStatement);
+        this.currentBlock = ifStatement;
     }
 
     protected visitBlockStatement(node: BlockStatement) {
+        this.statements.push([]);
+
         for (const statement of node.body) {
             this.visit(statement);
         }
 
-        this.currentBlock = this.module.block('', this.statements);
-        this.statements = [];
+        const statements = this.statements.pop();
+
+        if (statements === undefined) {
+            throw new Error('Statement stack is empty');
+        }
+
+        this.currentBlock = this.module.block('', statements);
     }
 
 }

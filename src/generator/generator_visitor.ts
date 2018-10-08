@@ -49,7 +49,27 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
+        this.visit(node.argument);
+        const operand = this.expressions.pop();
 
+        if (operand === undefined) {
+            throw new Error('Malformed AST');
+        }
+
+        switch (node.operator) {
+            case '+':
+                this.expressions.push(operand);
+                break;
+            case '-':
+                this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
+                break;
+            case '!':
+                this.expressions.push(this.module.i32.rem_s(
+                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {

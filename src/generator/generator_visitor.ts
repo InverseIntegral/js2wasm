@@ -3,7 +3,7 @@ import {
     BlockStatement,
     BooleanLiteral, FunctionExpression,
     Identifier,
-    IfStatement,
+    IfStatement, isIfStatement,
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
@@ -149,6 +149,11 @@ class GeneratorVisitor extends Visitor {
         if (node.alternate !== null) {
             this.visit(node.alternate);
             elsePart = this.currentBlock;
+
+            // If the else part is an IfStatementNode then we can remove the statement
+            if (isIfStatement(node.alternate)) {
+                this.statements[this.statements.length - 1].pop();
+            }
         }
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);

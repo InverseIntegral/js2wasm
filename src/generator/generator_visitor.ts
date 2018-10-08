@@ -51,7 +51,7 @@ class GeneratorVisitor extends Visitor {
             this.visit(argument);
         }
 
-        this.module.return(this.expressions.pop());
+        this.statements.push(this.module.return(this.expressions.pop()));
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {

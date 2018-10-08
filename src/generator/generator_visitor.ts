@@ -17,7 +17,7 @@ class GeneratorVisitor extends Visitor {
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
-
+    private currentBlock: Statement;
 
     constructor(module: Module) {
         super();
@@ -49,11 +49,34 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIfStatement(node: IfStatement) {
+        this.visit(node.test);
+        const condition = this.expressions.pop();
 
+        if (condition === undefined) {
+            throw new Error('Missing condition expression');
+        }
+
+        this.visit(node.consequent);
+
+        const ifPart = this.currentBlock;
+        let elsePart;
+
+        if (node.alternate !== null) {
+            this.visit(node.alternate);
+            elsePart = this.currentBlock;
+        }
+
+        const ifStatement = this.module.if(condition, ifPart, elsePart);
+        this.statements.push(ifStatement);
     }
 
     protected visitBlockStatement(node: BlockStatement) {
+        for (const statement of node.body) {
+            this.visit(statement);
+        }
 
+        this.currentBlock = this.module.block('', this.statements);
+        this.statements = [];
     }
 
 }

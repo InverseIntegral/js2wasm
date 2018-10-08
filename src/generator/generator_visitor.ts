@@ -8,28 +8,36 @@ import {
     ReturnStatement,
     UnaryExpression,
 } from '@babel/types';
-import {Expression, Module, Statement} from 'binaryen';
+import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
+    private readonly parameterMapping: Map<string, number>;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
-    constructor(module: Module) {
+    constructor(module: Module, parameterMapping: Map<string, number>) {
         super();
         this.module = module;
+        this.parameterMapping = parameterMapping;
     }
 
     protected visitIdentifier(node: Identifier) {
+        const index = this.parameterMapping.get(name);
 
+        if (index === undefined) {
+            throw new Error(`Unknown identifier ${name}`);
+        }
+
+        this.expressions.push(this.module.getLocal(index, i32));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-
+        this.expressions.push(this.module.i32.const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -47,11 +55,76 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
+        this.visit(node.argument);
+        const operand = this.expressions.pop();
 
+        if (operand === undefined) {
+            throw new Error('Malformed AST');
+        }
+
+        switch (node.operator) {
+            case '+':
+                this.expressions.push(operand);
+                break;
+            case '-':
+                this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
+                break;
+            case '!':
+                this.expressions.push(this.module.i32.rem_s(
+                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {
+        this.visit(node.left);
+        this.visit(node.right);
+        const right = this.expressions.pop();
+        const left = this.expressions.pop();
 
+        if (left === undefined || right === undefined) {
+            throw new Error('Left or right expression of binary operation is undefined');
+        }
+
+        switch (node.operator) {
+            case '+':
+                this.expressions.push(this.module.i32.add(left, right));
+                break;
+            case '-':
+                this.expressions.push(this.module.i32.sub(left, right));
+                break;
+            case '*':
+                this.expressions.push(this.module.i32.mul(left, right));
+                break;
+            case '/':
+                this.expressions.push(this.module.i32.div_s(left, right));
+                break;
+            case '%':
+                this.expressions.push(this.module.i32.rem_s(left, right));
+                break;
+            case '==':
+                this.expressions.push(this.module.i32.eq(left, right));
+                break;
+            case '!=':
+                this.expressions.push(this.module.i32.ne(left, right));
+                break;
+            case '<':
+                this.expressions.push(this.module.i32.lt_s(left, right));
+                break;
+            case '<=':
+                this.expressions.push(this.module.i32.le_s(left, right));
+                break;
+            case '>':
+                this.expressions.push(this.module.i32.gt_s(left, right));
+                break;
+            case '>=':
+                this.expressions.push(this.module.i32.ge_s(left, right));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     protected visitIfStatement(node: IfStatement) {

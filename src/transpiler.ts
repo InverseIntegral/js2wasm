@@ -5,7 +5,7 @@ class Transpiler {
 
     public static transpile(content: string) {
         const tree = Parser.parse(content);
-        const module = new Generator().generate(tree);
+        const module = Generator.generate(tree);
 
         module.optimize();
 

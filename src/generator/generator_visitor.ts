@@ -27,10 +27,10 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.parameterMapping.get(name);
+        const index = this.parameterMapping.get(node.name);
 
         if (index === undefined) {
-            throw new Error(`Unknown identifier ${name}`);
+            throw new Error(`Unknown identifier ${node.name}`);
         }
 
         this.expressions.push(this.module.getLocal(index, i32));

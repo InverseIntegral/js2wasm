@@ -37,7 +37,13 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitReturnStatement(node: ReturnStatement) {
+        const argument = node.argument;
 
+        if (argument !== null) {
+            this.visit(argument);
+        }
+
+        this.module.return(this.expressions.pop());
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {

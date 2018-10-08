@@ -8,24 +8,32 @@ import {
     ReturnStatement,
     UnaryExpression,
 } from '@babel/types';
-import {Expression, Module, Statement} from 'binaryen';
+import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
+    private readonly parameterMapping: Map<string, number>;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
 
 
-    constructor(module: Module) {
+    constructor(module: Module, parameterMapping: Map<string, number>) {
         super();
         this.module = module;
+        this.parameterMapping = parameterMapping;
     }
 
     protected visitIdentifier(node: Identifier) {
+        const index = this.parameterMapping.get(name);
 
+        if (index === undefined) {
+            throw new Error(`Unknown identifier ${name}`);
+        }
+
+        this.expressions.push(this.module.getLocal(index, i32));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {

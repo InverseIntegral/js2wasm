@@ -73,7 +73,52 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {
+        this.visit(node.left);
+        this.visit(node.right);
+        const right = this.expressions.pop();
+        const left = this.expressions.pop();
 
+        if (left === undefined || right === undefined) {
+            throw new Error('Left or right expression of binary operation is undefined');
+        }
+
+        switch (node.operator) {
+            case '+':
+                this.expressions.push(this.module.i32.add(left, right));
+                break;
+            case '-':
+                this.expressions.push(this.module.i32.sub(left, right));
+                break;
+            case '*':
+                this.expressions.push(this.module.i32.mul(left, right));
+                break;
+            case '/':
+                this.expressions.push(this.module.i32.div_s(left, right));
+                break;
+            case '%':
+                this.expressions.push(this.module.i32.rem_s(left, right));
+                break;
+            case '==':
+                this.expressions.push(this.module.i32.eq(left, right));
+                break;
+            case '!=':
+                this.expressions.push(this.module.i32.ne(left, right));
+                break;
+            case '<':
+                this.expressions.push(this.module.i32.lt_s(left, right));
+                break;
+            case '<=':
+                this.expressions.push(this.module.i32.le_s(left, right));
+                break;
+            case '>':
+                this.expressions.push(this.module.i32.gt_s(left, right));
+                break;
+            case '>=':
+                this.expressions.push(this.module.i32.ge_s(left, right));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     protected visitIfStatement(node: IfStatement) {

@@ -29,7 +29,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-
+        this.expressions.push(this.module.i32.const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {

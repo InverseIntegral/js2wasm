@@ -33,7 +33,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
-
+        this.expressions.push(this.module.i32.const(node.value ? 1 : 0));
     }
 
     protected visitReturnStatement(node: ReturnStatement) {

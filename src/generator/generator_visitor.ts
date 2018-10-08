@@ -1,7 +1,7 @@
 import {
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral,
+    BooleanLiteral, FunctionExpression,
     Identifier,
     IfStatement,
     NumericLiteral,
@@ -24,6 +24,11 @@ class GeneratorVisitor extends Visitor {
         super();
         this.module = module;
         this.parameterMapping = parameterMapping;
+    }
+
+    public run(tree: FunctionExpression): Statement {
+        this.visit(tree.body);
+        return this.currentBlock;
     }
 
     protected visitIdentifier(node: Identifier) {

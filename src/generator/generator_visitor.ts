@@ -50,18 +50,15 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitReturnStatement(node: ReturnStatement) {
-        const argument = node.argument;
-
-        if (argument !== null) {
-            this.visit(argument);
-        }
+        super.visitReturnStatement(node);
 
         const returnStatement = this.module.return(this.expressions.pop());
         this.statements[this.statements.length - 1].push(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
-        this.visit(node.argument);
+        super.visitUnaryExpression(node);
+
         const operand = this.expressions.pop();
 
         if (operand === undefined) {
@@ -85,8 +82,8 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {
-        this.visit(node.left);
-        this.visit(node.right);
+        super.visitBinaryExpression(node);
+
         const right = this.expressions.pop();
         const left = this.expressions.pop();
 
@@ -165,9 +162,7 @@ class GeneratorVisitor extends Visitor {
     protected visitBlockStatement(node: BlockStatement) {
         this.statements.push([]);
 
-        for (const statement of node.body) {
-            this.visit(statement);
-        }
+        super.visitBlockStatement(node);
 
         const statements = this.statements.pop();
 

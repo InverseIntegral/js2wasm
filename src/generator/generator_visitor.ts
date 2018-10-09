@@ -1,9 +1,10 @@
 import {
+    AssignmentExpression,
     BinaryExpression,
     BlockStatement,
     BooleanLiteral, FunctionExpression,
     Identifier,
-    IfStatement, isIfStatement,
+    IfStatement, isIdentifier, isIfStatement,
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
@@ -14,7 +15,7 @@ import Visitor from '../visitor';
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
-    private readonly parameterMapping: Map<string, number>;
+    private readonly variableMapping: Map<string, number>;
 
     private statements: Statement[][] = [];
     private expressions: Expression[] = [];
@@ -23,7 +24,7 @@ class GeneratorVisitor extends Visitor {
     constructor(module: Module, parameterMapping: Map<string, number>) {
         super();
         this.module = module;
-        this.parameterMapping = parameterMapping;
+        this.variableMapping = parameterMapping;
     }
 
     public run(tree: FunctionExpression): Statement {
@@ -32,7 +33,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.parameterMapping.get(node.name);
+        const index = this.variableMapping.get(node.name);
 
         if (index === undefined) {
             throw new Error(`Unknown identifier ${node.name}`);

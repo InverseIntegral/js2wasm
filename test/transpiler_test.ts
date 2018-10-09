@@ -246,5 +246,16 @@ describe('Transpiler', () => {
             expect(elseIf(false, false, true)).to.equal(2);
             expect(elseIf(false, false, false)).to.equal(3);
         });
+
+        it('should handle a single variables', () => {
+            const {variables} = Transpiler.transpile('function variables(a) { var x; x = 10; return x; }');
+            expect(variables(100)).to.equal(10);
+        });
+
+        it('should handle multiple variables', () => {
+            const content = 'function variables(a) { var x, y; x = 10; y = 20; return x * y; }';
+            const {variables} = Transpiler.transpile(content);
+            expect(variables(100)).to.equal(200);
+        });
     });
 });

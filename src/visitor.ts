@@ -23,7 +23,7 @@ import {
     ReturnStatement,
     UnaryExpression,
     VariableDeclaration,
-    VariableDeclarator
+    VariableDeclarator,
 } from '@babel/types';
 
 abstract class Visitor {

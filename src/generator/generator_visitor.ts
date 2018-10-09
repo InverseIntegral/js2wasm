@@ -54,7 +54,7 @@ class GeneratorVisitor extends Visitor {
         super.visitReturnStatement(node);
 
         const returnStatement = this.module.return(this.expressions.pop());
-        this.statements[this.statements.length - 1].push(returnStatement);
+        this.appendStatement(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
@@ -156,7 +156,7 @@ class GeneratorVisitor extends Visitor {
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
-        this.statements[this.statements.length - 1].push(ifStatement);
+        this.appendStatement(ifStatement);
         this.currentBlock = ifStatement;
     }
 
@@ -174,6 +174,31 @@ class GeneratorVisitor extends Visitor {
         this.currentBlock = this.module.block('', statements);
     }
 
+    protected visitAssignmentExpression(node: AssignmentExpression) {
+        this.visit(node.right);
+
+        const value = this.expressions.pop();
+
+        if (value === undefined) {
+            throw new Error('Assigned undefined expression');
+        }
+
+        if (isIdentifier(node.left)) {
+            const id = this.variableMapping.get(node.left.name);
+
+            if (id === undefined) {
+                throw new Error('Assigned to unknown variable');
+            }
+
+            this.appendStatement(this.module.set_local(id, value));
+        } else {
+            throw new Error('Assignment to non-identifier');
+        }
+    }
+
+    private appendStatement(statement: Statement) {
+        this.statements[this.statements.length - 1].push(statement);
+    }
 }
 
 export default GeneratorVisitor;

@@ -247,15 +247,40 @@ describe('Transpiler', () => {
             expect(elseIf(false, false, false)).to.equal(3);
         });
 
-        it('should handle a single variables', () => {
+        it('should handle a single variable', () => {
             const {variables} = Transpiler.transpile('function variables(a) { var x; x = 10; return x; }');
             expect(variables(100)).to.equal(10);
+        });
+
+        it('should handle a single variable with direct assignment', () => {
+            const {variables} = Transpiler.transpile('function variables() { var x = 10; return x; }');
+            expect(variables()).to.equal(10);
         });
 
         it('should handle multiple variables', () => {
             const content = 'function variables(a) { var x, y; x = 10; y = 20; return x * y; }';
             const {variables} = Transpiler.transpile(content);
             expect(variables(100)).to.equal(200);
+        });
+
+        it('should handle multiple variables with direct assignments', () => {
+            const content = 'function variables(a) { var x = 10, y = 20; return x * y; }';
+            const {variables} = Transpiler.transpile(content);
+            expect(variables(100)).to.equal(200);
+        });
+
+        it('should handle variables within branches', () => {
+            const content = 'function variables(a) { var x; if (a) { x = 10; } else { x = 20; } return x; }';
+            const {variables} = Transpiler.transpile(content);
+            expect(variables(true)).to.equal(10);
+            expect(variables(false)).to.equal(20);
+        });
+
+        it('should hoist variable declarations', () => {
+            const content = 'function variables(a) { x = 20; if (a) { var x; } return x; }';
+            const {variables} = Transpiler.transpile(content);
+            expect(variables(true)).to.equal(20);
+            expect(variables(false)).to.equal(20);
         });
     });
 });

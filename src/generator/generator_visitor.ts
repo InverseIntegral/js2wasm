@@ -4,10 +4,10 @@ import {
     BlockStatement,
     BooleanLiteral, FunctionExpression,
     Identifier,
-    IfStatement, isIdentifier, isIfStatement,
+    IfStatement, isIdentifier, isIfStatement, LVal,
     NumericLiteral,
     ReturnStatement,
-    UnaryExpression,
+    UnaryExpression, VariableDeclarator,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -174,17 +174,27 @@ class GeneratorVisitor extends Visitor {
         this.currentBlock = this.module.block('', statements);
     }
 
+    protected visitVariableDeclarator(node: VariableDeclarator) {
+        if (node.init !== null) {
+            this.visit(node.init);
+            this.createSetLocal(node.id);
+        }
+    }
+
     protected visitAssignmentExpression(node: AssignmentExpression) {
         this.visit(node.right);
+        this.createSetLocal(node.left);
+    }
 
+    private createSetLocal(val: LVal) {
         const value = this.expressions.pop();
 
         if (value === undefined) {
             throw new Error('Assigned undefined expression');
         }
 
-        if (isIdentifier(node.left)) {
-            const id = this.variableMapping.get(node.left.name);
+        if (isIdentifier(val)) {
+            const id = this.variableMapping.get(val.name);
 
             if (id === undefined) {
                 throw new Error('Assigned to unknown variable');

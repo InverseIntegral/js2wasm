@@ -246,5 +246,15 @@ describe('Transpiler', () => {
             expect(elseIf(false, false, true)).to.equal(2);
             expect(elseIf(false, false, false)).to.equal(3);
         });
+
+        it('should handle logical and', () => {
+            const content = 'function and(a, b) { return a && b; }';
+            const {and} = Transpiler.transpile(content);
+
+            expect(and(true, true)).to.equal(1);
+            expect(and(true, false)).to.equal(0);
+            expect(and(false, true)).to.equal(0);
+            expect(and(false, false)).to.equal(0);
+        });
     });
 });

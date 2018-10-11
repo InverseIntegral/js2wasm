@@ -4,11 +4,13 @@ import {
     Identifier, IfStatement, isBinaryExpression, isBlockStatement,
     isBooleanLiteral,
     isIdentifier, isIfStatement,
+    isLogicalExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
     Node, NumericLiteral, ReturnStatement, UnaryExpression
 } from '@babel/types';
+import {LogicalExpression} from '@babel/types';
 
 abstract class Visitor {
 
@@ -25,6 +27,8 @@ abstract class Visitor {
             this.visitUnaryExpression(node);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node);
+        } else if (isLogicalExpression(node)) {
+            this.visitLogicalExpression(node);
         } else if (isIfStatement(node)) {
             this.visitIfStatement(node);
         } else if (isBlockStatement(node)) {
@@ -64,6 +68,11 @@ abstract class Visitor {
 
     }
 
+    protected visitLogicalExpression(node: LogicalExpression) {
+        this.visit(node.left);
+        this.visit(node.right);
+    }
+
     // noinspection TsLint
     protected visitIfStatement(node: IfStatement) {
 
@@ -73,7 +82,6 @@ abstract class Visitor {
     protected visitBlockStatement(node: BlockStatement) {
 
     }
-
 }
 
 export default Visitor;

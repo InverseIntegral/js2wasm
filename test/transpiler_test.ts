@@ -256,5 +256,15 @@ describe('Transpiler', () => {
             expect(and(false, true)).to.equal(0);
             expect(and(false, false)).to.equal(0);
         });
+
+        it('should handle logical or', () => {
+            const content = 'function or(a, b) { return a || b; }';
+            const {or} = Transpiler.transpile(content);
+
+            expect(or(true, true)).to.equal(1);
+            expect(or(true, false)).to.equal(1);
+            expect(or(false, true)).to.equal(1);
+            expect(or(false, false)).to.equal(0);
+        });
     });
 });

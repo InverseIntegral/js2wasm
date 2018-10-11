@@ -147,6 +147,9 @@ class GeneratorVisitor extends Visitor {
             case '&&':
                 this.expressions.push(this.module.i32.and(left, right));
                 break;
+            case '||':
+                this.expressions.push(this.module.i32.or(left, right));
+                break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }

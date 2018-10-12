@@ -11,18 +11,18 @@ class Generator {
         }
 
         const functionName = tree.id.name;
-        const parameters = new Array(tree.params.length).fill(i32);
         const module = new Module();
 
-        const functionType = module.addFunctionType(functionName, i32, parameters);
-
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
+
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);
+        const parameters = new Array(parameterMapping.size).fill(i32);
 
         const generatorVisitor = new GeneratorVisitor(module, totalMapping);
         const body = generatorVisitor.run(tree);
 
+        const functionType = module.addFunctionType(functionName, i32, parameters);
         module.addFunction(functionName, functionType, variables, body);
         module.addFunctionExport(functionName, functionName);
 

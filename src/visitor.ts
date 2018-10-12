@@ -111,9 +111,10 @@ abstract class Visitor {
         }
     }
 
-    // noinspection TsLint
     protected visitVariableDeclarator(node: VariableDeclarator) {
-
+        if (node.init !== null) {
+            this.visit(node.init);
+        }
     }
 
     protected visitExpressionStatement(node: ExpressionStatement) {

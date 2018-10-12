@@ -1,12 +1,13 @@
 import {
+    AssignmentExpression,
     BinaryExpression,
     BlockStatement,
     BooleanLiteral, FunctionExpression,
     Identifier,
-    IfStatement, isIfStatement,
+    IfStatement, isIdentifier, isIfStatement, LVal,
     NumericLiteral,
     ReturnStatement,
-    UnaryExpression,
+    UnaryExpression, VariableDeclarator,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -14,16 +15,16 @@ import Visitor from '../visitor';
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
-    private readonly parameterMapping: Map<string, number>;
+    private readonly variableMapping: Map<string, number>;
 
     private statements: Statement[][] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
-    constructor(module: Module, parameterMapping: Map<string, number>) {
+    constructor(module: Module, variableMapping: Map<string, number>) {
         super();
         this.module = module;
-        this.parameterMapping = parameterMapping;
+        this.variableMapping = variableMapping;
     }
 
     public run(tree: FunctionExpression): Statement {
@@ -32,7 +33,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.parameterMapping.get(node.name);
+        const index = this.variableMapping.get(node.name);
 
         if (index === undefined) {
             throw new Error(`Unknown identifier ${node.name}`);
@@ -50,18 +51,15 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitReturnStatement(node: ReturnStatement) {
-        const argument = node.argument;
-
-        if (argument !== null) {
-            this.visit(argument);
-        }
+        super.visitReturnStatement(node);
 
         const returnStatement = this.module.return(this.expressions.pop());
-        this.statements[this.statements.length - 1].push(returnStatement);
+        this.appendStatement(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
-        this.visit(node.argument);
+        super.visitUnaryExpression(node);
+
         const operand = this.expressions.pop();
 
         if (operand === undefined) {
@@ -85,8 +83,8 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {
-        this.visit(node.left);
-        this.visit(node.right);
+        super.visitBinaryExpression(node);
+
         const right = this.expressions.pop();
         const left = this.expressions.pop();
 
@@ -158,16 +156,14 @@ class GeneratorVisitor extends Visitor {
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
-        this.statements[this.statements.length - 1].push(ifStatement);
+        this.appendStatement(ifStatement);
         this.currentBlock = ifStatement;
     }
 
     protected visitBlockStatement(node: BlockStatement) {
         this.statements.push([]);
 
-        for (const statement of node.body) {
-            this.visit(statement);
-        }
+        super.visitBlockStatement(node);
 
         const statements = this.statements.pop();
 
@@ -178,6 +174,41 @@ class GeneratorVisitor extends Visitor {
         this.currentBlock = this.module.block('', statements);
     }
 
+    protected visitVariableDeclarator(node: VariableDeclarator) {
+        if (node.init !== null) {
+            this.visit(node.init);
+            this.createSetLocal(node.id);
+        }
+    }
+
+    protected visitAssignmentExpression(node: AssignmentExpression) {
+        this.visit(node.right);
+        this.createSetLocal(node.left);
+    }
+
+    private createSetLocal(val: LVal) {
+        const value = this.expressions.pop();
+
+        if (value === undefined) {
+            throw new Error('Assigned undefined expression');
+        }
+
+        if (isIdentifier(val)) {
+            const id = this.variableMapping.get(val.name);
+
+            if (id === undefined) {
+                throw new Error('Assigned to unknown variable');
+            }
+
+            this.appendStatement(this.module.set_local(id, value));
+        } else {
+            throw new Error('Assignment to non-identifier');
+        }
+    }
+
+    private appendStatement(statement: Statement) {
+        this.statements[this.statements.length - 1].push(statement);
+    }
 }
 
 export default GeneratorVisitor;

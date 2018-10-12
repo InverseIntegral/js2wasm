@@ -1,5 +1,6 @@
-import {FunctionExpression, isIdentifier, LVal,} from '@babel/types';
+import {FunctionExpression} from '@babel/types';
 import {i32, Module} from 'binaryen';
+import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 
 class Generator {
@@ -10,31 +11,27 @@ class Generator {
         }
 
         const functionName = tree.id.name;
-        const parameters = new Array(tree.params.length).fill(i32);
         const module = new Module();
 
-        // Currently the function has to return an integer
-        const functionType = module.addFunctionType(functionName, i32, parameters);
-        const generatorVisitor = new GeneratorVisitor(module, Generator.getParameterMappings((tree.params)));
+        const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
+        const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
+        const variables = new Array(variableMapping.size).fill(i32);
+        const parameters = new Array(parameterMapping.size).fill(i32);
+
+        const generatorVisitor = new GeneratorVisitor(module, totalMapping);
         const body = generatorVisitor.run(tree);
 
-        module.addFunction(functionName, functionType, [], body);
+        const functionType = module.addFunctionType(functionName, i32, parameters);
+        module.addFunction(functionName, functionType, variables, body);
         module.addFunctionExport(functionName, functionName);
 
         return module;
     }
 
-    private static getParameterMappings(params: LVal[]) {
-        const mapping = new Map();
-
-        params.forEach((node, index) => {
-            if (isIdentifier(node)) {
-                mapping.set(node.name, index);
-            }
-        });
-
-        return mapping;
+    private static mergeMappings(first: Mapping,
+                                 second: Mapping): Mapping {
+        return new Map([...first, ...second]);
     }
 
 }

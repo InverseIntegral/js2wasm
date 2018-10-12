@@ -21,10 +21,10 @@ class GeneratorVisitor extends Visitor {
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
-    constructor(module: Module, parameterMapping: Map<string, number>) {
+    constructor(module: Module, variableMapping: Map<string, number>) {
         super();
         this.module = module;
-        this.variableMapping = parameterMapping;
+        this.variableMapping = variableMapping;
     }
 
     public run(tree: FunctionExpression): Statement {

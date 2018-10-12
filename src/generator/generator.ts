@@ -1,9 +1,7 @@
 import {FunctionExpression} from '@babel/types';
 import {i32, Module} from 'binaryen';
-import DeclarationVisitor from './declaration_visitor';
+import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
-
-type Mapping = Map<string, number>;
 
 class Generator {
 
@@ -38,4 +36,4 @@ class Generator {
 
 }
 
-export {Generator, Mapping};
+export default Generator;

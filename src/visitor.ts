@@ -1,16 +1,32 @@
 import {
-    BinaryExpression, BlockStatement,
+    AssignmentExpression,
+    BinaryExpression,
+    BlockStatement,
     BooleanLiteral,
-    Identifier, IfStatement, isBinaryExpression, isBlockStatement,
+    ExpressionStatement,
+    Identifier,
+    IfStatement,
+    isAssignmentExpression,
+    isBinaryExpression,
+    isBlockStatement,
     isBooleanLiteral,
-    isIdentifier, isIfStatement,
+    isExpressionStatement,
+    isIdentifier,
+    isIfStatement,
     isLogicalExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
-    Node, NumericLiteral, ReturnStatement, UnaryExpression
+    isVariableDeclaration,
+    isVariableDeclarator,
+    LogicalExpression,
+    Node,
+    NumericLiteral,
+    ReturnStatement,
+    UnaryExpression,
+    VariableDeclaration,
+    VariableDeclarator,
 } from '@babel/types';
-import {LogicalExpression} from '@babel/types';
 
 abstract class Visitor {
 
@@ -33,6 +49,14 @@ abstract class Visitor {
             this.visitIfStatement(node);
         } else if (isBlockStatement(node)) {
             this.visitBlockStatement(node);
+        } else if (isVariableDeclaration(node)) {
+            this.visitVariableDeclaration(node);
+        } else if (isVariableDeclarator(node)) {
+            this.visitVariableDeclarator(node);
+        } else if (isExpressionStatement(node)) {
+            this.visitExpressionStatement(node);
+        } else if (isAssignmentExpression(node)) {
+            this.visitAssignmentExpression(node);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
@@ -53,19 +77,21 @@ abstract class Visitor {
 
     }
 
-    // noinspection TsLint
     protected visitReturnStatement(node: ReturnStatement) {
+        const argument = node.argument;
 
+        if (argument !== null) {
+            this.visit(argument);
+        }
     }
 
-    // noinspection TsLint
     protected visitUnaryExpression(node: UnaryExpression) {
-
+        this.visit(node.argument);
     }
 
-    // noinspection TsLint
     protected visitBinaryExpression(node: BinaryExpression) {
-
+        this.visit(node.left);
+        this.visit(node.right);
     }
 
     protected visitLogicalExpression(node: LogicalExpression) {
@@ -73,14 +99,40 @@ abstract class Visitor {
         this.visit(node.right);
     }
 
-    // noinspection TsLint
     protected visitIfStatement(node: IfStatement) {
+        this.visit(node.test);
+        this.visit(node.consequent);
 
+        if (node.alternate !== null) {
+            this.visit(node.alternate);
+        }
     }
 
-    // noinspection TsLint
     protected visitBlockStatement(node: BlockStatement) {
+        for (const statement of node.body) {
+            this.visit(statement);
+        }
+    }
 
+    protected visitVariableDeclaration(node: VariableDeclaration) {
+        for (const declarator of node.declarations) {
+            this.visit(declarator);
+        }
+    }
+
+    protected visitVariableDeclarator(node: VariableDeclarator) {
+        if (node.init !== null) {
+            this.visit(node.init);
+        }
+    }
+
+    protected visitExpressionStatement(node: ExpressionStatement) {
+        this.visit(node.expression);
+    }
+
+    protected visitAssignmentExpression(node: AssignmentExpression) {
+        this.visit(node.left);
+        this.visit(node.right);
     }
 }
 

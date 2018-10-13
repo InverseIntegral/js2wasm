@@ -179,6 +179,14 @@ describe('Transpiler', () => {
             expect(ge(-4, -3)).to.equal(0);
         });
 
+        it('should handle plus shorthand assignment', () => {
+            const content = 'function plusAssign(a) { var b = 1; b += a; return b; }';
+            const {plusAssign} = Transpiler.transpile(content);
+
+            expect(plusAssign(5)).to.equal(6);
+            expect(plusAssign(-5)).to.equal(-4);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

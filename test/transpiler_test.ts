@@ -203,6 +203,14 @@ describe('Transpiler', () => {
             expect(multAssign(-5)).to.equal(-10);
         });
 
+        it('should handle division shorthand assignment', () => {
+            const content = 'function divAssign(a) { var b = 10; b /= a; return b; }';
+            const {divAssign} = Transpiler.transpile(content);
+
+            expect(divAssign(5)).to.equal(2);
+            expect(divAssign(-5)).to.equal(-2);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

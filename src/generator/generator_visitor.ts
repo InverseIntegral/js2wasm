@@ -2,12 +2,18 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral, FunctionExpression,
+    BooleanLiteral,
+    FunctionExpression,
     Identifier,
-    IfStatement, isIdentifier, isIfStatement, LVal,
+    IfStatement,
+    isIdentifier,
+    isIfStatement,
+    LVal,
     NumericLiteral,
     ReturnStatement,
-    UnaryExpression, VariableDeclarator,
+    UnaryExpression,
+    UpdateExpression,
+    VariableDeclarator,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -33,11 +39,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.variableMapping.get(node.name);
-
-        if (index === undefined) {
-            throw new Error(`Unknown identifier ${node.name}`);
-        }
+        const index = this.getVariableIndex(node.name);
 
         this.expressions.push(this.module.getLocal(index, i32));
     }
@@ -125,6 +127,31 @@ class GeneratorVisitor extends Visitor {
                 break;
             case '>=':
                 this.expressions.push(this.module.i32.ge_s(left, right));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        super.visitUpdateExpression(node);
+
+        const currentValue = this.expressions.pop();
+
+        if (currentValue === undefined || !(isIdentifier(node.argument))) {
+            throw new Error('An update is only allowed on an identifier');
+        }
+
+        const index = this.getVariableIndex(node.argument.name);
+
+        switch (node.operator) {
+            case '++':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.add(currentValue, this.module.i32.const(1))));
+                break;
+            case '--':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.sub(currentValue, this.module.i32.const(1))));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -236,6 +263,16 @@ class GeneratorVisitor extends Visitor {
         } else {
             throw new Error('Assignment to non-identifier');
         }
+    }
+
+    private getVariableIndex(name: string) {
+        const index = this.variableMapping.get(name);
+
+        if (index === undefined) {
+            throw new Error(`Unknown identifier ${name}`);
+        }
+
+        return index;
     }
 
     private appendStatement(statement: Statement) {

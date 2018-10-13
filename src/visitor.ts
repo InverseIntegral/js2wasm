@@ -16,12 +16,14 @@ import {
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
+    isUpdateExpression,
     isVariableDeclaration,
     isVariableDeclarator,
     Node,
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
+    UpdateExpression,
     VariableDeclaration,
     VariableDeclarator,
 } from '@babel/types';
@@ -41,6 +43,8 @@ abstract class Visitor {
             this.visitUnaryExpression(node);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node);
+        } else if (isUpdateExpression(node)) {
+            this.visitUpdateExpression(node);
         } else if (isIfStatement(node)) {
             this.visitIfStatement(node);
         } else if (isBlockStatement(node)) {
@@ -88,6 +92,10 @@ abstract class Visitor {
     protected visitBinaryExpression(node: BinaryExpression) {
         this.visit(node.left);
         this.visit(node.right);
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        this.visit(node.argument);
     }
 
     protected visitIfStatement(node: IfStatement) {

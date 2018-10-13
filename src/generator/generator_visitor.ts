@@ -183,7 +183,39 @@ class GeneratorVisitor extends Visitor {
 
     protected visitAssignmentExpression(node: AssignmentExpression) {
         this.visit(node.right);
+
+        if (node.operator !== '=') {
+            this.handleShorthandAssignment(node);
+        }
+
         this.createSetLocal(node.left);
+    }
+
+    private handleShorthandAssignment(node: AssignmentExpression) {
+        this.visit(node.left);
+        const currentValue = this.expressions.pop();
+        const assignedValue = this.expressions.pop();
+
+        if (currentValue === undefined || assignedValue === undefined) {
+            throw new Error('Left or right side of shorthand assignment is undefined');
+        }
+
+        switch (node.operator) {
+            case '+=':
+                this.expressions.push(this.module.i32.add(currentValue, assignedValue));
+                break;
+            case '-=':
+                this.expressions.push(this.module.i32.sub(currentValue, assignedValue));
+                break;
+            case '*=':
+                this.expressions.push(this.module.i32.mul(currentValue, assignedValue));
+                break;
+            case '/=':
+                this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     private createSetLocal(val: LVal) {

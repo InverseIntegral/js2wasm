@@ -179,6 +179,38 @@ describe('Transpiler', () => {
             expect(ge(-4, -3)).to.equal(0);
         });
 
+        it('should handle plus shorthand assignment', () => {
+            const content = 'function plusAssign(a) { var b = 1; b += a; return b; }';
+            const {plusAssign} = Transpiler.transpile(content);
+
+            expect(plusAssign(5)).to.equal(6);
+            expect(plusAssign(-5)).to.equal(-4);
+        });
+
+        it('should handle minus shorthand assignment', () => {
+            const content = 'function minusAssign(a) { var b = 1; b -= a; return b; }';
+            const {minusAssign} = Transpiler.transpile(content);
+
+            expect(minusAssign(5)).to.equal(-4);
+            expect(minusAssign(-5)).to.equal(6);
+        });
+
+        it('should handle multiplication shorthand assignment', () => {
+            const content = 'function multAssign(a) { var b = 2; b *= a; return b; }';
+            const {multAssign} = Transpiler.transpile(content);
+
+            expect(multAssign(5)).to.equal(10);
+            expect(multAssign(-5)).to.equal(-10);
+        });
+
+        it('should handle division shorthand assignment', () => {
+            const content = 'function divAssign(a) { var b = 10; b /= a; return b; }';
+            const {divAssign} = Transpiler.transpile(content);
+
+            expect(divAssign(5)).to.equal(2);
+            expect(divAssign(-5)).to.equal(-2);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

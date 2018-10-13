@@ -2,12 +2,18 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral, FunctionExpression,
+    BooleanLiteral,
+    FunctionExpression,
     Identifier,
-    IfStatement, isIdentifier, isIfStatement, LVal,
+    IfStatement,
+    isIdentifier,
+    isIfStatement,
+    LVal,
     NumericLiteral,
     ReturnStatement,
-    UnaryExpression, VariableDeclarator,
+    UnaryExpression,
+    UpdateExpression,
+    VariableDeclarator,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -125,6 +131,27 @@ class GeneratorVisitor extends Visitor {
                 break;
             case '>=':
                 this.expressions.push(this.module.i32.ge_s(left, right));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        super.visitUpdateExpression(node);
+
+        const currentValue = this.expressions.pop();
+
+        if (currentValue === undefined || !(isIdentifier(node.argument))) {
+            throw new Error('An update is only allowed on an identifier');
+        }
+
+        const index = this.variableMapping.get(node.argument.name) as number;
+
+        switch (node.operator) {
+            case '++':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.add(currentValue, this.module.i32.const(1))));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);

@@ -266,5 +266,15 @@ describe('Transpiler', () => {
             expect(or(false, true)).to.equal(1);
             expect(or(false, false)).to.equal(0);
         });
+
+        it('should handle multiple logical operators', () => {
+            const content = 'function logic(a, b, c) { return a || b && c; }';
+            const {logic} = Transpiler.transpile(content);
+
+            expect(logic(false, true, true)).to.equal(1);
+            expect(logic(false, true, false)).to.equal(0);
+            expect(logic(false, false, true)).to.equal(0);
+            expect(logic(true, false, false)).to.equal(1);
+        });
     });
 });

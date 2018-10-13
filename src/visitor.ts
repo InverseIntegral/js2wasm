@@ -17,6 +17,7 @@ import {
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
+    isUpdateExpression,
     isVariableDeclaration,
     isVariableDeclarator,
     LogicalExpression,
@@ -24,6 +25,7 @@ import {
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
+    UpdateExpression,
     VariableDeclaration,
     VariableDeclarator,
 } from '@babel/types';
@@ -45,6 +47,8 @@ abstract class Visitor {
             this.visitBinaryExpression(node);
         } else if (isLogicalExpression(node)) {
             this.visitLogicalExpression(node);
+        } else if (isUpdateExpression(node)) {
+            this.visitUpdateExpression(node);
         } else if (isIfStatement(node)) {
             this.visitIfStatement(node);
         } else if (isBlockStatement(node)) {
@@ -97,6 +101,10 @@ abstract class Visitor {
     protected visitLogicalExpression(node: LogicalExpression) {
         this.visit(node.left);
         this.visit(node.right);
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        this.visit(node.argument);
     }
 
     protected visitIfStatement(node: IfStatement) {

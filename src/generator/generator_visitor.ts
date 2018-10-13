@@ -2,12 +2,19 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral, FunctionExpression,
+    BooleanLiteral,
+    FunctionExpression,
     Identifier,
-    IfStatement, isIdentifier, isIfStatement, LogicalExpression, LVal,
+    IfStatement,
+    isIdentifier,
+    isIfStatement,
+    LogicalExpression,
+    LVal,
     NumericLiteral,
     ReturnStatement,
-    UnaryExpression, VariableDeclarator,
+    UnaryExpression,
+    UpdateExpression,
+    VariableDeclarator,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -33,11 +40,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.variableMapping.get(node.name);
-
-        if (index === undefined) {
-            throw new Error(`Unknown identifier ${node.name}`);
-        }
+        const index = this.getVariableIndex(node.name);
 
         this.expressions.push(this.module.getLocal(index, i32));
     }
@@ -153,6 +156,31 @@ class GeneratorVisitor extends Visitor {
         }
     }
 
+    protected visitUpdateExpression(node: UpdateExpression) {
+        super.visitUpdateExpression(node);
+
+        const currentValue = this.expressions.pop();
+
+        if (currentValue === undefined || !(isIdentifier(node.argument))) {
+            throw new Error('An update is only allowed on an identifier');
+        }
+
+        const index = this.getVariableIndex(node.argument.name);
+
+        switch (node.operator) {
+            case '++':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.add(currentValue, this.module.i32.const(1))));
+                break;
+            case '--':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.sub(currentValue, this.module.i32.const(1))));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
     protected visitIfStatement(node: IfStatement) {
         this.visit(node.test);
         const condition = this.expressions.pop();
@@ -205,7 +233,39 @@ class GeneratorVisitor extends Visitor {
 
     protected visitAssignmentExpression(node: AssignmentExpression) {
         this.visit(node.right);
+
+        if (node.operator !== '=') {
+            this.handleShorthandAssignment(node);
+        }
+
         this.createSetLocal(node.left);
+    }
+
+    private handleShorthandAssignment(node: AssignmentExpression) {
+        this.visit(node.left);
+        const currentValue = this.expressions.pop();
+        const assignedValue = this.expressions.pop();
+
+        if (currentValue === undefined || assignedValue === undefined) {
+            throw new Error('Left or right side of shorthand assignment is undefined');
+        }
+
+        switch (node.operator) {
+            case '+=':
+                this.expressions.push(this.module.i32.add(currentValue, assignedValue));
+                break;
+            case '-=':
+                this.expressions.push(this.module.i32.sub(currentValue, assignedValue));
+                break;
+            case '*=':
+                this.expressions.push(this.module.i32.mul(currentValue, assignedValue));
+                break;
+            case '/=':
+                this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
     }
 
     private createSetLocal(val: LVal) {
@@ -226,6 +286,16 @@ class GeneratorVisitor extends Visitor {
         } else {
             throw new Error('Assignment to non-identifier');
         }
+    }
+
+    private getVariableIndex(name: string) {
+        const index = this.variableMapping.get(name);
+
+        if (index === undefined) {
+            throw new Error(`Unknown identifier ${name}`);
+        }
+
+        return index;
     }
 
     private appendStatement(statement: Statement) {

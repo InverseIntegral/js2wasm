@@ -149,6 +149,10 @@ class GeneratorVisitor extends Visitor {
                 this.appendStatement(this.module.set_local(index,
                     this.module.i32.add(currentValue, this.module.i32.const(1))));
                 break;
+            case '--':
+                this.appendStatement(this.module.set_local(index,
+                    this.module.i32.sub(currentValue, this.module.i32.const(1))));
+                break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }

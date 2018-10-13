@@ -296,5 +296,19 @@ describe('Transpiler', () => {
 
             expect(postInc(10)).to.equal(11);
         });
+
+        it('should handle pre decrement', () => {
+            const content = 'function preDec(a) { --a; return a; }';
+            const {preDec} = Transpiler.transpile(content);
+
+            expect(preDec(10)).to.equal(9);
+        });
+
+        it('should handle post decrement', () => {
+            const content = 'function postDec(a) { a--; return a; }';
+            const {postDec} = Transpiler.transpile(content);
+
+            expect(postDec(10)).to.equal(9);
+        });
     });
 });

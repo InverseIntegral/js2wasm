@@ -8,6 +8,7 @@ import {
     IfStatement,
     isIdentifier,
     isIfStatement,
+    LogicalExpression,
     LVal,
     NumericLiteral,
     ReturnStatement,
@@ -127,6 +128,28 @@ class GeneratorVisitor extends Visitor {
                 break;
             case '>=':
                 this.expressions.push(this.module.i32.ge_s(left, right));
+                break;
+            default:
+                throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
+    protected visitLogicalExpression(node: LogicalExpression) {
+        super.visitLogicalExpression(node);
+
+        const right = this.expressions.pop();
+        const left = this.expressions.pop();
+
+        if (left === undefined || right === undefined) {
+            throw new Error('Left or right expression of logical expression is undefined');
+        }
+
+        switch (node.operator) {
+            case '&&':
+                this.expressions.push(this.module.select(left, right, this.module.i32.const(0)));
+                break;
+            case '||':
+                this.expressions.push(this.module.select(left, this.module.i32.const(1), right));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);

@@ -279,6 +279,53 @@ describe('Transpiler', () => {
             expect(elseIf(false, false, false)).to.equal(3);
         });
 
+        it('should handle logical and', () => {
+            const content = 'function and(a, b) { return a && b; }';
+            const {and} = Transpiler.transpile(content);
+
+            expect(and(true, true)).to.equal(1);
+            expect(and(true, false)).to.equal(0);
+            expect(and(false, true)).to.equal(0);
+            expect(and(false, false)).to.equal(0);
+        });
+
+        it('should handle logical or', () => {
+            const content = 'function or(a, b) { return a || b; }';
+            const {or} = Transpiler.transpile(content);
+
+            expect(or(true, true)).to.equal(1);
+            expect(or(true, false)).to.equal(1);
+            expect(or(false, true)).to.equal(1);
+            expect(or(false, false)).to.equal(0);
+        });
+
+        it('should handle multiple logical operators', () => {
+            const content = 'function logic(a, b, c) { return a || b && c; }';
+            const {logic} = Transpiler.transpile(content);
+
+            expect(logic(true, true, true)).to.equal(1);
+            expect(logic(true, true, false)).to.equal(1);
+            expect(logic(true, false, true)).to.equal(1);
+            expect(logic(true, false, false)).to.equal(1);
+            expect(logic(false, true, true)).to.equal(1);
+            expect(logic(false, true, false)).to.equal(0);
+            expect(logic(false, false, true)).to.equal(0);
+            expect(logic(false, false, false)).to.equal(0);
+        });
+
+        it('should handle logical operators in if statement', () => {
+            const content = 'function elseIf(a, b) {' +
+                'if (a && b) { return 0; }' +
+                'else if (a || b) { return 1; }' +
+                'else { return 2; } }';
+            const {elseIf} = Transpiler.transpile(content);
+
+            expect(elseIf(true, true)).to.equal(0);
+            expect(elseIf(true, false)).to.equal(1);
+            expect(elseIf(false, true)).to.equal(1);
+            expect(elseIf(false, false)).to.equal(2);
+        });
+
         it('should handle a single variable', () => {
             const {variables} = Transpiler.transpile('function variables(a) { var x; x = 10; return x; }');
             expect(variables(100)).to.equal(10);

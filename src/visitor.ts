@@ -13,12 +13,14 @@ import {
     isExpressionStatement,
     isIdentifier,
     isIfStatement,
+    isLogicalExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
     isUpdateExpression,
     isVariableDeclaration,
     isVariableDeclarator,
+    LogicalExpression,
     Node,
     NumericLiteral,
     ReturnStatement,
@@ -43,6 +45,8 @@ abstract class Visitor {
             this.visitUnaryExpression(node);
         } else if (isBinaryExpression(node)) {
             this.visitBinaryExpression(node);
+        } else if (isLogicalExpression(node)) {
+            this.visitLogicalExpression(node);
         } else if (isUpdateExpression(node)) {
             this.visitUpdateExpression(node);
         } else if (isIfStatement(node)) {
@@ -90,6 +94,11 @@ abstract class Visitor {
     }
 
     protected visitBinaryExpression(node: BinaryExpression) {
+        this.visit(node.left);
+        this.visit(node.right);
+    }
+
+    protected visitLogicalExpression(node: LogicalExpression) {
         this.visit(node.left);
         this.visit(node.right);
     }

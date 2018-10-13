@@ -276,5 +276,18 @@ describe('Transpiler', () => {
             expect(logic(false, false, true)).to.equal(0);
             expect(logic(true, false, false)).to.equal(1);
         });
+
+        it('should handle logical operators in if statement', () => {
+            const content = 'function elseIf(a, b) {' +
+                'if (a && b) { return 0; }' +
+                'else if (a || b) { return 1; }' +
+                'else { return 2; } }';
+            const {elseIf} = Transpiler.transpile(content);
+
+            expect(elseIf(true, true)).to.equal(0);
+            expect(elseIf(true, false)).to.equal(1);
+            expect(elseIf(false, true)).to.equal(1);
+            expect(elseIf(false, false)).to.equal(2);
+        });
     });
 });

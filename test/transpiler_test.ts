@@ -195,6 +195,14 @@ describe('Transpiler', () => {
             expect(minusAssign(-5)).to.equal(6);
         });
 
+        it('should handle multiplication shorthand assignment', () => {
+            const content = 'function multAssign(a) { var b = 2; b *= a; return b; }';
+            const {multAssign} = Transpiler.transpile(content);
+
+            expect(multAssign(5)).to.equal(10);
+            expect(multAssign(-5)).to.equal(-10);
+        });
+
         it('should handle numeric literals', () => {
             const {answer} = Transpiler.transpile('function answer() { return 42; }');
             expect(answer()).to.equal(42);

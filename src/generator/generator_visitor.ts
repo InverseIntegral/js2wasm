@@ -207,6 +207,9 @@ class GeneratorVisitor extends Visitor {
             case '-=':
                 this.expressions.push(this.module.i32.sub(currentValue, assignedValue));
                 break;
+            case '*=':
+                this.expressions.push(this.module.i32.mul(currentValue, assignedValue));
+                break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }

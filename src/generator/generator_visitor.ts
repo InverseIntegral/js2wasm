@@ -39,11 +39,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitIdentifier(node: Identifier) {
-        const index = this.variableMapping.get(node.name);
-
-        if (index === undefined) {
-            throw new Error(`Unknown identifier ${node.name}`);
-        }
+        const index = this.getVariableIndex(node.name);
 
         this.expressions.push(this.module.getLocal(index, i32));
     }
@@ -146,7 +142,7 @@ class GeneratorVisitor extends Visitor {
             throw new Error('An update is only allowed on an identifier');
         }
 
-        const index = this.variableMapping.get(node.argument.name) as number;
+        const index = this.getVariableIndex(node.argument.name);
 
         switch (node.operator) {
             case '++':
@@ -231,6 +227,16 @@ class GeneratorVisitor extends Visitor {
         } else {
             throw new Error('Assignment to non-identifier');
         }
+    }
+
+    private getVariableIndex(name: string) {
+        const index = this.variableMapping.get(name);
+
+        if (index === undefined) {
+            throw new Error(`Unknown identifier ${name}`);
+        }
+
+        return index;
     }
 
     private appendStatement(statement: Statement) {

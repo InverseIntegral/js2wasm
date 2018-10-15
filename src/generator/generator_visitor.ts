@@ -24,7 +24,7 @@ class GeneratorVisitor extends Visitor {
     private readonly module: Module;
     private readonly variableMapping: Map<string, number>;
 
-    private statements: Statement[][] = [];
+    private statements: Statement[] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
@@ -195,13 +195,13 @@ class GeneratorVisitor extends Visitor {
         let elsePart;
 
         if (node.alternate !== null) {
+            const current = this.statements;
+            this.statements = [];
+
             this.visit(node.alternate);
             elsePart = this.currentBlock;
 
-            // If the else part is an IfStatementNode then we can remove the statement
-            if (isIfStatement(node.alternate)) {
-                this.statements[this.statements.length - 1].pop();
-            }
+            this.statements = current;
         }
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
@@ -211,17 +211,13 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBlockStatement(node: BlockStatement) {
-        this.statements.push([]);
+        const current = this.statements;
+        this.statements = [];
 
         super.visitBlockStatement(node);
 
-        const statements = this.statements.pop();
-
-        if (statements === undefined) {
-            throw new Error('Statement stack is empty');
-        }
-
-        this.currentBlock = this.module.block('', statements);
+        this.currentBlock = this.module.block('', this.statements);
+        this.statements = current;
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
@@ -299,7 +295,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     private appendStatement(statement: Statement) {
-        this.statements[this.statements.length - 1].push(statement);
+        this.statements.push(statement);
     }
 }
 

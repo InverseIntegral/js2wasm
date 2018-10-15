@@ -14,6 +14,7 @@ import {
     UnaryExpression,
     UpdateExpression,
     VariableDeclarator,
+    WhileStatement,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -26,6 +27,8 @@ class GeneratorVisitor extends Visitor {
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
+
+    private labelCounter: number = 0;
 
     constructor(module: Module, variableMapping: Map<string, number>) {
         super();
@@ -72,8 +75,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
                 break;
             case '!':
-                this.expressions.push(this.module.i32.rem_s(
-                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
+                this.expressions.push(this.negate(operand));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -220,6 +222,23 @@ class GeneratorVisitor extends Visitor {
         this.createSetLocal(node.left);
     }
 
+    protected visitWhileStatement(node: WhileStatement) {
+        super.visitWhileStatement(node);
+
+        const topBlockLabel = this.generateLabel();
+        const loopLabel = this.generateLabel();
+
+        const cancelBranch = this.module.br_if(topBlockLabel, this.negate(this.popExpression()));
+        const loopBranch = this.module.br(loopLabel);
+        const whilePart = this.currentBlock;
+
+        const topBlock = this.module.block(topBlockLabel, [cancelBranch, whilePart, loopBranch]);
+        const whileStatement = this.module.loop(loopLabel, topBlock);
+
+        this.statements.push(whileStatement);
+        this.currentBlock = whileStatement;
+    }
+
     protected visitCallExpression(node: CallExpression): void {
         if (!isIdentifier(node.callee)) {
             throw new Error('Callee is not an identifier');
@@ -292,6 +311,15 @@ class GeneratorVisitor extends Visitor {
         }
 
         return index;
+    }
+
+    private negate(expression: Expression) {
+        return this.module.i32.rem_s(this.module.i32.add(expression,
+            this.module.i32.const(1)), this.module.i32.const(2));
+    }
+
+    private generateLabel() {
+        return 'label_' + this.labelCounter++;
     }
 }
 

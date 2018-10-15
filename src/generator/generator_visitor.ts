@@ -2,7 +2,7 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral,
+    BooleanLiteral, CallExpression, FunctionDeclaration,
     FunctionExpression,
     Identifier,
     IfStatement,
@@ -33,7 +33,7 @@ class GeneratorVisitor extends Visitor {
         this.variableMapping = variableMapping;
     }
 
-    public run(tree: FunctionExpression): Statement {
+    public run(tree: FunctionDeclaration): Statement {
         this.visit(tree.body);
         return this.currentBlock;
     }
@@ -234,6 +234,28 @@ class GeneratorVisitor extends Visitor {
         }
 
         this.createSetLocal(node.left);
+    }
+
+    protected visitCallExpression(node: CallExpression): void {
+        if (!isIdentifier(node.callee)) {
+            throw new Error('Callee is not an identifier');
+        }
+
+        const parameterExpressions = [];
+
+        for (const argument of node.arguments) {
+            this.visit(argument);
+
+            const expression = this.expressions.pop();
+
+            if (expression === undefined) {
+                throw new Error('Parameter expression is undefined');
+            }
+
+            parameterExpressions.push(expression);
+        }
+
+        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {

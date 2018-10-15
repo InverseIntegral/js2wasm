@@ -1,17 +1,30 @@
-import {FunctionExpression} from '@babel/types';
+import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
 import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 
 class Generator {
 
-    public static generate(tree: FunctionExpression): Module {
+    public static generate(file: File): Module {
+        const module = new Module();
+
+        file.program.body.forEach((statement) => {
+            if (!isFunctionDeclaration(statement)) {
+                throw new Error('File can only contain function declarations');
+            }
+
+            this.generateFunction(module, statement);
+        });
+
+        return module;
+    }
+
+    public static generateFunction(module: Module, tree: FunctionDeclaration) {
         if (tree.id === null) {
             throw new Error('Function expression has to have a name in order to be translated');
         }
 
         const functionName = tree.id.name;
-        const module = new Module();
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
@@ -25,8 +38,6 @@ class Generator {
         const functionType = module.addFunctionType(functionName, i32, parameters);
         module.addFunction(functionName, functionType, variables, body);
         module.addFunctionExport(functionName, functionName);
-
-        return module;
     }
 
     private static mergeMappings(first: Mapping,

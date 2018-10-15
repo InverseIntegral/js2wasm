@@ -2,14 +2,14 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral,
+    BooleanLiteral, CallExpression,
     ExpressionStatement,
     Identifier,
     IfStatement,
     isAssignmentExpression,
     isBinaryExpression,
     isBlockStatement,
-    isBooleanLiteral,
+    isBooleanLiteral, isCallExpression,
     isExpressionStatement,
     isIdentifier,
     isIfStatement,
@@ -61,6 +61,8 @@ abstract class Visitor {
             this.visitExpressionStatement(node);
         } else if (isAssignmentExpression(node)) {
             this.visitAssignmentExpression(node);
+        } else if (isCallExpression(node)) {
+            this.visitCallExpression(node);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
@@ -141,6 +143,14 @@ abstract class Visitor {
     protected visitAssignmentExpression(node: AssignmentExpression) {
         this.visit(node.left);
         this.visit(node.right);
+    }
+
+    protected visitCallExpression(node: CallExpression) {
+        for (const argument of node.arguments) {
+            this.visit(argument);
+        }
+
+        this.visit(node.callee);
     }
 }
 

@@ -2,7 +2,7 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral,
+    BooleanLiteral, CallExpression, FunctionDeclaration,
     FunctionExpression,
     Identifier,
     IfStatement,
@@ -33,7 +33,7 @@ class GeneratorVisitor extends Visitor {
         this.variableMapping = variableMapping;
     }
 
-    public run(tree: FunctionExpression): Statement {
+    public run(tree: FunctionDeclaration): Statement {
         this.visit(tree.body);
         return this.currentBlock;
     }
@@ -62,11 +62,7 @@ class GeneratorVisitor extends Visitor {
     protected visitUnaryExpression(node: UnaryExpression) {
         super.visitUnaryExpression(node);
 
-        const operand = this.expressions.pop();
-
-        if (operand === undefined) {
-            throw new Error('Malformed AST');
-        }
+        const operand = this.popExpression();
 
         switch (node.operator) {
             case '+':
@@ -87,12 +83,8 @@ class GeneratorVisitor extends Visitor {
     protected visitBinaryExpression(node: BinaryExpression) {
         super.visitBinaryExpression(node);
 
-        const right = this.expressions.pop();
-        const left = this.expressions.pop();
-
-        if (left === undefined || right === undefined) {
-            throw new Error('Left or right expression of binary operation is undefined');
-        }
+        const right = this.popExpression();
+        const left = this.popExpression();
 
         switch (node.operator) {
             case '+':
@@ -136,12 +128,8 @@ class GeneratorVisitor extends Visitor {
     protected visitLogicalExpression(node: LogicalExpression) {
         super.visitLogicalExpression(node);
 
-        const right = this.expressions.pop();
-        const left = this.expressions.pop();
-
-        if (left === undefined || right === undefined) {
-            throw new Error('Left or right expression of logical expression is undefined');
-        }
+        const right = this.popExpression();
+        const left = this.popExpression();
 
         switch (node.operator) {
             case '&&':
@@ -158,9 +146,9 @@ class GeneratorVisitor extends Visitor {
     protected visitUpdateExpression(node: UpdateExpression) {
         super.visitUpdateExpression(node);
 
-        const currentValue = this.expressions.pop();
+        const currentValue = this.popExpression();
 
-        if (currentValue === undefined || !(isIdentifier(node.argument))) {
+        if (!(isIdentifier(node.argument))) {
             throw new Error('An update is only allowed on an identifier');
         }
 
@@ -182,11 +170,7 @@ class GeneratorVisitor extends Visitor {
 
     protected visitIfStatement(node: IfStatement) {
         this.visit(node.test);
-        const condition = this.expressions.pop();
-
-        if (condition === undefined) {
-            throw new Error('Missing condition expression');
-        }
+        const condition = this.popExpression();
 
         this.visit(node.consequent);
 
@@ -236,14 +220,35 @@ class GeneratorVisitor extends Visitor {
         this.createSetLocal(node.left);
     }
 
+    protected visitCallExpression(node: CallExpression): void {
+        if (!isIdentifier(node.callee)) {
+            throw new Error('Callee is not an identifier');
+        }
+
+        const parameterExpressions = [];
+
+        for (const argument of node.arguments) {
+            this.visit(argument);
+            parameterExpressions.push(this.popExpression());
+        }
+
+        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
+    }
+
+    private popExpression() {
+        const expression = this.expressions.pop();
+
+        if (expression === undefined) {
+            throw new Error('Expression is undefined');
+        }
+
+        return expression;
+    }
+
     private handleShorthandAssignment(node: AssignmentExpression) {
         this.visit(node.left);
-        const currentValue = this.expressions.pop();
-        const assignedValue = this.expressions.pop();
-
-        if (currentValue === undefined || assignedValue === undefined) {
-            throw new Error('Left or right side of shorthand assignment is undefined');
-        }
+        const currentValue = this.popExpression();
+        const assignedValue = this.popExpression();
 
         switch (node.operator) {
             case '+=':
@@ -264,11 +269,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     private createSetLocal(val: LVal) {
-        const value = this.expressions.pop();
-
-        if (value === undefined) {
-            throw new Error('Assigned undefined expression');
-        }
+        const value = this.popExpression();
 
         if (isIdentifier(val)) {
             const id = this.variableMapping.get(val.name);

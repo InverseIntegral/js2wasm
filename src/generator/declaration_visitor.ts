@@ -1,4 +1,4 @@
-import {FunctionExpression, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
+import {FunctionDeclaration, FunctionExpression, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
 import Visitor from '../visitor';
 type Mapping = Map<string, number>;
 
@@ -8,7 +8,7 @@ class DeclarationVisitor extends Visitor {
     private parameters: Mapping = new Map();
     private variables: Mapping = new Map();
 
-    public run(tree: FunctionExpression): [Mapping, Mapping] {
+    public run(tree: FunctionDeclaration): [Mapping, Mapping] {
         tree.params.forEach((node) => this.registerDeclaration(node, this.parameters));
 
         this.visit(tree.body);

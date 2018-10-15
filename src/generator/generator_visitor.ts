@@ -194,13 +194,13 @@ class GeneratorVisitor extends Visitor {
         let elsePart;
 
         if (node.alternate !== null) {
-            const current = this.statements;
+            const previousStatements = this.statements;
             this.statements = [];
 
             this.visit(node.alternate);
             elsePart = this.currentBlock;
 
-            this.statements = current;
+            this.statements = previousStatements;
         }
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
@@ -210,13 +210,13 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitBlockStatement(node: BlockStatement) {
-        const current = this.statements;
+        const previousStatements = this.statements;
         this.statements = [];
 
         super.visitBlockStatement(node);
 
         this.currentBlock = this.module.block('', this.statements);
-        this.statements = current;
+        this.statements = previousStatements;
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {

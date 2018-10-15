@@ -7,7 +7,6 @@ import {
     Identifier,
     IfStatement,
     isIdentifier,
-    isIfStatement,
     LogicalExpression,
     LVal,
     NumericLiteral,
@@ -24,7 +23,7 @@ class GeneratorVisitor extends Visitor {
     private readonly module: Module;
     private readonly variableMapping: Map<string, number>;
 
-    private statements: Statement[][] = [];
+    private statements: Statement[] = [];
     private expressions: Expression[] = [];
     private currentBlock: Statement;
 
@@ -57,7 +56,7 @@ class GeneratorVisitor extends Visitor {
         super.visitReturnStatement(node);
 
         const returnStatement = this.module.return(this.expressions.pop());
-        this.appendStatement(returnStatement);
+        this.statements.push(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
@@ -169,11 +168,11 @@ class GeneratorVisitor extends Visitor {
 
         switch (node.operator) {
             case '++':
-                this.appendStatement(this.module.set_local(index,
+                this.statements.push(this.module.set_local(index,
                     this.module.i32.add(currentValue, this.module.i32.const(1))));
                 break;
             case '--':
-                this.appendStatement(this.module.set_local(index,
+                this.statements.push(this.module.set_local(index,
                     this.module.i32.sub(currentValue, this.module.i32.const(1))));
                 break;
             default:
@@ -195,33 +194,29 @@ class GeneratorVisitor extends Visitor {
         let elsePart;
 
         if (node.alternate !== null) {
+            const previousStatements = this.statements;
+            this.statements = [];
+
             this.visit(node.alternate);
             elsePart = this.currentBlock;
 
-            // If the else part is an IfStatementNode then we can remove the statement
-            if (isIfStatement(node.alternate)) {
-                this.statements[this.statements.length - 1].pop();
-            }
+            this.statements = previousStatements;
         }
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
-        this.appendStatement(ifStatement);
+        this.statements.push(ifStatement);
         this.currentBlock = ifStatement;
     }
 
     protected visitBlockStatement(node: BlockStatement) {
-        this.statements.push([]);
+        const previousStatements = this.statements;
+        this.statements = [];
 
         super.visitBlockStatement(node);
 
-        const statements = this.statements.pop();
-
-        if (statements === undefined) {
-            throw new Error('Statement stack is empty');
-        }
-
-        this.currentBlock = this.module.block('', statements);
+        this.currentBlock = this.module.block('', this.statements);
+        this.statements = previousStatements;
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
@@ -282,7 +277,7 @@ class GeneratorVisitor extends Visitor {
                 throw new Error('Assigned to unknown variable');
             }
 
-            this.appendStatement(this.module.set_local(id, value));
+            this.statements.push(this.module.set_local(id, value));
         } else {
             throw new Error('Assignment to non-identifier');
         }
@@ -296,10 +291,6 @@ class GeneratorVisitor extends Visitor {
         }
 
         return index;
-    }
-
-    private appendStatement(statement: Statement) {
-        this.statements[this.statements.length - 1].push(statement);
     }
 }
 

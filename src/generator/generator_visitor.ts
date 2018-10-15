@@ -7,7 +7,6 @@ import {
     Identifier,
     IfStatement,
     isIdentifier,
-    isIfStatement,
     LogicalExpression,
     LVal,
     NumericLiteral,
@@ -57,7 +56,7 @@ class GeneratorVisitor extends Visitor {
         super.visitReturnStatement(node);
 
         const returnStatement = this.module.return(this.expressions.pop());
-        this.appendStatement(returnStatement);
+        this.statements.push(returnStatement);
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {
@@ -169,11 +168,11 @@ class GeneratorVisitor extends Visitor {
 
         switch (node.operator) {
             case '++':
-                this.appendStatement(this.module.set_local(index,
+                this.statements.push(this.module.set_local(index,
                     this.module.i32.add(currentValue, this.module.i32.const(1))));
                 break;
             case '--':
-                this.appendStatement(this.module.set_local(index,
+                this.statements.push(this.module.set_local(index,
                     this.module.i32.sub(currentValue, this.module.i32.const(1))));
                 break;
             default:
@@ -206,7 +205,7 @@ class GeneratorVisitor extends Visitor {
 
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
-        this.appendStatement(ifStatement);
+        this.statements.push(ifStatement);
         this.currentBlock = ifStatement;
     }
 
@@ -278,7 +277,7 @@ class GeneratorVisitor extends Visitor {
                 throw new Error('Assigned to unknown variable');
             }
 
-            this.appendStatement(this.module.set_local(id, value));
+            this.statements.push(this.module.set_local(id, value));
         } else {
             throw new Error('Assignment to non-identifier');
         }
@@ -292,10 +291,6 @@ class GeneratorVisitor extends Visitor {
         }
 
         return index;
-    }
-
-    private appendStatement(statement: Statement) {
-        this.statements.push(statement);
     }
 }
 

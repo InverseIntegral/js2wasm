@@ -34,7 +34,7 @@ describe('Transpiler', () => {
             const content = 'function elseIf(a, b, c) { ' +
                 'if (a) { return 0; } ' +
                 'else if (b) { return 1; } ' +
-                'else if(c) { return 2; } ' +
+                'else if (c) { return 2; } ' +
                 'else { return 3; } }';
             const {elseIf} = Transpiler.transpile(content);
 

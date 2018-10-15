@@ -150,7 +150,7 @@ class GeneratorVisitor extends Visitor {
 
         const currentValue = this.popExpression();
 
-        if (!(isIdentifier(node.argument))) {
+        if (!isIdentifier(node.argument)) {
             throw new Error('An update is only allowed on an identifier');
         }
 

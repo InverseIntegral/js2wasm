@@ -267,7 +267,7 @@ class GeneratorVisitor extends Visitor {
         const statement = this.statements.pop();
 
         if (statement === undefined) {
-            throw new Error('Expression is undefined');
+            throw new Error('Statement is undefined');
         }
 
         return statement;

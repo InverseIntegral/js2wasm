@@ -4,10 +4,13 @@ import {
     BlockStatement,
     BooleanLiteral,
     CallExpression,
+    ExpressionStatement,
     FunctionDeclaration,
     Identifier,
     IfStatement,
+    isAssignmentExpression,
     isIdentifier,
+    isUpdateExpression,
     LogicalExpression,
     LVal,
     NumericLiteral,
@@ -251,6 +254,15 @@ class GeneratorVisitor extends Visitor {
         }
 
         this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
+    }
+
+    protected visitExpressionStatement(node: ExpressionStatement) {
+        super.visitExpressionStatement(node);
+
+        // Update and assignment expressions already generate a complete statement
+        if (!isUpdateExpression(node.expression) && !isAssignmentExpression((node.expression))) {
+            this.statements.push(this.module.drop(this.popExpression()));
+        }
     }
 
     private popExpression() {

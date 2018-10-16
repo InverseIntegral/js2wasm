@@ -60,6 +60,17 @@ describe('Transpiler', () => {
             expect(elseIf(false, true)).to.equal(1);
             expect(elseIf(false, false)).to.equal(2);
         });
+        it('should handle if with multiple statements', () => {
+            const content = 'function elseIf(a, b, value) { ' +
+                'if (a) { value += 1; return value; } ' +
+                'else if (b) { value += 2; return value; } ' +
+                'else { value += 3; return value; } }';
+            const {elseIf} = Transpiler.transpile(content);
+
+            expect(elseIf(true, false, 1)).to.equal(2);
+            expect(elseIf(false, true, 1)).to.equal(3);
+            expect(elseIf(false, false, 1)).to.equal(4);
+        });
 
         it('should handle if statements without braces', () => {
             const content = 'function ifWithout(a) { if (a) return 10; else return 20; }';

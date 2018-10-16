@@ -18,6 +18,7 @@ import {
     UnaryExpression,
     UpdateExpression,
     VariableDeclarator,
+    WhileStatement,
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
@@ -29,7 +30,8 @@ class GeneratorVisitor extends Visitor {
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
-    private currentBlock: Statement;
+
+    private labelCounter: number = 0;
 
     constructor(module: Module, variableMapping: Map<string, number>) {
         super();
@@ -39,7 +41,7 @@ class GeneratorVisitor extends Visitor {
 
     public run(tree: FunctionDeclaration): Statement {
         this.visit(tree.body);
-        return this.currentBlock;
+        return this.popStatement();
     }
 
     protected visitIdentifier(node: Identifier) {
@@ -76,8 +78,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
                 break;
             case '!':
-                this.expressions.push(this.module.i32.rem_s(
-                    this.module.i32.add(operand, this.module.i32.const(1)), this.module.i32.const(2)));
+                this.expressions.push(this.negate(operand));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -152,7 +153,7 @@ class GeneratorVisitor extends Visitor {
 
         const currentValue = this.popExpression();
 
-        if (!(isIdentifier(node.argument))) {
+        if (!isIdentifier(node.argument)) {
             throw new Error('An update is only allowed on an identifier');
         }
 
@@ -178,7 +179,7 @@ class GeneratorVisitor extends Visitor {
 
         this.visit(node.consequent);
 
-        const ifPart = this.currentBlock;
+        const ifPart = this.popStatement();
         let elsePart;
 
         if (node.alternate !== null) {
@@ -186,7 +187,7 @@ class GeneratorVisitor extends Visitor {
             this.statements = [];
 
             this.visit(node.alternate);
-            elsePart = this.currentBlock;
+            elsePart = this.popStatement();
 
             this.statements = previousStatements;
         }
@@ -194,7 +195,6 @@ class GeneratorVisitor extends Visitor {
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
         this.statements.push(ifStatement);
-        this.currentBlock = ifStatement;
     }
 
     protected visitBlockStatement(node: BlockStatement) {
@@ -203,8 +203,9 @@ class GeneratorVisitor extends Visitor {
 
         super.visitBlockStatement(node);
 
-        this.currentBlock = this.module.block('', this.statements);
+        const block = this.module.block('', this.statements);
         this.statements = previousStatements;
+        this.statements.push(block);
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
@@ -222,6 +223,22 @@ class GeneratorVisitor extends Visitor {
         }
 
         this.createSetLocal(node.left);
+    }
+
+    protected visitWhileStatement(node: WhileStatement) {
+        super.visitWhileStatement(node);
+
+        const endLabel = this.generateLabel();
+        const beginLabel = this.generateLabel();
+
+        const conditionBranch = this.module.br_if(endLabel, this.negate(this.popExpression()));
+        const loopBranch = this.module.br(beginLabel);
+        const whilePart = this.popStatement();
+
+        const loopBlock = this.module.block(endLabel, [conditionBranch, whilePart, loopBranch]);
+        const whileStatement = this.module.loop(beginLabel, loopBlock);
+
+        this.statements.push(whileStatement);
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -256,6 +273,16 @@ class GeneratorVisitor extends Visitor {
         }
 
         return expression;
+    }
+
+    private popStatement() {
+        const statement = this.statements.pop();
+
+        if (statement === undefined) {
+            throw new Error('Statement is undefined');
+        }
+
+        return statement;
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {
@@ -305,6 +332,15 @@ class GeneratorVisitor extends Visitor {
         }
 
         return index;
+    }
+
+    private negate(expression: Expression) {
+        return this.module.i32.rem_s(this.module.i32.add(expression,
+            this.module.i32.const(1)), this.module.i32.const(2));
+    }
+
+    private generateLabel() {
+        return 'label_' + this.labelCounter++;
     }
 }
 

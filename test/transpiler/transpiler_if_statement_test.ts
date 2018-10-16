@@ -34,7 +34,7 @@ describe('Transpiler', () => {
             const content = 'function elseIf(a, b, c) { ' +
                 'if (a) { return 0; } ' +
                 'else if (b) { return 1; } ' +
-                'else if(c) { return 2; } ' +
+                'else if (c) { return 2; } ' +
                 'else { return 3; } }';
             const {elseIf} = Transpiler.transpile(content);
 
@@ -60,7 +60,6 @@ describe('Transpiler', () => {
             expect(elseIf(false, true)).to.equal(1);
             expect(elseIf(false, false)).to.equal(2);
         });
-
         it('should handle if with multiple statements', () => {
             const content = 'function elseIf(a, b, value) { ' +
                 'if (a) { value += 1; return value; } ' +
@@ -71,6 +70,23 @@ describe('Transpiler', () => {
             expect(elseIf(true, false, 1)).to.equal(2);
             expect(elseIf(false, true, 1)).to.equal(3);
             expect(elseIf(false, false, 1)).to.equal(4);
+        });
+
+        it('should handle if statements without braces', () => {
+            const content = 'function ifWithout(a) { if (a) return 10; else return 20; }';
+            const {ifWithout} = Transpiler.transpile(content);
+
+            expect(ifWithout(true)).to.equal(10);
+            expect(ifWithout(false)).to.equal(20);
+        });
+
+        it('should handle else if statements without braces', () => {
+            const content = 'function ifWithout(a, b) { if (a) return 10; else if(b) return 20; else return 30; }';
+            const {ifWithout} = Transpiler.transpile(content);
+
+            expect(ifWithout(true, false)).to.equal(10);
+            expect(ifWithout(false, true)).to.equal(20);
+            expect(ifWithout(false, false)).to.equal(30);
         });
     });
 });

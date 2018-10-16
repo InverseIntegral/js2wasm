@@ -20,6 +20,7 @@ import {
     isUpdateExpression,
     isVariableDeclaration,
     isVariableDeclarator,
+    isWhileStatement,
     LogicalExpression,
     Node,
     NumericLiteral,
@@ -28,6 +29,7 @@ import {
     UpdateExpression,
     VariableDeclaration,
     VariableDeclarator,
+    WhileStatement,
 } from '@babel/types';
 
 abstract class Visitor {
@@ -61,6 +63,8 @@ abstract class Visitor {
             this.visitExpressionStatement(node);
         } else if (isAssignmentExpression(node)) {
             this.visitAssignmentExpression(node);
+        } else if (isWhileStatement(node)) {
+            this.visitWhileStatement(node);
         } else if (isCallExpression(node)) {
             this.visitCallExpression(node);
         } else {
@@ -143,6 +147,11 @@ abstract class Visitor {
     protected visitAssignmentExpression(node: AssignmentExpression) {
         this.visit(node.left);
         this.visit(node.right);
+    }
+
+    protected visitWhileStatement(node: WhileStatement) {
+        this.visit(node.test);
+        this.visit(node.body);
     }
 
     protected visitCallExpression(node: CallExpression) {

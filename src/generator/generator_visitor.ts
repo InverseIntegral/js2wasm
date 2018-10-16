@@ -239,7 +239,6 @@ class GeneratorVisitor extends Visitor {
         this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
     }
 
-
     protected visitExpressionStatement(node: ExpressionStatement) {
         super.visitExpressionStatement(node);
 

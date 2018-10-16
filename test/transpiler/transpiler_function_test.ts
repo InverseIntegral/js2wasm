@@ -42,5 +42,14 @@ describe('Transpiler', () => {
             expect(complete(2)).to.equal(6);
             expect(complete(-2)).to.equal(-2);
         });
+
+        it('should handle function calls without assignments', () => {
+            const content = 'function double(current) { return 2 * current; }' +
+                'function complete(current) { double(current); return double(current); } ';
+            const {complete} = Transpiler.transpile(content);
+
+            expect(complete(2)).to.equal(4);
+            expect(complete(-2)).to.equal(-4);
+        });
     });
 });

@@ -190,5 +190,17 @@ describe('Transpiler', () => {
             expect(logic(false, false, true)).to.equal(0);
             expect(logic(false, false, false)).to.equal(0);
         });
+
+        it('should handle expression statements', () => {
+            const content = 'function add(a, b) { a + b; return a + b; }';
+            const {add} = Transpiler.transpile(content);
+
+            expect(add(1, 2)).to.equal(3);
+            expect(add(10, 2)).to.equal(12);
+            expect(add(0, 123)).to.equal(123);
+            expect(add(123, 0)).to.equal(123);
+            expect(add(0, 0)).to.equal(0);
+            expect(add(-20, -5)).to.equal(-25);
+        });
     });
 });

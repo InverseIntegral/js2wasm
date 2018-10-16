@@ -2,8 +2,9 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral, CallExpression, FunctionDeclaration,
-    FunctionExpression,
+    BooleanLiteral,
+    CallExpression,
+    FunctionDeclaration,
     Identifier,
     IfStatement,
     isIdentifier,
@@ -26,7 +27,6 @@ class GeneratorVisitor extends Visitor {
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
-    private currentBlock: Statement;
 
     private labelCounter: number = 0;
 
@@ -38,7 +38,7 @@ class GeneratorVisitor extends Visitor {
 
     public run(tree: FunctionDeclaration): Statement {
         this.visit(tree.body);
-        return this.currentBlock;
+        return this.popStatement();
     }
 
     protected visitIdentifier(node: Identifier) {
@@ -176,7 +176,7 @@ class GeneratorVisitor extends Visitor {
 
         this.visit(node.consequent);
 
-        const ifPart = this.currentBlock;
+        const ifPart = this.popStatement();
         let elsePart;
 
         if (node.alternate !== null) {
@@ -184,7 +184,7 @@ class GeneratorVisitor extends Visitor {
             this.statements = [];
 
             this.visit(node.alternate);
-            elsePart = this.currentBlock;
+            elsePart = this.popStatement();
 
             this.statements = previousStatements;
         }
@@ -192,7 +192,6 @@ class GeneratorVisitor extends Visitor {
         const ifStatement = this.module.if(condition, ifPart, elsePart);
 
         this.statements.push(ifStatement);
-        this.currentBlock = ifStatement;
     }
 
     protected visitBlockStatement(node: BlockStatement) {
@@ -201,8 +200,9 @@ class GeneratorVisitor extends Visitor {
 
         super.visitBlockStatement(node);
 
-        this.currentBlock = this.module.block('', this.statements);
+        const block = this.module.block('', this.statements);
         this.statements = previousStatements;
+        this.statements.push(block);
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
@@ -230,13 +230,12 @@ class GeneratorVisitor extends Visitor {
 
         const cancelBranch = this.module.br_if(topBlockLabel, this.negate(this.popExpression()));
         const loopBranch = this.module.br(loopLabel);
-        const whilePart = this.currentBlock;
+        const whilePart = this.popStatement();
 
         const topBlock = this.module.block(topBlockLabel, [cancelBranch, whilePart, loopBranch]);
         const whileStatement = this.module.loop(loopLabel, topBlock);
 
         this.statements.push(whileStatement);
-        this.currentBlock = whileStatement;
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -262,6 +261,16 @@ class GeneratorVisitor extends Visitor {
         }
 
         return expression;
+    }
+
+    private popStatement() {
+        const statement = this.statements.pop();
+
+        if (statement === undefined) {
+            throw new Error('Expression is undefined');
+        }
+
+        return statement;
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {

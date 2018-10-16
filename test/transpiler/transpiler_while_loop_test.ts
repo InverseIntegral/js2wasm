@@ -89,5 +89,17 @@ describe('Transpiler', () => {
             expect(loop(10, 0)).to.equal(10);
             expect(loop(10, -1)).to.equal(10);
         });
+
+        it('should handle while loops without braces', () => {
+            const content = 'function loop(times) { ' +
+                'var i = 0;' +
+                'while (i < times) i++;' +
+                'return i; }';
+            const {loop} = Transpiler.transpile(content);
+
+            expect(loop(5)).to.equal(5);
+            expect(loop(0)).to.equal(0);
+            expect(loop(-1)).to.equal(0);
+        });
     });
 });

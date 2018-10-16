@@ -225,15 +225,15 @@ class GeneratorVisitor extends Visitor {
     protected visitWhileStatement(node: WhileStatement) {
         super.visitWhileStatement(node);
 
-        const topBlockLabel = this.generateLabel();
-        const loopLabel = this.generateLabel();
+        const endLabel = this.generateLabel();
+        const beginLabel = this.generateLabel();
 
-        const cancelBranch = this.module.br_if(topBlockLabel, this.negate(this.popExpression()));
-        const loopBranch = this.module.br(loopLabel);
+        const conditionBranch = this.module.br_if(endLabel, this.negate(this.popExpression()));
+        const loopBranch = this.module.br(beginLabel);
         const whilePart = this.popStatement();
 
-        const topBlock = this.module.block(topBlockLabel, [cancelBranch, whilePart, loopBranch]);
-        const whileStatement = this.module.loop(loopLabel, topBlock);
+        const loopBlock = this.module.block(endLabel, [conditionBranch, whilePart, loopBranch]);
+        const whileStatement = this.module.loop(beginLabel, loopBlock);
 
         this.statements.push(whileStatement);
     }

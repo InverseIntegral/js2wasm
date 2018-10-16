@@ -240,7 +240,7 @@ class GeneratorVisitor extends Visitor {
     }
 
 
-    protected visitExpressionStatement(node: ExpressionStatement): void {
+    protected visitExpressionStatement(node: ExpressionStatement) {
         super.visitExpressionStatement(node);
 
         // Update and assignment expressions already generate a complete statement

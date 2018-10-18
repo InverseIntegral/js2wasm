@@ -1,13 +1,12 @@
 function isPrime(toTest) {
-    if (toTest === 1 || toTest === 0) {
+    if (toTest == 1 || toTest == 0) {
         return false;
     }
 
     var i = 2;
-    var s = Math.sqrt(toTest);
 
-    while (i <= s) {
-        if (toTest % i === 0) {
+    while (i * i <= toTest) {
+        if (toTest % i == 0) {
             return false;
         }
 
@@ -32,9 +31,4 @@ function countPrimes(max) {
     return counter;
 }
 
-
-function executePrimeCounter() {
-    countPrimes(100000);
-}
-
-module.exports = executePrimeCounter;
+module.exports = isPrime;

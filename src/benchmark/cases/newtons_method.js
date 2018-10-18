@@ -1,24 +1,12 @@
-function F(x) {
-    return Math.pow(x, 2) - 612; // solve x^2 = 612
-}
-
-function f(x) {
-    return 2 * x;
-}
-
-function solve(iterations, initial) {
+function newtons_method(iterations, initial) {
     var i = 0;
 
     while (i < iterations) {
-        initial = initial - F(initial) / f(initial);
+        initial = initial - (initial * initial - 612) / (2 * initial);
         i++;
     }
 
     return initial;
 }
 
-function calculateNewtonsMethod() {
-    solve(200, 32);
-}
-
-module.exports = calculateNewtonsMethod;
+module.exports = newtons_method;

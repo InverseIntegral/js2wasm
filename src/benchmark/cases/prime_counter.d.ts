@@ -1,1 +1,1 @@
-export default function executePrimeCounter(): void;
+export default function newtons_method(): void;

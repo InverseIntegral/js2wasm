@@ -1,4 +1,27 @@
+import Transpiler from '../transpiler';
+
+// noinspection TsLint
+type Algorithm = {
+    // noinspection TsLint
+    func: Function,
+    arguments: any[],
+};
+
 class Measurement {
+
+    // noinspection TsLint
+    private static executeAlgorithm(algorithm: Function, args: any[], rounds: number): number[] {
+        const times: number[] = [];
+
+        for (let i = 0; i < rounds; i++) {
+            const startTime: number = Date.now();
+            algorithm(...args);
+            const endTime: number = Date.now();
+            times.push(endTime - startTime);
+        }
+
+        return times;
+    }
 
     private readonly warmupRounds: number;
     private readonly measureRounds: number;
@@ -8,30 +31,20 @@ class Measurement {
         this.measureRounds = measureRounds;
     }
 
-    public measure(jsAlgorithm: () => void): [number[], number[]] {
-        this.executeAlgorithm(jsAlgorithm, this.warmupRounds);
-        const jsTimes = this.executeAlgorithm(jsAlgorithm, this.measureRounds);
+    // noinspection TsLint
+    public measure(jsAlgorithm: Algorithm): [number[], number[]] {
+        const func = jsAlgorithm.func;
+        const args = jsAlgorithm.arguments;
 
-        // cross compile here
-        const wasmAlgorithm = jsAlgorithm; // change to cross compiled function
-        this.executeAlgorithm(wasmAlgorithm, this.warmupRounds);
-        const wasmTimes = this.executeAlgorithm(wasmAlgorithm, this.measureRounds);
+        Measurement.executeAlgorithm(func, args, this.warmupRounds);
+        const jsTimes = Measurement.executeAlgorithm(func, args, this.measureRounds);
+
+        const wasmAlgorithm = Transpiler.transpile(func.toString())[func.name];
+        Measurement.executeAlgorithm(wasmAlgorithm, args, this.warmupRounds);
+        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, args, this.measureRounds);
 
         return [jsTimes, wasmTimes];
     }
-
-    private executeAlgorithm(algorithm: () => void, rounds: number): number[] {
-        const times: number[] = [];
-
-        for (let i = 0; i < rounds; i++) {
-            const startTime: number = Date.now();
-            algorithm();
-            const endTime: number = Date.now();
-            times.push(endTime - startTime);
-        }
-
-        return times;
-    }
 }
 
-export default Measurement;
+export {Measurement, Algorithm};

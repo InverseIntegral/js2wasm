@@ -34,24 +34,16 @@ function appendResult(result: [number[], number[]], log: HTMLElement, selectedAl
     const jsVariance = variance(jsTimes);
     const wasmVariance = variance(wasmTimes);
 
-    const totalJsTime = jsTimes.reduce(sum, 0);
-    const totalWasmTime = wasmTimes.reduce(sum, 0);
     const currentLogContent = log.innerText;
-
     log.innerText = 'Name: ' + selectedAlgorithm + '\n';
-    log.innerText += 'Total JavaScript time: ' + totalJsTime + '\n';
-    log.innerText += 'Total WebAssembly time: ' + totalWasmTime + '\n';
-    log.innerText += 'Total time improvement: ' + (totalJsTime - totalWasmTime) + '\n';
     log.innerText += 'Average JavaScript time: ' + jsMean + '\n';
     log.innerText += 'Average WebAssembly time: ' + wasmMean + '\n';
-    log.innerText += 'Average time improvement: ' + (jsMean - wasmMean) + '\n';
     log.innerText += 'Variance JavaScript: ' + jsVariance + '\n';
     log.innerText += 'Variance WebAssembly: ' + wasmVariance + '\n';
-    log.innerText += 'Variance impovement: ' + (jsVariance - wasmVariance) + '\n';
     log.innerText += '\n';
     log.innerText += currentLogContent;
 
-    console.log([totalJsTime, totalWasmTime, jsMean, wasmMean, jsVariance, wasmVariance].toString());
+    console.log([jsMean, wasmMean, jsVariance, wasmVariance].toString());
 }
 
 function createSelection(selectionElement: HTMLSelectElement) {

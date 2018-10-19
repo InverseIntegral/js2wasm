@@ -50,6 +50,8 @@ function appendResult(result: [number[], number[]], log: HTMLElement, selectedAl
     log.innerText += 'Variance impovement: ' + (jsVariance - wasmVariance) + '\n';
     log.innerText += '\n';
     log.innerText += currentLogContent;
+
+    console.log([totalJsTime, totalWasmTime, jsMean, wasmMean, jsVariance, wasmVariance].toString());
 }
 
 function createSelection(selectionElement: HTMLSelectElement) {

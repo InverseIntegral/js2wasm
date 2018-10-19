@@ -46,9 +46,9 @@ function quickSort(items, left, right) {
     return items;
 }
 
-function executeQuickSort() {
+function run() {
     let size = 10000;
     quickSort([...Array(size).keys()].reverse(), 0, size);
 }
 
-module.exports = executeQuickSort;
+module.exports = run;

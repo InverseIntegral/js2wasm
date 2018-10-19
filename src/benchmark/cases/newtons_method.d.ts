@@ -1,1 +1,1 @@
-export default function calculateNewtonsMethod(): void;
+export default function newtonsMethod(): void;

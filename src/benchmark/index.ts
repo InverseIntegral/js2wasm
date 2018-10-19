@@ -1,18 +1,14 @@
 import fibonacci from './cases/fibonacci';
 import newtonsMethod from './cases/newtons_method';
-import primeCounter from './cases/prime_counter';
-import quickSort from './cases/quicksort';
-import sumDoubles from './cases/sum_doubles';
+import isPrime from './cases/prime_counter';
 import sumIntegers from './cases/sum_integers';
-import Measurement from './measurement';
+import {Algorithm, Measurement} from './measurement';
 
-const algorithms = new Map<string, () => void>([
-    ['Fibonacci', fibonacci],
-    ['Newtons Method', newtonsMethod],
-    ['Prime Counter', primeCounter],
-    ['Quick Sort', quickSort],
-    ['Sum Doubles', sumDoubles],
-    ['Sum Integers', sumIntegers],
+const algorithms = new Map<string, Algorithm>([
+    ['Fibonacci', { func: fibonacci, arguments: [41] }],
+    ['Sum Integers', { func: sumIntegers, arguments: [] }],
+    ['isPrime', { func: isPrime, arguments: [32416190071] }],
+    ['Newtons Method', { func: newtonsMethod, arguments: [200, 32]}],
 ]);
 
 function sum(value1: number, value2: number): number {
@@ -28,22 +24,26 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
-function appendResult(result: [number[], number[]], log: HTMLElement,
-                      selectedAlgorithm: string, warmupRounds: number, measureRounds: number) {
-    const totalJsTime = result[0].reduce(sum, 0);
-    const totalWasmTime = result[1].reduce(sum, 0);
-    const currentLogContent = log.innerText;
+function appendResult(result: [number[], number[]], log: HTMLElement, selectedAlgorithm: string) {
+    const jsTimes = result[0];
+    const wasmTimes = result[1];
 
+    const jsMean = mean(jsTimes);
+    const wasmMean = mean(wasmTimes);
+
+    const jsVariance = variance(jsTimes);
+    const wasmVariance = variance(wasmTimes);
+
+    const currentLogContent = log.innerText;
     log.innerText = 'Name: ' + selectedAlgorithm + '\n';
-    log.innerText += 'Total JavaScript time: ' + totalJsTime + '\n';
-    log.innerText += 'Total WebAssembly time: ' + totalWasmTime + '\n';
-    log.innerText += 'Total time improvement: ' + (totalJsTime - totalWasmTime) + '\n';
-    log.innerText += 'Average JavaScript time: ' + mean(result[0]) + '\n';
-    log.innerText += 'Average WebAssembly time: ' + mean(result[1]) + '\n';
-    log.innerText += 'JavaScript variance: ' + variance(result[0]) + '\n';
-    log.innerText += 'WebAssembly variance: ' + variance(result[1]) + '\n';
+    log.innerText += 'Average JavaScript time: ' + jsMean + '\n';
+    log.innerText += 'Average WebAssembly time: ' + wasmMean + '\n';
+    log.innerText += 'Variance JavaScript: ' + jsVariance + '\n';
+    log.innerText += 'Variance WebAssembly: ' + wasmVariance + '\n';
     log.innerText += '\n';
     log.innerText += currentLogContent;
+
+    console.log([jsMean, wasmMean, jsVariance, wasmVariance].toString());
 }
 
 function createSelection(selectionElement: HTMLSelectElement) {
@@ -66,8 +66,14 @@ window.onload = () => {
         const selectedAlgorithm = selectionElement.options[selectionElement.selectedIndex].value;
         const warmupRounds = Number(warmupRoundsElement.value);
         const measureRounds = Number(measureRoundsElement.value);
-        const measurement = new Measurement(warmupRounds, measureRounds);
-        const result = measurement.measure(algorithms.get(selectedAlgorithm) as () => void);
-        appendResult(result, resultLog, selectedAlgorithm, warmupRounds, measureRounds);
+
+        const algorithm = algorithms.get(selectedAlgorithm);
+
+        if (algorithm === undefined) {
+            console.error('No algorithm selected');
+        } else {
+            const result = new Measurement(warmupRounds, measureRounds).measure(algorithm);
+            appendResult(result, resultLog, selectedAlgorithm);
+        }
     });
 };

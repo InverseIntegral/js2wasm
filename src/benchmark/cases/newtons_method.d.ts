@@ -1,1 +1,1 @@
-export default function run(): void;
+export default function newtonsMethod(): void;

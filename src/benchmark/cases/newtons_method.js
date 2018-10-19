@@ -1,4 +1,4 @@
-function newtons_method(iterations, initial) {
+function newtonsMethod(iterations, initial) {
     var i = 0;
 
     while (i < iterations) {
@@ -9,4 +9,4 @@ function newtons_method(iterations, initial) {
     return initial;
 }
 
-module.exports = newtons_method;
+module.exports = newtonsMethod;

@@ -1,1 +1,1 @@
-export default function newtons_method(): void;
+export default function isPrime(): void;

@@ -8,7 +8,8 @@ import {
     FunctionDeclaration,
     Identifier,
     IfStatement,
-    isAssignmentExpression,
+    isArrayExpression,
+    isAssignmentExpression, isExpression,
     isIdentifier,
     isUpdateExpression,
     LogicalExpression,
@@ -211,6 +212,11 @@ class GeneratorVisitor extends Visitor {
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null) {
             this.visit(node.init);
+
+            if (isArrayExpression(node.init)) {
+                this.createLocalArray(node.id, node.init.elements.length);
+            }
+
             this.createSetLocal(node.id);
         }
     }
@@ -322,6 +328,27 @@ class GeneratorVisitor extends Visitor {
         } else {
             throw new Error('Assignment to non-identifier');
         }
+    }
+
+    private createLocalArray(val: LVal, length: number) {
+        if (!isIdentifier(val)) {
+            throw new Error('Assigned to unknown variable');
+        }
+
+        const memoryLocation = this.variableMapping.get(val.name);
+
+        if (memoryLocation === undefined) {
+            throw new Error('Assigned to unknown variable');
+        }
+
+        const ptr = this.module.i32.const(memoryLocation);
+        this.module.i32.store(0, 0, ptr, this.module.i32.const(length));
+
+        for (let i: number = 0; i < length; i++) {
+            this.module.i32.store(i + 1, 0, ptr, this.popExpression());
+        }
+
+        this.expressions.push(ptr);
     }
 
     private getVariableIndex(name: string) {

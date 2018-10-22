@@ -9,6 +9,10 @@ class Transpiler {
 
         module.optimize();
 
+        if (!module.validate()) {
+            throw new Error('The generated WebAssembly is invalid');
+        }
+
         return new WebAssembly.Instance(new WebAssembly.Module(module.emitBinary()), {}).exports;
     }
 

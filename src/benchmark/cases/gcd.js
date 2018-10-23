@@ -10,4 +10,15 @@ function gcd(a, b) {
     return a;
 }
 
-module.exports = gcd;
+function gcdWhile(a, b) {
+    var i = 0;
+
+    while (i < 10000) {
+        gcd(a, b);
+        i++;
+    }
+
+    return gcd(a, b);
+}
+
+module.exports = {gcd, gcdWhile};

@@ -14,7 +14,7 @@ function fibonacciWhile(current) {
         i++;
     }
 
-    return 0;
+    return fibonacci(current);
 }
 
 module.exports = {fibonacciWhile, fibonacci};

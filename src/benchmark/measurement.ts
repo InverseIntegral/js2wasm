@@ -23,7 +23,8 @@ class Measurement {
             const endTime: number = Date.now();
             times.push(endTime - startTime);
 
-            if (result !== expectedResult) {
+            // noinspection TsLint because of boolean handling in wasm
+            if (result != expectedResult) {
                 console.log(`Result was wrong, expected=${expectedResult}, actual=${result}`);
             }
         }

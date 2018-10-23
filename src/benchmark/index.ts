@@ -1,38 +1,38 @@
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
-import gcd from './cases/gcd';
-import newtonsMethod from './cases/newtons_method';
-import isPrime from './cases/prime_counter';
-import sumIntegers from './cases/sum_integers';
+import {gcd, gcdWhile} from './cases/gcd';
+import {isPrime, isPrimeWhile} from './cases/is_prime';
+import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
+import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Algorithm, Measurement} from './measurement';
 
 const fibonacciFunc = {
     arguments: [41],
-    expectedResult: 0, // current zero because the actual result (165580141) isn't returned
+    expectedResult: 165580141,
     func: [fibonacciWhile, fibonacci],
 };
 
 const gcdFunc = {
   arguments: [978, 2147483646],
   expectedResult: 6,
-  func: [gcd],
+  func: [gcdWhile, gcd],
 };
 
 const sumIntegersFunc = {
     arguments: [],
     expectedResult: 2147385345,
-    func: [sumIntegers],
+    func: [sumIntegersWhile, sumIntegers],
 };
 
 const isPrimeFunc = {
-    arguments: [32416190071],
+    arguments: [46327],
     expectedResult: 1,
-    func: [isPrime],
+    func: [isPrimeWhile, isPrime],
 };
 
 const newtonsMethodFunc = {
     arguments: [200, 32],
-    expectedResult: 0,
-    func: [newtonsMethod],
+    expectedResult: 24,
+    func: [newtonsMethodWhile, newtonsMethod],
 };
 
 const algorithms = new Map<string, Algorithm>([

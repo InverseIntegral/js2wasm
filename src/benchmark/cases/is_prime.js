@@ -16,19 +16,15 @@ function isPrime(toTest) {
     return true;
 }
 
-function countPrimes(max) {
-    var counter = 0;
-    var i = 2;
+function isPrimeWhile(toTest) {
+    var i = 0;
 
-    while (i < max) {
-        if (isPrime(i)) {
-            counter++;
-        }
-
+    while (i < 10000000) {
+        isPrime(toTest);
         i++;
     }
 
-    return counter;
+    return isPrime(toTest);
 }
 
-module.exports = isPrime;
+module.exports = {isPrime, isPrimeWhile};

@@ -1,9 +1,9 @@
 function gcd(a, b) {
     while (b != 0) {
         if (a > b) {
-            a = a - b;
+            a -= b;
         } else {
-            b = b - a;
+            b -= a;
         }
     }
 

@@ -78,7 +78,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
                 break;
             case '!':
-                this.expressions.push(this.negate(operand));
+                this.expressions.push(this.module.i32.eqz(operand));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -231,7 +231,7 @@ class GeneratorVisitor extends Visitor {
         const endLabel = this.generateLabel();
         const beginLabel = this.generateLabel();
 
-        const conditionBranch = this.module.br_if(endLabel, this.negate(this.popExpression()));
+        const conditionBranch = this.module.br_if(endLabel, this.module.i32.eqz(this.popExpression()));
         const loopBranch = this.module.br(beginLabel);
         const whilePart = this.popStatement();
 
@@ -333,12 +333,6 @@ class GeneratorVisitor extends Visitor {
 
         return index;
     }
-
-    private negate(expression: Expression) {
-        return this.module.i32.rem_s(this.module.i32.add(expression,
-            this.module.i32.const(1)), this.module.i32.const(2));
-    }
-
     private generateLabel() {
         return 'label_' + this.labelCounter++;
     }

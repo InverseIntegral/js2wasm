@@ -3,21 +3,30 @@ import Transpiler from '../transpiler';
 // noinspection TsLint
 type Algorithm = {
     // noinspection TsLint
-    func: Function,
+    func: Function[],
     arguments: any[],
+    expectedResult: any
 };
 
 class Measurement {
 
     // noinspection TsLint
-    private static executeAlgorithm(algorithm: Function, args: any[], rounds: number): number[] {
+    private static executeAlgorithm(algorithm: Function,
+                                    args: any[],
+                                    expectedResult: number,
+                                    rounds: number): number[] {
         const times: number[] = [];
 
         for (let i = 0; i < rounds; i++) {
             const startTime: number = Date.now();
-            algorithm(...args);
+            const result = algorithm(...args);
             const endTime: number = Date.now();
             times.push(endTime - startTime);
+
+            // noinspection TsLint because of boolean handling in wasm
+            if (result != expectedResult) {
+                console.log(`Result was wrong, expected=${expectedResult}, actual=${result}`);
+            }
         }
 
         return times;
@@ -32,16 +41,17 @@ class Measurement {
     }
 
     // noinspection TsLint
-    public measure(jsAlgorithm: Algorithm): [number[], number[]] {
-        const func = jsAlgorithm.func;
-        const args = jsAlgorithm.arguments;
+    public measure(algorithm: Algorithm): [number[], number[]] {
+        const func = algorithm.func;
+        const args = algorithm.arguments;
+        const expectedResult = algorithm.expectedResult;
 
-        Measurement.executeAlgorithm(func, args, this.warmupRounds);
-        const jsTimes = Measurement.executeAlgorithm(func, args, this.measureRounds);
+        Measurement.executeAlgorithm(func[0], args, expectedResult, this.warmupRounds);
+        const jsTimes = Measurement.executeAlgorithm(func[0], args, expectedResult, this.measureRounds);
 
-        const wasmAlgorithm = Transpiler.transpile(func.toString())[func.name];
-        Measurement.executeAlgorithm(wasmAlgorithm, args, this.warmupRounds);
-        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, args, this.measureRounds);
+        const wasmAlgorithm = Transpiler.transpile(func.join(''))[func[0].name];
+        Measurement.executeAlgorithm(wasmAlgorithm, args, expectedResult, this.warmupRounds);
+        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, args, expectedResult, this.measureRounds);
 
         return [jsTimes, wasmTimes];
     }

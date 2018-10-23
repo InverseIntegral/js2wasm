@@ -6,4 +6,15 @@ function fibonacci(current) {
     return fibonacci(current - 2) + fibonacci(current - 1);
 }
 
-module.exports = fibonacci;
+function fibonacciWhile(current) {
+    var i = 0;
+
+    while (i < 10) {
+        fibonacci(current);
+        i++;
+    }
+
+    return fibonacci(current);
+}
+
+module.exports = {fibonacciWhile, fibonacci};

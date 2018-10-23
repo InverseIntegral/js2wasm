@@ -1,14 +1,46 @@
-import fibonacci from './cases/fibonacci';
-import newtonsMethod from './cases/newtons_method';
-import isPrime from './cases/prime_counter';
-import sumIntegers from './cases/sum_integers';
+import {fibonacci, fibonacciWhile} from './cases/fibonacci';
+import {gcd, gcdWhile} from './cases/gcd';
+import {isPrime, isPrimeWhile} from './cases/is_prime';
+import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
+import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Algorithm, Measurement} from './measurement';
 
+const fibonacciFunc = {
+    arguments: [41],
+    expectedResult: 165580141,
+    func: [fibonacciWhile, fibonacci],
+};
+
+const gcdFunc = {
+  arguments: [978, 2147483646],
+  expectedResult: 6,
+  func: [gcdWhile, gcd],
+};
+
+const sumIntegersFunc = {
+    arguments: [],
+    expectedResult: 2147385345,
+    func: [sumIntegersWhile, sumIntegers],
+};
+
+const isPrimeFunc = {
+    arguments: [46327],
+    expectedResult: 1,
+    func: [isPrimeWhile, isPrime],
+};
+
+const newtonsMethodFunc = {
+    arguments: [200, 32],
+    expectedResult: 24,
+    func: [newtonsMethodWhile, newtonsMethod],
+};
+
 const algorithms = new Map<string, Algorithm>([
-    ['Fibonacci', { func: fibonacci, arguments: [41] }],
-    ['Sum Integers', { func: sumIntegers, arguments: [] }],
-    ['isPrime', { func: isPrime, arguments: [32416190071] }],
-    ['Newtons Method', { func: newtonsMethod, arguments: [200, 32]}],
+    ['Fibonacci', fibonacciFunc],
+    ['Sum Integers', sumIntegersFunc],
+    ['isPrime', isPrimeFunc],
+    ['Newtons Method', newtonsMethodFunc],
+    ['gcd', gcdFunc],
 ]);
 
 function sum(value1: number, value2: number): number {

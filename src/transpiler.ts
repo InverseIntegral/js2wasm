@@ -1,11 +1,11 @@
-import Generator from './generator/generator';
+import {Functions, Generator} from './generator/generator';
 import Parser from './parser/parser';
 
 class Transpiler {
 
-    public static transpile(content: string) {
+    public static transpile(content: string, functions: Functions) {
         const file = Parser.parse(content);
-        const module = Generator.generate(file);
+        const module = Generator.generate(file, functions);
 
         module.optimize();
 

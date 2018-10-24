@@ -1,10 +1,12 @@
 import {expect} from 'chai';
 import Transpiler from '../../src/transpiler';
+import {createSingleIntegerOnlyFunction} from '../../src/generator/wasm_type';
 
 describe('Transpiler', () => {
     describe('#transpile()', () => {
         it('should handle addition', () => {
-            const {add} = Transpiler.transpile('function add(a, b) { return a + b; }');
+            const content = 'function add(a, b) { return a + b; }';
+            const {add} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('add', 2));
 
             expect(add(1, 2)).to.equal(3);
             expect(add(100, 2)).to.equal(102);
@@ -13,7 +15,8 @@ describe('Transpiler', () => {
         });
 
         it('should handle subtraction', () => {
-            const {sub} = Transpiler.transpile('function sub(a, b) { return a - b; }');
+            const content = 'function sub(a, b) { return a - b; }';
+            const {sub} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('sub', 2));
 
             expect(sub(1, 2)).to.equal(-1);
             expect(sub(10, 2)).to.equal(8);
@@ -22,7 +25,8 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiplication', () => {
-            const {mul} = Transpiler.transpile('function mul(a, b) { return a * b }');
+            const content = 'function mul(a, b) { return a * b }';
+            const {mul} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mul', 2));
 
             expect(mul(1, 2)).to.equal(2);
             expect(mul(10, 2)).to.equal(20);
@@ -31,19 +35,22 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiplication before addition', () => {
-            const {mul} = Transpiler.transpile('function mul(a, b, c) { return a + b * c }');
+            const content = 'function mul(a, b, c) { return a + b * c }';
+            const {mul} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mul', 3));
 
             expect(mul(3, 2, 5)).to.equal(13);
         });
 
         it('should handle multiplication before subtraction', () => {
-            const {mul} = Transpiler.transpile('function mul(a, b, c) { return a - b * c }');
+            const content = 'function mul(a, b, c) { return a - b * c }';
+            const {mul} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mul', 3));
 
             expect(mul(3, 2, 5)).to.equal(-7);
         });
 
         it('should handle division', () => {
-            const {div} = Transpiler.transpile('function div(a, b) { return a / b }');
+            const content = 'function div(a, b) { return a / b }';
+            const {div} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('div', 2));
 
             expect(div(1, 2)).to.equal(0);
             expect(div(10, 2)).to.equal(5);
@@ -52,26 +59,30 @@ describe('Transpiler', () => {
         });
 
         it('should handle division by 0', () => {
-            const {div} = Transpiler.transpile('function div(a, b) { return a / b }');
+            const content = 'function div(a, b) { return a / b }';
+            const {div} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('div', 2));
 
             expect(() => div(2, 0)).to.throw();
             expect(() => div(2, NaN)).to.throw();
         });
 
         it('should handle division before addition', () => {
-            const {div} = Transpiler.transpile('function div(a, b, c) { return a + b / c }');
+            const content = 'function div(a, b, c) { return a + b / c }';
+            const {div} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('div', 3));
 
             expect(div(3, 10, 5)).to.equal(5);
         });
 
         it('should handle division before subtraction', () => {
-            const {div} = Transpiler.transpile('function div(a, b, c) { return a - b / c }');
+            const content = 'function div(a, b, c) { return a - b / c }';
+            const {div} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('div', 3));
 
             expect(div(3, 10, 5)).to.equal(1);
         });
 
         it('should handle modulo', () => {
-            const {mod} = Transpiler.transpile('function mod(a, b) { return a % b }');
+            const content = 'function mod(a, b) { return a % b }';
+            const {mod} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mod', 2));
 
             expect(mod(1, 2)).to.equal(1);
             expect(mod(10, 2)).to.equal(0);
@@ -80,40 +91,46 @@ describe('Transpiler', () => {
         });
 
         it('should handle modulo by 0', () => {
-            const {mod} = Transpiler.transpile('function mod(a, b) { return a % b }');
+            const content = 'function mod(a, b) { return a % b }';
+            const {mod} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mod', 2));
 
             expect(() => mod(2, 0)).to.throw();
             expect(() => mod(2, NaN)).to.throw();
         });
 
         it('should handle modulo before addition', () => {
-            const {mod} = Transpiler.transpile('function mod(a, b, c) { return a + b % c }');
+            const content = 'function mod(a, b, c) { return a + b % c }';
+            const {mod} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mod', 3));
 
             expect(mod(3, 10, 6)).to.equal(7);
         });
 
         it('should handle modulo before subtraction', () => {
-            const {mod} = Transpiler.transpile('function mod(a, b, c) { return a - b % c }');
+            const content = 'function mod(a, b, c) { return a - b % c }';
+            const {mod} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('mod', 3));
 
             expect(mod(3, 10, 6)).to.equal(-1);
         });
 
         it('should handle equality', () => {
-            const {eq} = Transpiler.transpile('function eq(a, b) { return a == b }');
+            const content = 'function eq(a, b) { return a == b }';
+            const {eq} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('eq', 2));
 
             expect(eq(3, 3)).to.equal(1);
             expect(eq(3, 2)).to.equal(0);
         });
 
         it('should handle inequality', () => {
-            const {neq} = Transpiler.transpile('function neq(a, b) { return a != b }');
+            const content = 'function neq(a, b) { return a != b }';
+            const {neq} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('neq', 2));
 
             expect(neq(3, 2)).to.equal(1);
             expect(neq(3, 3)).to.equal(0);
         });
 
         it('should handle less than', () => {
-            const {lt} = Transpiler.transpile('function lt(a, b) { return a < b }');
+            const content = 'function lt(a, b) { return a < b }';
+            const {lt} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('lt', 2));
 
             expect(lt(3, 2)).to.equal(0);
             expect(lt(3, 3)).to.equal(0);
@@ -123,7 +140,8 @@ describe('Transpiler', () => {
         });
 
         it('should handle less than or equal to', () => {
-            const {le} = Transpiler.transpile('function le(a, b) { return a <= b }');
+            const content = 'function le(a, b) { return a <= b }';
+            const {le} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('le', 2));
 
             expect(le(3, 2)).to.equal(0);
             expect(le(3, 3)).to.equal(1);
@@ -133,7 +151,8 @@ describe('Transpiler', () => {
         });
 
         it('should handle greater than', () => {
-            const {gt} = Transpiler.transpile('function gt(a, b) { return a > b }');
+            const content = 'function gt(a, b) { return a > b }';
+            const {gt} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('gt', 2));
 
             expect(gt(3, 2)).to.equal(1);
             expect(gt(3, 3)).to.equal(0);
@@ -143,7 +162,8 @@ describe('Transpiler', () => {
         });
 
         it('should handle greater than or equal to', () => {
-            const {ge} = Transpiler.transpile('function ge(a, b) { return a >= b }');
+            const content = 'function ge(a, b) { return a >= b }';
+            const {ge} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('ge', 2));
 
             expect(ge(3, 2)).to.equal(1);
             expect(ge(3, 3)).to.equal(1);
@@ -153,13 +173,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle parenthesis', () => {
-            const {sub} = Transpiler.transpile('function sub(a, b) { return (a + 3) - (b + 2); }');
+            const content = 'function sub(a, b) { return (a + 3) - (b + 2); }';
+            const {sub} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('sub', 2));
             expect(sub(10, 2)).to.equal(9);
         });
 
         it('should handle logical and', () => {
             const content = 'function and(a, b) { return a && b; }';
-            const {and} = Transpiler.transpile(content);
+            const {and} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('and', 2));
 
             expect(and(true, true)).to.equal(1);
             expect(and(true, false)).to.equal(0);
@@ -169,7 +190,7 @@ describe('Transpiler', () => {
 
         it('should handle logical or', () => {
             const content = 'function or(a, b) { return a || b; }';
-            const {or} = Transpiler.transpile(content);
+            const {or} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('or', 2));
 
             expect(or(true, true)).to.equal(1);
             expect(or(true, false)).to.equal(1);
@@ -179,7 +200,7 @@ describe('Transpiler', () => {
 
         it('should handle multiple logical operators', () => {
             const content = 'function logic(a, b, c) { return a || b && c; }';
-            const {logic} = Transpiler.transpile(content);
+            const {logic} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('logic', 3));
 
             expect(logic(true, true, true)).to.equal(1);
             expect(logic(true, true, false)).to.equal(1);
@@ -193,7 +214,7 @@ describe('Transpiler', () => {
 
         it('should handle expression statements', () => {
             const content = 'function add(a, b) { a + b; return a + b; }';
-            const {add} = Transpiler.transpile(content);
+            const {add} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('add', 2));
 
             expect(add(1, 2)).to.equal(3);
             expect(add(10, 2)).to.equal(12);

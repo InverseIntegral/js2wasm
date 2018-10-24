@@ -20,7 +20,8 @@
         "timeEnd",
         "trace"
       ]
-    }
+    },
+    "interface-name": [false]
   },
   "jsRules": {
     "max-line-length": {

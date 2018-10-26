@@ -13,7 +13,7 @@ import {
     isExpressionStatement,
     isIdentifier,
     isIfStatement,
-    isLogicalExpression,
+    isLogicalExpression, isMemberExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
@@ -21,7 +21,7 @@ import {
     isVariableDeclaration,
     isVariableDeclarator,
     isWhileStatement,
-    LogicalExpression,
+    LogicalExpression, MemberExpression,
     Node,
     NumericLiteral,
     ReturnStatement,
@@ -67,6 +67,8 @@ abstract class Visitor {
             this.visitWhileStatement(node);
         } else if (isCallExpression(node)) {
             this.visitCallExpression(node);
+        } else if (isMemberExpression(node)) {
+            this.visitMemberExpression(node);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
@@ -160,6 +162,10 @@ abstract class Visitor {
         }
 
         this.visit(node.callee);
+    }
+
+    protected visitMemberExpression(node: MemberExpression) {
+        // TODO: handle appropriately
     }
 }
 

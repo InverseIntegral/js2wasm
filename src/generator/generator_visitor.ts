@@ -12,9 +12,9 @@ import {
     isIdentifier,
     isUpdateExpression,
     LogicalExpression,
-    LVal,
+    LVal, MemberExpression,
     NumericLiteral,
-    ReturnStatement,
+    ReturnStatement, thisExpression,
     UnaryExpression,
     UpdateExpression,
     VariableDeclarator,
@@ -262,6 +262,14 @@ class GeneratorVisitor extends Visitor {
         // Update and assignment expressions already generate a complete statement
         if (!isUpdateExpression(node.expression) && !isAssignmentExpression((node.expression))) {
             this.statements.push(this.module.drop(this.popExpression()));
+        }
+    }
+
+    protected visitMemberExpression(node: MemberExpression) {
+        if (node.computed) {
+            this.visit(node.property);
+            // TODO: Use correct ptr, offset and alignment
+            this.expressions.push(this.module.i32.load(0, 0, this.popExpression()));
         }
     }
 

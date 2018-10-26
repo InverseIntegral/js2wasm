@@ -8,6 +8,9 @@ class Generator {
     public static generate(file: File): Module {
         const module = new Module();
 
+        // TODO: Only generate this if there is an array as parameter otherwise the import is superfluous
+        module.addMemoryImport('0', 'transpilerImports', 'memory');
+
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {
                 throw new Error('File can only contain function declarations');

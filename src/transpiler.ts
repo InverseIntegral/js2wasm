@@ -15,8 +15,7 @@ class Transpiler {
 
         const wasmModule = new WebAssembly.Module(module.emitBinary());
 
-        return (...params: any[]) =>  {
-            // TODO: Calculate the correct initial size
+        return (functionName: string, ...params: any[]) =>  {
             const memory = new WebAssembly.Memory({initial: 100});
             const writeableMemory = new Uint32Array(memory.buffer);
 
@@ -33,7 +32,7 @@ class Transpiler {
                 transpilerImports: {
                     memory,
                 },
-            }).exports.first(...params);
+            }).exports[functionName](...params);
         };
     }
 

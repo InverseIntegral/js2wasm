@@ -12,9 +12,10 @@ import {
     isIdentifier,
     isUpdateExpression,
     LogicalExpression,
-    LVal, MemberExpression,
+    LVal,
+    MemberExpression,
     NumericLiteral,
-    ReturnStatement, thisExpression,
+    ReturnStatement,
     UnaryExpression,
     UpdateExpression,
     VariableDeclarator,
@@ -266,10 +267,13 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitMemberExpression(node: MemberExpression) {
+        super.visitMemberExpression(node);
+
         if (node.computed) {
-            this.visit(node.property);
-            // TODO: Use correct ptr, offset and alignment
-            this.expressions.push(this.module.i32.load(0, 0, this.popExpression()));
+            const index = this.popExpression();
+            const pointer = this.popExpression();
+            this.expressions.push(this.module.i32.load(0, 0,
+                this.module.i32.add(pointer, this.module.i32.mul(index, this.module.i32.const(4)))));
         }
     }
 

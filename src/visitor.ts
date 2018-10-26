@@ -165,7 +165,8 @@ abstract class Visitor {
     }
 
     protected visitMemberExpression(node: MemberExpression) {
-        // TODO: handle appropriately
+        this.visit(node.object);
+        this.visit(node.property);
     }
 }
 

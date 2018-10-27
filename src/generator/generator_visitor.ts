@@ -271,9 +271,10 @@ class GeneratorVisitor extends Visitor {
 
         if (node.computed) {
             const index = this.popExpression();
-            const pointer = this.popExpression();
-            this.expressions.push(this.module.i32.load(0, 0,
-                this.module.i32.add(pointer, this.module.i32.mul(index, this.module.i32.const(4)))));
+            const arrayPointer = this.popExpression();
+            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+            // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
+            this.expressions.push(this.module.i32.load(0, 4, address));
         }
     }
 

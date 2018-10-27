@@ -13,6 +13,7 @@ import {
     isUpdateExpression,
     LogicalExpression,
     LVal,
+    MemberExpression,
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
@@ -262,6 +263,18 @@ class GeneratorVisitor extends Visitor {
         // Update and assignment expressions already generate a complete statement
         if (!isUpdateExpression(node.expression) && !isAssignmentExpression((node.expression))) {
             this.statements.push(this.module.drop(this.popExpression()));
+        }
+    }
+
+    protected visitMemberExpression(node: MemberExpression) {
+        super.visitMemberExpression(node);
+
+        if (node.computed) {
+            const index = this.popExpression();
+            const arrayPointer = this.popExpression();
+            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+            // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
+            this.expressions.push(this.module.i32.load(0, 4, address));
         }
     }
 

@@ -5,58 +5,58 @@ describe('Transpiler', () => {
     describe('#transpile()', () => {
 
         it('should handle unary plus', () => {
-            const {func} = Transpiler.transpile('function func(a) { return +a + +40; }');
+            const exports = Transpiler.transpile('function func(a) { return +a + +40; }');
 
-            expect(func(2)).to.equal(42);
-            expect(func(-2)).to.equal(38);
+            expect(exports('func', 2)).to.equal(42);
+            expect(exports('func', -2)).to.equal(38);
         });
 
         it('should handle unary minus', () => {
-            const {func} = Transpiler.transpile('function func(a) { return -a + -40; }');
+            const exports = Transpiler.transpile('function func(a) { return -a + -40; }');
 
-            expect(func(2)).to.equal(-42);
-            expect(func(-2)).to.equal(-38);
+            expect(exports('func', 2)).to.equal(-42);
+            expect(exports('func', -2)).to.equal(-38);
         });
 
         it('should handle multiple consecutive unary operators', () => {
-            const {func} = Transpiler.transpile('function func(a) { return a + -+-+-40; }');
+            const exports = Transpiler.transpile('function func(a) { return a + -+-+-40; }');
 
-            expect(func(2)).to.equal(-38);
+            expect(exports('func', 2)).to.equal(-38);
         });
 
         it('should handle unary not', () => {
-            const {func} = Transpiler.transpile('function func(a) { return !a; }');
+            const exports = Transpiler.transpile('function func(a) { return !a; }');
 
-            expect(func(true)).to.equal(0);
-            expect(func(false)).to.equal(1);
+            expect(exports('func', true)).to.equal(0);
+            expect(exports('func', false)).to.equal(1);
         });
 
         it('should handle pre increment', () => {
             const content = 'function preInc(a) { ++a; return a; }';
-            const {preInc} = Transpiler.transpile(content);
+            const exports = Transpiler.transpile(content);
 
-            expect(preInc(10)).to.equal(11);
+            expect(exports('preInc', 10)).to.equal(11);
         });
 
         it('should handle post increment', () => {
             const content = 'function postInc(a) { a++; return a; }';
-            const {postInc} = Transpiler.transpile(content);
+            const exports = Transpiler.transpile(content);
 
-            expect(postInc(10)).to.equal(11);
+            expect(exports('postInc', 10)).to.equal(11);
         });
 
         it('should handle pre decrement', () => {
             const content = 'function preDec(a) { --a; return a; }';
-            const {preDec} = Transpiler.transpile(content);
+            const exports = Transpiler.transpile(content);
 
-            expect(preDec(10)).to.equal(9);
+            expect(exports('preDec', 10)).to.equal(9);
         });
 
         it('should handle post decrement', () => {
             const content = 'function postDec(a) { a--; return a; }';
-            const {postDec} = Transpiler.transpile(content);
+            const exports = Transpiler.transpile(content);
 
-            expect(postDec(10)).to.equal(9);
+            expect(exports('postDec', 10)).to.equal(9);
         });
     });
 });

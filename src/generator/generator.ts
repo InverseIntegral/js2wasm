@@ -1,15 +1,21 @@
-import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
+import {File, FunctionDeclaration, isFunctionDeclaration, isMemberExpression} from '@babel/types';
 import {i32, Module} from 'binaryen';
 import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
+import {ContainsMemoryDependentElementVisitor} from './contains_memory_dependent_element_visitor';
 
 class Generator {
 
     public static generate(file: File): Module {
         const module = new Module();
 
-        // TODO: Only generate this if there is an array as parameter otherwise the import is superfluous
-        module.addMemoryImport('0', 'transpilerImports', 'memory');
+        const containsMemoryDependentElement = file.program.body.some((statement) => {
+            return isFunctionDeclaration(statement) && new ContainsMemoryDependentElementVisitor().run(statement);
+        });
+
+        if (containsMemoryDependentElement) {
+            module.addMemoryImport('0', 'transpilerImports', 'memory');
+        }
 
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {

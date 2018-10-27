@@ -16,16 +16,18 @@ class Transpiler {
         const wasmModule = new WebAssembly.Module(module.emitBinary());
 
         return (functionName: string, ...params: any[]) => {
-            const memory = new WebAssembly.Memory({ initial: this.calculateInitialMemorySize(params) });
-            const writeableMemory = new Uint32Array(memory.buffer);
+            let wasmParams = params;
+            let importObject = {};
 
-            const wasmParams = this.fillMemory(params, writeableMemory);
+            if (params.some((parameter) => parameter instanceof Array)) {
+                const memory = new WebAssembly.Memory({ initial: this.calculateInitialMemorySize(params) });
+                const writeableMemory = new Uint32Array(memory.buffer);
 
-            return new WebAssembly.Instance(wasmModule, {
-                transpilerImports: {
-                    memory,
-                },
-            }).exports[functionName](...wasmParams);
+                wasmParams = this.fillMemory(wasmParams, writeableMemory);
+                importObject = { transpilerImports: { memory } };
+            }
+
+            return new WebAssembly.Instance(wasmModule, importObject).exports[functionName](...wasmParams);
         };
     }
 

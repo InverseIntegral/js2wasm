@@ -30,7 +30,8 @@ class Transpiler {
     }
 
     private static fillMemory(params: any[], writeableMemory: Uint32Array) {
-        const wasmParams = params;
+        // A copy of the params array is needed, to not override the content of the original one
+        const wasmParams = params.concat();
         let index = 0;
 
         for (let i = 0; i < wasmParams.length; i++) {

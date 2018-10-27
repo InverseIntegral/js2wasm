@@ -35,5 +35,14 @@ describe('Transpiler', () => {
             expect(exports('array', [1, 2], 2)).to.equal(0);
             expect(() => exports('array', [1, 2], -2)).to.throw();
         });
+
+        it('should not modify array', () => {
+            const exports = Transpiler.transpile('function array(arr) { return arr[0]; }');
+            const array = [100, 200, 300];
+            exports('array', array);
+            expect(array[0]).to.equal(100);
+            expect(array[1]).to.equal(200);
+            expect(array[2]).to.equal(300);
+        });
     });
 });

@@ -24,5 +24,16 @@ describe('Transpiler', () => {
             const exports = Transpiler.transpile('function array(arr, arr2) { return arr2[2]; }');
             expect(exports('array', [111, 112], [114, 115, 116])).to.equal(116);
         });
+
+        it('should handle array size', () => {
+            const exports = Transpiler.transpile('function array(arr) { return arr[-1]; }');
+            expect(exports('array', [1, 2, 4, 8])).to.equal(4);
+        });
+
+        it('should handle indexoutofbounds', () => {
+            const exports = Transpiler.transpile('function array(arr, i) { return arr[i]; }');
+            expect(exports('array', [1, 2], 2)).to.equal(0);
+            expect(() => exports('array', [1, 2], -2)).to.throw();
+        });
     });
 });

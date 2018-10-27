@@ -16,7 +16,7 @@ class Transpiler {
         const wasmModule = new WebAssembly.Module(module.emitBinary());
 
         return (functionName: string, ...params: any[]) => {
-            const memory = new WebAssembly.Memory({initial: this.calculateInitialMemorySize(params)});
+            const memory = new WebAssembly.Memory({ initial: this.calculateInitialMemorySize(params) });
             const writeableMemory = new Uint32Array(memory.buffer);
 
             const wasmParams = this.fillMemory(params, writeableMemory);
@@ -51,11 +51,11 @@ class Transpiler {
 
     private static calculateInitialMemorySize(params: any[]): number {
         const pageSize = Math.pow(2, 16);
-        const memorySize = params
+        const memoryElementCount = params
             .filter((parameter) => parameter instanceof Array)
             .map((array) => array.length + 1)
             .reduce((accumulator, current) => accumulator + current, 0);
-        return Math.ceil((memorySize * 4) / pageSize);
+        return Math.ceil((memoryElementCount * 4) / pageSize);
     }
 
 }

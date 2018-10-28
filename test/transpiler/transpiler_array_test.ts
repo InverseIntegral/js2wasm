@@ -63,5 +63,12 @@ describe('Transpiler', () => {
             expect(exports('setFirst', [0, 1, 2])).to.equal(42);
             expect(exports('setFirst', [1])).to.equal(42);
         });
+
+        it('should handle shorthand assignment to array elements', () => {
+            const exports = Transpiler.transpile('function setFirst(arr) { arr[0] += 42; return arr[0]; }');
+
+            expect(exports('setFirst', [5, 6, 7])).to.equal(47);
+            expect(exports('setFirst', [4])).to.equal(46);
+        });
     });
 });

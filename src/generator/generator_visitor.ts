@@ -9,7 +9,7 @@ import {
     Identifier,
     IfStatement,
     isAssignmentExpression,
-    isIdentifier,
+    isIdentifier, isMemberExpression,
     isUpdateExpression,
     LogicalExpression,
     LVal,
@@ -267,14 +267,28 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitMemberExpression(node: MemberExpression) {
-        super.visitMemberExpression(node);
-
         if (node.computed) {
+            super.visitMemberExpression(node);
+
             const index = this.popExpression();
             const arrayPointer = this.popExpression();
             const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+
             // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
             this.expressions.push(this.module.i32.load(0, 4, address));
+        } else {
+            if (isIdentifier(node.property)) {
+                if (node.property.name === 'length') {
+                    this.visit(node.object);
+
+                    const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
+                    this.expressions.push(this.module.i32.load(0, 4, address));
+                } else {
+                    throw new Error(`Unknown property ${node.property}`);
+                }
+            } else {
+                throw new Error('property of static member expression was not an identifier');
+            }
         }
     }
 
@@ -332,8 +346,18 @@ class GeneratorVisitor extends Visitor {
             }
 
             this.statements.push(this.module.set_local(id, value));
+        } else if (isMemberExpression(val)) {
+            this.visit(val.object);
+            this.visit(val.property);
+
+            const index = this.popExpression();
+            const arrayPointer = this.popExpression();
+            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+
+            // @ts-ignore because store() returns an expression
+            this.statements.push(this.module.i32.store(0, 4, address, value));
         } else {
-            throw new Error('Assignment to non-identifier');
+            throw new Error('Assignment to non-identifier or member expression');
         }
     }
 

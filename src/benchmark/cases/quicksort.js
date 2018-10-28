@@ -2,10 +2,12 @@ function swap(items, first, second) {
     var temp = items[first];
     items[first] = items[second];
     items[second] = temp;
+
+    return 0;
 }
 
 function partition(items, left, right) {
-    var pivot = items[Math.floor((right + left) / 2)];
+    var pivot = items[left];
     var i = left;
     var j = right;
 
@@ -46,9 +48,4 @@ function quickSort(items, left, right) {
     return items;
 }
 
-function run() {
-    let size = 10000;
-    quickSort([...Array(size).keys()].reverse(), 0, size);
-}
-
-module.exports = run;
+module.exports = {quickSort, partition, swap};

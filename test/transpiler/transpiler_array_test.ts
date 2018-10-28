@@ -44,5 +44,24 @@ describe('Transpiler', () => {
             expect(array[1]).to.equal(200);
             expect(array[2]).to.equal(300);
         });
+
+        it('should handle length property', () => {
+            const exports = Transpiler.transpile('function length(arr) { return arr.length; }');
+
+            expect(exports('length', [0, 1, 2])).to.equal(3);
+            expect(exports('length', [])).to.equal(0);
+            expect(exports('length', [1])).to.equal(1);
+        });
+
+        it('shouldn\'t handle other properties', () => {
+            expect(() => Transpiler.transpile('function something(arr) { return arr.something; }')).to.throw();
+        });
+
+        it('should handle writes to array elements', () => {
+            const exports = Transpiler.transpile('function setFirst(arr) { arr[0] = 42; return arr[0]; }');
+
+            expect(exports('setFirst', [0, 1, 2])).to.equal(42);
+            expect(exports('setFirst', [1])).to.equal(42);
+        });
     });
 });

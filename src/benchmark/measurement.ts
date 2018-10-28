@@ -49,9 +49,12 @@ class Measurement {
         Measurement.executeAlgorithm(func[0], args, expectedResult, this.warmupRounds);
         const jsTimes = Measurement.executeAlgorithm(func[0], args, expectedResult, this.measureRounds);
 
-        const wasmAlgorithm = Transpiler.transpile(func.join(''))[func[0].name];
-        Measurement.executeAlgorithm(wasmAlgorithm, args, expectedResult, this.warmupRounds);
-        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, args, expectedResult, this.measureRounds);
+        const wasmArgs = args.slice();
+        wasmArgs.unshift(func[0].name);
+
+        const wasmAlgorithm = Transpiler.transpile(func.join(''));
+        Measurement.executeAlgorithm(wasmAlgorithm, wasmArgs, expectedResult, this.warmupRounds);
+        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, wasmArgs, expectedResult, this.measureRounds);
 
         return [jsTimes, wasmTimes];
     }

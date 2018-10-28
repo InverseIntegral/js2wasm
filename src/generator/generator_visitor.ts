@@ -346,8 +346,18 @@ class GeneratorVisitor extends Visitor {
             }
 
             this.statements.push(this.module.set_local(id, value));
+        } else if (isMemberExpression(val)) {
+            this.visit(val.object);
+            this.visit(val.property);
+
+            const index = this.popExpression();
+            const arrayPointer = this.popExpression();
+            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+
+            // @ts-ignore because store() returns an expression
+            this.statements.push(this.module.i32.store(0, 4, address, value));
         } else {
-            throw new Error('Assignment to non-identifier');
+            throw new Error('Assignment to non-identifier or member expression');
         }
     }
 

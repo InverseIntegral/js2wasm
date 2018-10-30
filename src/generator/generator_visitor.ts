@@ -269,23 +269,15 @@ class GeneratorVisitor extends Visitor {
 
     protected visitMemberExpression(node: MemberExpression) {
         if (node.computed) {
-            super.visitMemberExpression(node);
-
-            // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-            this.expressions.push(this.module.i32.load(0, 4, this.getAdress()));
-        } else {
-            if (isIdentifier(node.property)) {
-                if (node.property.name === 'length') {
-                    this.visit(node.object);
-
-                    const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
-                    this.expressions.push(this.module.i32.load(0, 4, address));
-                } else {
-                    throw new Error(`Unknown property ${node.property}`);
-                }
+            this.getArrayElement(node);
+        } else if (isIdentifier(node.property)) {
+            if (node.property.name === 'length') {
+                this.getArrayLength(node);
             } else {
-                throw new Error('property of static member expression was not an identifier');
+                throw new Error(`Unknown property ${node.property}`);
             }
+        } else {
+            throw new Error('The member access was neither an array access nor was it a property as an identifier');
         }
     }
 
@@ -352,6 +344,20 @@ class GeneratorVisitor extends Visitor {
         }
 
         this.statements.push(this.module.set_local(id, value));
+    }
+
+    private getArrayElement(node: MemberExpression) {
+        super.visitMemberExpression(node);
+
+        // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
+        this.expressions.push(this.module.i32.load(0, 4, this.getAdress()));
+    }
+
+    private getArrayLength(node: MemberExpression) {
+        this.visit(node.object);
+
+        const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
+        this.expressions.push(this.module.i32.load(0, 4, address));
     }
 
     private setArrayElement(memberExpression: MemberExpression, value: Expression) {

@@ -336,22 +336,30 @@ class GeneratorVisitor extends Visitor {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            const id = this.variableMapping.get(val.name);
-
-            if (id === undefined) {
-                throw new Error('Assigned to unknown variable');
-            }
-
-            this.statements.push(this.module.set_local(id, value));
+            this.setLocal(val, value);
         } else if (isMemberExpression(val)) {
-            this.visit(val.object);
-            this.visit(val.property);
-
-            // @ts-ignore because store() returns an expression
-            this.statements.push(this.module.i32.store(0, 4, this.getAdress(), value));
+            this.setArrayElement(val, value);
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
+    }
+
+    private setLocal(identifier: Identifier, value: Expression) {
+        const id = this.variableMapping.get(identifier.name);
+
+        if (id === undefined) {
+            throw new Error('Assigned to unknown variable');
+        }
+
+        this.statements.push(this.module.set_local(id, value));
+    }
+
+    private setArrayElement(memberExpression: MemberExpression, value: Expression) {
+        this.visit(memberExpression.object);
+        this.visit(memberExpression.property);
+
+        // @ts-ignore because store() returns an expression
+        this.statements.push(this.module.i32.store(0, 4, this.getAdress(), value));
     }
 
     private getVariableIndex(name: string) {

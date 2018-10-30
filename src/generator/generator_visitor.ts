@@ -337,13 +337,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     private setLocal(identifier: Identifier, value: Expression) {
-        const id = this.variableMapping.get(identifier.name);
-
-        if (id === undefined) {
-            throw new Error('Assigned to unknown variable');
-        }
-
-        this.statements.push(this.module.set_local(id, value));
+        this.statements.push(this.module.set_local(this.getVariableIndex(identifier.name), value));
     }
 
     private getArrayElement(node: MemberExpression) {

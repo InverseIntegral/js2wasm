@@ -14,6 +14,7 @@ class Transpiler {
         }
 
         const wasmModule = new WebAssembly.Module(module.emitBinary());
+        module.dispose();
 
         return (functionName: string, ...parameters: any[]) => {
             let fixedParameters = parameters;

@@ -9,7 +9,8 @@ import {
     Identifier,
     IfStatement,
     isAssignmentExpression,
-    isIdentifier, isMemberExpression,
+    isIdentifier,
+    isMemberExpression,
     isUpdateExpression,
     LogicalExpression,
     LVal,
@@ -270,12 +271,8 @@ class GeneratorVisitor extends Visitor {
         if (node.computed) {
             super.visitMemberExpression(node);
 
-            const index = this.popExpression();
-            const arrayPointer = this.popExpression();
-            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
-
             // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-            this.expressions.push(this.module.i32.load(0, 4, address));
+            this.expressions.push(this.module.i32.load(0, 4, this.getAdress()));
         } else {
             if (isIdentifier(node.property)) {
                 if (node.property.name === 'length') {
@@ -350,12 +347,8 @@ class GeneratorVisitor extends Visitor {
             this.visit(val.object);
             this.visit(val.property);
 
-            const index = this.popExpression();
-            const arrayPointer = this.popExpression();
-            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
-
             // @ts-ignore because store() returns an expression
-            this.statements.push(this.module.i32.store(0, 4, address, value));
+            this.statements.push(this.module.i32.store(0, 4, this.getAdress(), value));
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
@@ -370,9 +363,17 @@ class GeneratorVisitor extends Visitor {
 
         return index;
     }
+
+    private getAdress() {
+        const index = this.popExpression();
+        const arrayPointer = this.popExpression();
+        return this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+    }
+
     private generateLabel() {
         return 'label_' + this.labelCounter++;
     }
+
 }
 
 export default GeneratorVisitor;

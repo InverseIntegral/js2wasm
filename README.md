@@ -12,7 +12,7 @@ In order to compile a function you have to supply it as a string to the `transpi
 The returned function takes the name of the function that you want to call as the first parameter.
 Any further parameters get passed to the WebAssembly instance.
 
-```
+```javascript
 const exports = Transpiler.transpile('function add(a, b) { return a + b; }');
 const result = exports('add', 12, 30);
 ```

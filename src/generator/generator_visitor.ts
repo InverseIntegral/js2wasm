@@ -270,14 +270,14 @@ class GeneratorVisitor extends Visitor {
     protected visitMemberExpression(node: MemberExpression) {
         if (node.computed) {
             this.getArrayElement(node);
-        } else if (isIdentifier(node.property)) {
-            if (node.property.name === 'length') {
+        } else {
+            const identifier: Identifier = node.property;
+
+            if (identifier.name === 'length') {
                 this.getArrayLength(node);
             } else {
-                throw new Error(`Unknown property ${node.property}`);
+                throw new Error(`Unknown property ${identifier}`);
             }
-        } else {
-            throw new Error('The member access was neither an array access nor was it a property as an identifier');
         }
     }
 

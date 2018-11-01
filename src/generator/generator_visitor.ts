@@ -328,16 +328,12 @@ class GeneratorVisitor extends Visitor {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            this.setLocal(val, value);
+            this.statements.push(this.module.set_local(this.getVariableIndex(val.name), value));
         } else if (isMemberExpression(val)) {
             this.setArrayElement(val, value);
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
-    }
-
-    private setLocal(identifier: Identifier, value: Expression) {
-        this.statements.push(this.module.set_local(this.getVariableIndex(identifier.name), value));
     }
 
     private getArrayElement(node: MemberExpression) {

@@ -25,6 +25,10 @@ class Generator {
             this.generateFunction(module, statement);
         });
 
+        if (isMemoryDependent) {
+            module.addMemoryExport('0', 'memory');
+        }
+
         return module;
     }
 

@@ -4,20 +4,20 @@ import {
 } from '@babel/types';
 import Visitor from '../visitor';
 
-class ContainsMemoryDependentElementVisitor extends Visitor {
+class MemoryAccessVisitor extends Visitor {
 
-    private contains: boolean = false;
+    private isMemoryDependent: boolean = false;
 
     public run(tree: FunctionDeclaration) {
         this.visit(tree.body);
 
-        return this.contains;
+        return this.isMemoryDependent;
     }
 
     protected visitMemberExpression(node: MemberExpression) {
-        this.contains = true;
+        this.isMemoryDependent = true;
     }
 
 }
 
-export {ContainsMemoryDependentElementVisitor};
+export {MemoryAccessVisitor};

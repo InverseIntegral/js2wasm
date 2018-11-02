@@ -340,7 +340,7 @@ class GeneratorVisitor extends Visitor {
         super.visitMemberExpression(node);
 
         // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-        this.expressions.push(this.module.i32.load(0, 4, this.getAdressPointer()));
+        this.expressions.push(this.module.i32.load(0, 4, this.getPointer()));
     }
 
     private getArrayLength(node: MemberExpression) {
@@ -355,7 +355,7 @@ class GeneratorVisitor extends Visitor {
         this.visit(memberExpression.property);
 
         // @ts-ignore because store() returns an expression
-        this.statements.push(this.module.i32.store(0, 4, this.getAdressPointer(), value));
+        this.statements.push(this.module.i32.store(0, 4, this.getPointer(), value));
     }
 
     private getVariableIndex(name: string) {
@@ -368,10 +368,11 @@ class GeneratorVisitor extends Visitor {
         return index;
     }
 
-    private getAdressPointer() {
+    private getPointer() {
         const index = this.popExpression();
-        const arrayPointer = this.popExpression();
-        return this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
+        const basePointer = this.popExpression();
+
+        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(4)));
     }
 
     private generateLabel() {

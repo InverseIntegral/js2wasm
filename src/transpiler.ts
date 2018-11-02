@@ -20,7 +20,9 @@ class Transpiler {
             let fixedParameters = parameters;
             let importObject = {};
 
-            if (parameters.some((parameter) => parameter instanceof Array)) {
+            const hasArrayParameters = parameters.some((parameter) => parameter instanceof Array);
+
+            if (hasArrayParameters) {
                 const memory = new WebAssembly.Memory({ initial: this.calculateInitialMemorySize(parameters) });
                 const writeableMemory = new Uint32Array(memory.buffer);
 
@@ -28,8 +30,34 @@ class Transpiler {
                 importObject = { transpilerImports: { memory } };
             }
 
-            return new WebAssembly.Instance(wasmModule, importObject).exports[functionName](...fixedParameters);
+            const instance = new WebAssembly.Instance(wasmModule, importObject);
+            const result = instance.exports[functionName](...fixedParameters);
+
+            if (hasArrayParameters) {
+                const exportedMemory = instance.exports.memory;
+                const readableMemory = new Uint32Array(exportedMemory.buffer);
+
+                Transpiler.readMemory(parameters, fixedParameters, readableMemory);
+            }
+
+            return result;
         };
+    }
+
+    private static readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
+        let index = 0;
+
+        for (let i = 0; i < parameters.length; i++) {
+            if (parameters[i] instanceof Array) {
+                const array = parameters[i];
+
+                for (let j = 0; j < array.length; j++) {
+                    array[j] = readableMemory[fixedParameters[index] / 4 + j];
+                }
+
+                index++;
+            }
+        }
     }
 
     private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {

@@ -48,4 +48,54 @@ function quickSort(items, left, right) {
     return items;
 }
 
-module.exports = {quickSort, partition, swap};
+// LCG with GCCs parameters
+function fill(array) {
+    var i = 0;
+
+    var modulus = 0x80000000; // 2^31
+    var multiplier = 1103515245;
+    var increment = 12345;
+
+    var state = 42;
+
+    while (i < array.length) {
+        state = (multiplier * state + increment) % modulus;
+        array[i] = state;
+        i++;
+    }
+
+    return 0;
+}
+
+function isSorted(array) {
+    var i = 0;
+
+    while (i < array.length - 1) {
+        if (array[i] > array[i + 1]) {
+            return false;
+        }
+
+        i++;
+    }
+
+    return true;
+}
+
+function quickSortWhile(items) {
+    var i = 0;
+
+    while (i < 100) {
+        fill(items);
+        quickSort(items, 0, items.length - 1);
+
+        if (!isSorted(items)) {
+            return false;
+        }
+
+        i++;
+    }
+
+    return true;
+}
+
+module.exports = {quickSortWhile, isSorted, fill, quickSort, partition, swap};

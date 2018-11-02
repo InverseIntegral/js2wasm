@@ -2,6 +2,7 @@ import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
+import {sumArrayWhile, fill, sumArray} from './cases/sum_array';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Algorithm, Measurement} from './measurement';
 
@@ -15,6 +16,12 @@ const gcdFunc = {
   arguments: [978, 2147483646],
   expectedResult: 6,
   func: [gcdWhile, gcd],
+};
+
+const sumArrayFunc = {
+    arguments: [new Array(65535)],
+    expectedResult: 2147385345,
+    func: [sumArrayWhile, fill, sumArray],
 };
 
 const sumIntegersFunc = {
@@ -37,6 +44,7 @@ const newtonsMethodFunc = {
 
 const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
+    ['Sum Array', sumArrayFunc],
     ['Sum Integers', sumIntegersFunc],
     ['isPrime', isPrimeFunc],
     ['Newtons Method', newtonsMethodFunc],

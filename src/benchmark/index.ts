@@ -26,7 +26,7 @@ const sumIntegersFunc = {
 
 const isPrimeFunc = {
     arguments: [46327],
-    expectedResult: 1,
+    expectedResult: true,
     func: [isPrimeWhile, isPrime],
 };
 

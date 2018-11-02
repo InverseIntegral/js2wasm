@@ -9,7 +9,8 @@ import {
     Identifier,
     IfStatement,
     isAssignmentExpression,
-    isIdentifier, isMemberExpression,
+    isIdentifier,
+    isMemberExpression,
     isUpdateExpression,
     LogicalExpression,
     LVal,
@@ -268,26 +269,14 @@ class GeneratorVisitor extends Visitor {
 
     protected visitMemberExpression(node: MemberExpression) {
         if (node.computed) {
-            super.visitMemberExpression(node);
-
-            const index = this.popExpression();
-            const arrayPointer = this.popExpression();
-            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
-
-            // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-            this.expressions.push(this.module.i32.load(0, 4, address));
+            this.getArrayElement(node);
         } else {
-            if (isIdentifier(node.property)) {
-                if (node.property.name === 'length') {
-                    this.visit(node.object);
+            const identifier = node.property;
 
-                    const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
-                    this.expressions.push(this.module.i32.load(0, 4, address));
-                } else {
-                    throw new Error(`Unknown property ${node.property}`);
-                }
+            if (identifier.name === 'length') {
+                this.getArrayLength(node);
             } else {
-                throw new Error('property of static member expression was not an identifier');
+                throw new Error(`Unknown property ${identifier}`);
             }
         }
     }
@@ -339,26 +328,34 @@ class GeneratorVisitor extends Visitor {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            const id = this.variableMapping.get(val.name);
-
-            if (id === undefined) {
-                throw new Error('Assigned to unknown variable');
-            }
-
-            this.statements.push(this.module.set_local(id, value));
+            this.statements.push(this.module.set_local(this.getVariableIndex(val.name), value));
         } else if (isMemberExpression(val)) {
-            this.visit(val.object);
-            this.visit(val.property);
-
-            const index = this.popExpression();
-            const arrayPointer = this.popExpression();
-            const address = this.module.i32.add(arrayPointer, this.module.i32.mul(index, this.module.i32.const(4)));
-
-            // @ts-ignore because store() returns an expression
-            this.statements.push(this.module.i32.store(0, 4, address, value));
+            this.setArrayElement(val, value);
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
+    }
+
+    private getArrayElement(node: MemberExpression) {
+        super.visitMemberExpression(node);
+
+        // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
+        this.expressions.push(this.module.i32.load(0, 4, this.getPointer()));
+    }
+
+    private getArrayLength(node: MemberExpression) {
+        this.visit(node.object);
+
+        const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
+        this.expressions.push(this.module.i32.load(0, 4, address));
+    }
+
+    private setArrayElement(memberExpression: MemberExpression, value: Expression) {
+        this.visit(memberExpression.object);
+        this.visit(memberExpression.property);
+
+        // @ts-ignore because store() returns an expression
+        this.statements.push(this.module.i32.store(0, 4, this.getPointer(), value));
     }
 
     private getVariableIndex(name: string) {
@@ -370,9 +367,18 @@ class GeneratorVisitor extends Visitor {
 
         return index;
     }
+
+    private getPointer() {
+        const index = this.popExpression();
+        const basePointer = this.popExpression();
+
+        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(4)));
+    }
+
     private generateLabel() {
         return 'label_' + this.labelCounter++;
     }
+
 }
 
 export default GeneratorVisitor;

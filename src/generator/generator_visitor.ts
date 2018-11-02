@@ -271,7 +271,7 @@ class GeneratorVisitor extends Visitor {
         if (node.computed) {
             this.getArrayElement(node);
         } else {
-            const identifier: Identifier = node.property;
+            const identifier = node.property;
 
             if (identifier.name === 'length') {
                 this.getArrayLength(node);

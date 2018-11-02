@@ -1,62 +1,92 @@
-import Transpiler from '../transpiler';
+import {Timing, Transpiler} from '../transpiler';
 
 // noinspection TsLint
 type Algorithm = {
     // noinspection TsLint
     func: Function[],
     arguments: any[],
-    expectedResult: any
+    expectedResult: any,
 };
 
 class Measurement {
 
-    // noinspection TsLint
-    private static executeAlgorithm(algorithm: Function,
-                                    args: any[],
-                                    expectedResult: number,
-                                    rounds: number): number[] {
-        const times: number[] = [];
-
-        for (let i = 0; i < rounds; i++) {
-            const startTime: number = Date.now();
-            const result = algorithm(...args);
-            const endTime: number = Date.now();
-            times.push(endTime - startTime);
-
-            // noinspection TsLint because of boolean handling in wasm
-            if (result != expectedResult) {
-                console.log(`Result was wrong, expected=${expectedResult}, actual=${result}`);
-            }
-        }
-
-        return times;
-    }
-
-    private readonly warmupRounds: number;
-    private readonly measureRounds: number;
-
-    constructor(warmupRounds: number, measureRounds: number) {
-        this.warmupRounds = warmupRounds;
-        this.measureRounds = measureRounds;
-    }
-
-    // noinspection TsLint
-    public measure(algorithm: Algorithm): [number[], number[]] {
+    public static measure(algorithm: Algorithm,
+                          warmupRounds: number,
+                          measureRounds: number): [Timing[], Timing[]] {
         const func = algorithm.func;
         const args = algorithm.arguments;
         const expectedResult = algorithm.expectedResult;
 
-        Measurement.executeAlgorithm(func[0], args, expectedResult, this.warmupRounds);
-        const jsTimes = Measurement.executeAlgorithm(func[0], args, expectedResult, this.measureRounds);
+        Measurement.executeJS(func[0], args, expectedResult, warmupRounds);
+        const jsTimes = Measurement.executeJS(func[0], args, expectedResult, measureRounds);
 
         const wasmArgs = args.slice();
         wasmArgs.unshift(func[0].name);
 
         const wasmAlgorithm = Transpiler.transpile(func.join(''));
-        Measurement.executeAlgorithm(wasmAlgorithm, wasmArgs, expectedResult, this.warmupRounds);
-        const wasmTimes = Measurement.executeAlgorithm(wasmAlgorithm, wasmArgs, expectedResult, this.measureRounds);
+        Measurement.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, warmupRounds);
+        const wasmTimes = Measurement.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, measureRounds);
 
         return [jsTimes, wasmTimes];
+    }
+
+    // noinspection TsLint
+    private static executeJS(algorithm: Function,
+                             args: any[],
+                             expectedResult: any,
+                             rounds: number): Timing[] {
+        const times: Timing[] = [];
+
+        for (let i = 0; i < rounds; i++) {
+            const start = performance.now();
+            const result = algorithm(...args);
+            const executionTime = performance.now() - start;
+
+            Measurement.assert(result, expectedResult);
+
+            times.push({
+                compilationTime: 0,
+                executionTime,
+                importTime: 0,
+            });
+        }
+
+        return times;
+    }
+
+    // noinspection TsLint
+    private static executeWasm(algorithm: Function,
+                             args: any[],
+                             expectedResult: any,
+                             rounds: number): Timing[] {
+        const times: Timing[] = [];
+
+        for (let i = 0; i < rounds; i++) {
+            const result = algorithm(...args);
+            Measurement.assert(result, expectedResult);
+
+            times.push(Transpiler.getTiming());
+        }
+
+        return times;
+    }
+
+    private static assert(result: any, expected: any) {
+        if (typeof result === 'number' && typeof expected === 'boolean') {
+            switch (result) {
+                case 0:
+                    Measurement.assert(false, expected);
+                    break;
+                case 1:
+                    Measurement.assert(true, expected);
+                    break;
+                default:
+                    console.error(`Assertion failed, expected=${expected}, actual=${result}`);
+                    break;
+            }
+        } else if (result !== expected) {
+            console.error(`Assertion failed, expected=${expected}, actual=${result}`);
+        }
     }
 }
 

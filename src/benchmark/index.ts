@@ -1,3 +1,4 @@
+import {Timing} from '../transpiler';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
@@ -12,9 +13,9 @@ const fibonacciFunc = {
 };
 
 const gcdFunc = {
-  arguments: [978, 2147483646],
-  expectedResult: 6,
-  func: [gcdWhile, gcd],
+    arguments: [978, 2147483646],
+    expectedResult: 6,
+    func: [gcdWhile, gcd],
 };
 
 const sumIntegersFunc = {
@@ -56,26 +57,46 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
-function appendResult(result: [number[], number[]], log: HTMLElement, selectedAlgorithm: string) {
+function extractExecutionTime(timing: Timing): number {
+    return timing.executionTime;
+}
+
+function extractCompilationTime(timing: Timing): number {
+    return timing.compilationTime;
+}
+
+function extractImportTime(timing: Timing) {
+    return timing.importTime;
+}
+
+function extractTotalTime(timing: Timing) {
+    return extractCompilationTime(timing) + extractImportTime(timing) + extractExecutionTime(timing);
+}
+
+function logResult(result: [Timing[], Timing[]]) {
     const jsTimes = result[0];
     const wasmTimes = result[1];
 
-    const jsMean = mean(jsTimes);
-    const wasmMean = mean(wasmTimes);
+    const jsMean = mean(jsTimes.map(extractExecutionTime));
+    const jsVariance = variance(jsTimes.map(extractExecutionTime));
 
-    const jsVariance = variance(jsTimes);
-    const wasmVariance = variance(wasmTimes);
+    const wasmCompilationMean = mean(wasmTimes.map(extractCompilationTime));
+    const wasmImportMean = mean(wasmTimes.map((t) => t.importTime));
+    const wasmExecutionMean = mean(wasmTimes.map(extractExecutionTime));
 
-    const currentLogContent = log.innerText;
-    log.innerText = 'Name: ' + selectedAlgorithm + '\n';
-    log.innerText += 'Average JavaScript time: ' + jsMean + '\n';
-    log.innerText += 'Average WebAssembly time: ' + wasmMean + '\n';
-    log.innerText += 'Variance JavaScript: ' + jsVariance + '\n';
-    log.innerText += 'Variance WebAssembly: ' + wasmVariance + '\n';
-    log.innerText += '\n';
-    log.innerText += currentLogContent;
+    const wasmMean = mean(wasmTimes.map(extractTotalTime));
+    const wasmVariance = variance(wasmTimes.map(extractTotalTime));
 
-    console.log([jsMean, wasmMean, jsVariance, wasmVariance].toString());
+    console.log([
+        jsMean,
+        wasmMean,
+        jsVariance,
+        wasmVariance,
+    ].toString(), [
+        wasmCompilationMean,
+        wasmImportMean,
+        wasmExecutionMean,
+    ].toString());
 }
 
 function createSelection(selectionElement: HTMLSelectElement) {
@@ -89,7 +110,6 @@ function createSelection(selectionElement: HTMLSelectElement) {
 
 window.onload = () => {
     const selectionElement = document.getElementById('selected-algorithm') as HTMLSelectElement;
-    const resultLog = document.getElementById('result-log') as HTMLElement;
     const warmupRoundsElement = document.getElementById('warmup-rounds') as HTMLInputElement;
     const measureRoundsElement = document.getElementById('measure-rounds') as HTMLInputElement;
     createSelection(selectionElement);
@@ -104,8 +124,7 @@ window.onload = () => {
         if (algorithm === undefined) {
             console.error('No algorithm selected');
         } else {
-            const result = new Measurement(warmupRounds, measureRounds).measure(algorithm);
-            appendResult(result, resultLog, selectedAlgorithm);
+            logResult(Measurement.measure(algorithm, warmupRounds, measureRounds));
         }
     });
 };

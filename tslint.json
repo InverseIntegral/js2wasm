@@ -4,6 +4,7 @@
     "max-line-length": {
       "options": [120]
     },
+    "interface-name": [false],
     "quotemark": [true, "single"],
     "new-parens": true,
     "no-arg": true,

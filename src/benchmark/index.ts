@@ -57,20 +57,20 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
-function extractExecutionTime(timing: Measurement): number {
-    return timing.executionTime;
+function extractExecutionTime(measurement: Measurement): number {
+    return measurement.executionTime;
 }
 
-function extractCompilationTime(timing: Measurement): number {
-    return timing.compilationTime;
+function extractCompilationTime(measurement: Measurement): number {
+    return measurement.compilationTime;
 }
 
-function extractImportTime(timing: Measurement) {
-    return timing.importTime;
+function extractImportTime(measurement: Measurement) {
+    return measurement.importTime;
 }
 
-function extractTotalTime(timing: Measurement) {
-    return extractCompilationTime(timing) + extractImportTime(timing) + extractExecutionTime(timing);
+function extractTotalTime(measurement: Measurement) {
+    return extractCompilationTime(measurement) + extractImportTime(measurement) + extractExecutionTime(measurement);
 }
 
 function logResult(result: [Measurement[], Measurement[]]) {

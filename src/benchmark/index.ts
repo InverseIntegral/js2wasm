@@ -1,6 +1,8 @@
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
+import {mergeSort, mergeSortCopyArray, mergeSortFill,
+    mergeSortIsSorted, mergeSortMerge, mergeSortWhile} from './cases/mergesort';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from './cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from './cases/sum_array';
@@ -43,6 +45,12 @@ const newtonsMethodFunc = {
     func: [newtonsMethodWhile, newtonsMethod],
 };
 
+const mergeSortFunc = {
+    arguments: [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))],
+    expectedResult: true,
+    func: [mergeSortWhile, mergeSortCopyArray, mergeSortFill, mergeSortIsSorted, mergeSortMerge, mergeSort],
+};
+
 const quicksortFunc = {
     arguments: [new Array(1000000)],
     expectedResult: true,
@@ -57,6 +65,7 @@ const algorithms = new Map<string, Algorithm>([
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],
     ['Quicksort', quicksortFunc],
+    ['Mergesort', mergeSortFunc],
 ]);
 
 function sum(value1: number, value2: number): number {

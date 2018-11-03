@@ -1,7 +1,7 @@
-function mergeSortCopyArray(destination, source, includingStartIndex, excludingEndIndex) {
-    var i = includingStartIndex;
+function mergeSortCopyArray(destination, source, fromIndex, toIndex) {
+    var i = fromIndex;
 
-    while (i < excludingEndIndex) {
+    while (i < toIndex) {
         destination[i] = source[i];
         i++;
     }
@@ -24,31 +24,31 @@ function mergeSort(array, workspaceArray, left, right) {
 }
 
 function mergeSortMerge(array, workspaceArray, left, middle, right) {
-    var indexLeft = left;
-    var indexRight = middle;
+    var leftIndex = left;
+    var rightIndex = middle;
     var index = left;
 
-    while (indexLeft < middle && indexRight < right) {
-        if (array[indexLeft] < array[indexRight]) {
-            workspaceArray[index] = array[indexLeft];
-            indexLeft++;
+    while (leftIndex < middle && rightIndex < right) {
+        if (array[leftIndex] < array[rightIndex]) {
+            workspaceArray[index] = array[leftIndex];
+            leftIndex++;
         } else {
-            workspaceArray[index] = array[indexRight];
-            indexRight++;
+            workspaceArray[index] = array[rightIndex];
+            rightIndex++;
         }
 
         index++;
     }
 
-    while (indexLeft < middle) {
-        workspaceArray[index] = array[indexLeft];
-        indexLeft++;
+    while (leftIndex < middle) {
+        workspaceArray[index] = array[leftIndex];
+        leftIndex++;
         index++;
     }
 
-    while (indexRight < right) {
-        workspaceArray[index] = array[indexRight];
-        indexRight++;
+    while (rightIndex < right) {
+        workspaceArray[index] = array[rightIndex];
+        rightIndex++;
         index++;
     }
 

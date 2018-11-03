@@ -87,6 +87,7 @@ function logResult(result: [Measurement[], Measurement[]]) {
     const wasmMean = mean(wasmTimes.map(extractTotalTime));
     const wasmVariance = variance(wasmTimes.map(extractTotalTime));
 
+    // tslint:disable-next-line
     console.log([
         jsMean,
         wasmMean,

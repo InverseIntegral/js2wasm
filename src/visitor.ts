@@ -74,20 +74,11 @@ abstract class Visitor {
         }
     }
 
-    // noinspection TsLint
-    protected visitIdentifier(node: Identifier) {
+    protected visitIdentifier(node: Identifier) {}
 
-    }
+    protected visitNumericLiteral(node: NumericLiteral) {}
 
-    // noinspection TsLint
-    protected visitNumericLiteral(node: NumericLiteral) {
-
-    }
-
-    // noinspection TsLint
-    protected visitBooleanLiteral(node: BooleanLiteral) {
-
-    }
+    protected visitBooleanLiteral(node: BooleanLiteral) {}
 
     protected visitReturnStatement(node: ReturnStatement) {
         const argument = node.argument;

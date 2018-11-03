@@ -1,8 +1,8 @@
 import {File, FunctionDeclaration, isFunctionDeclaration, isMemberExpression} from '@babel/types';
 import {i32, Module} from 'binaryen';
+import {ContainsMemoryDependentElementVisitor} from './contains_memory_dependent_element_visitor';
 import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
-import {ContainsMemoryDependentElementVisitor} from './contains_memory_dependent_element_visitor';
 
 class Generator {
 

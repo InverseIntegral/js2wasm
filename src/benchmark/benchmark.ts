@@ -1,12 +1,11 @@
 import {BenchmarkTranspiler, Measurement} from './benchmark_transpiler';
 
-// noinspection TsLint
-type Algorithm = {
-    // noinspection TsLint
-    func: Function[],
-    arguments: any[],
-    expectedResult: any,
-};
+interface Algorithm {
+    // tslint:disable-next-line
+    func: Function[];
+    arguments: any[];
+    expectedResult: any;
+}
 
 class Benchmark {
 
@@ -28,7 +27,7 @@ class Benchmark {
         }
     }
 
-    // noinspection TsLint
+    // tslint:disable-next-line
     private static executeJS(algorithm: Function,
                              args: any[],
                              expectedResult: any,
@@ -76,11 +75,11 @@ class Benchmark {
         return [jsTimes, wasmTimes];
     }
 
-    // noinspection TsLint
+    // tslint:disable-next-line
     private executeWasm(algorithm: Function,
-                             args: any[],
-                             expectedResult: any,
-                             rounds: number): Measurement[] {
+                        args: any[],
+                        expectedResult: any,
+                        rounds: number): Measurement[] {
         const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {

@@ -152,24 +152,25 @@ class GeneratorVisitor extends Visitor {
 
     protected visitUpdateExpression(node: UpdateExpression) {
         super.visitUpdateExpression(node);
+
         const currentValue = this.popExpression();
-        let newValue;
+        let updatedValue;
 
         switch (node.operator) {
             case '++':
-                newValue = this.module.i32.add(currentValue, this.module.i32.const(1));
+                updatedValue = this.module.i32.add(currentValue, this.module.i32.const(1));
                 break;
             case '--':
-                newValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
+                updatedValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }
 
         if (isIdentifier(node.argument)) {
-            this.statements.push(this.setLocal(node.argument, newValue));
+            this.statements.push(this.setLocal(node.argument, updatedValue));
         } else if (isMemberExpression(node.argument)) {
-            this.statements.push(this.setArrayElement(node.argument, newValue));
+            this.statements.push(this.setArrayElement(node.argument, updatedValue));
         } else {
             throw new Error('An update is only allowed on an identifier');
         }

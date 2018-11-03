@@ -152,26 +152,26 @@ class GeneratorVisitor extends Visitor {
 
     protected visitUpdateExpression(node: UpdateExpression) {
         super.visitUpdateExpression(node);
-
         const currentValue = this.popExpression();
-
-        if (!isIdentifier(node.argument)) {
-            throw new Error('An update is only allowed on an identifier');
-        }
-
-        const index = this.getVariableIndex(node.argument.name);
+        let newValue;
 
         switch (node.operator) {
             case '++':
-                this.statements.push(this.module.set_local(index,
-                    this.module.i32.add(currentValue, this.module.i32.const(1))));
+                newValue = this.module.i32.add(currentValue, this.module.i32.const(1));
                 break;
             case '--':
-                this.statements.push(this.module.set_local(index,
-                    this.module.i32.sub(currentValue, this.module.i32.const(1))));
+                newValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
+        }
+
+        if (isIdentifier(node.argument)) {
+            this.setLocal(node.argument, newValue);
+        } else if (isMemberExpression(node.argument)) {
+            this.setArrayElement(node.argument, newValue);
+        } else {
+            throw new Error('An update is only allowed on an identifier');
         }
     }
 
@@ -328,12 +328,16 @@ class GeneratorVisitor extends Visitor {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            this.statements.push(this.module.set_local(this.getVariableIndex(val.name), value));
+            this.setLocal(val, value);
         } else if (isMemberExpression(val)) {
             this.setArrayElement(val, value);
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
+    }
+
+    private setLocal(val: Identifier, value: Expression) {
+        this.statements.push(this.module.set_local(this.getVariableIndex(val.name), value));
     }
 
     private getArrayElement(node: MemberExpression) {

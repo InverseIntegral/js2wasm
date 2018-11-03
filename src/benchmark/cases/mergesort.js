@@ -1,4 +1,4 @@
-function copyArray(destination, source, includingStartIndex, excludingEndIndex) {
+function mergeSortCopyArray(destination, source, includingStartIndex, excludingEndIndex) {
     var i = includingStartIndex;
 
     while (i < excludingEndIndex) {
@@ -18,12 +18,12 @@ function mergeSort(array, workspaceArray, left, right) {
     mergeSort(array, workspaceArray, left, middle);
     mergeSort(array, workspaceArray, middle, right);
 
-    merge(array, workspaceArray, left, middle, right);
+    mergeSortMerge(array, workspaceArray, left, middle, right);
 
     return workspaceArray;
 }
 
-function merge(array, workspaceArray, left, middle, right) {
+function mergeSortMerge(array, workspaceArray, left, middle, right) {
     var indexLeft = left;
     var indexRight = middle;
     var index = left;
@@ -52,11 +52,11 @@ function merge(array, workspaceArray, left, middle, right) {
         index++;
     }
 
-    copyArray(array, workspaceArray, left, right);
+    mergeSortCopyArray(array, workspaceArray, left, right);
     return workspaceArray;
 }
 
-function isSorted(array) {
+function mergeSortIsSorted(array) {
     var i = 0;
 
     while (i < array.length - 1) {
@@ -70,7 +70,7 @@ function isSorted(array) {
     return true;
 }
 
-function fill(array) {
+function mergeSortFill(array) {
     var i = 0;
 
     var modulus = 0x80000000; // 2^31
@@ -92,10 +92,10 @@ function mergeSortWhile(array, workspaceArray) {
     var i = 0;
 
     while (i < 100) {
-        fill(array);
+        mergeSortFill(array);
         mergeSort(array, workspaceArray, 0, array.length);
 
-        if (!isSorted(array)) {
+        if (!mergeSortIsSorted(array)) {
             return false;
         }
 
@@ -105,4 +105,4 @@ function mergeSortWhile(array, workspaceArray) {
     return true;
 }
 
-module.exports = {mergeSortWhile, fill, isSorted, merge, mergeSort, copyArray};
+module.exports = {mergeSortWhile, mergeSortFill, mergeSortIsSorted, mergeSortMerge, mergeSort, mergeSortCopyArray};

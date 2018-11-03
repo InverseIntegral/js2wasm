@@ -167,9 +167,9 @@ class GeneratorVisitor extends Visitor {
         }
 
         if (isIdentifier(node.argument)) {
-            this.setLocal(node.argument, newValue);
+            this.statements.push(this.setLocal(node.argument, newValue));
         } else if (isMemberExpression(node.argument)) {
-            this.setArrayElement(node.argument, newValue);
+            this.statements.push(this.setArrayElement(node.argument, newValue));
         } else {
             throw new Error('An update is only allowed on an identifier');
         }
@@ -269,12 +269,12 @@ class GeneratorVisitor extends Visitor {
 
     protected visitMemberExpression(node: MemberExpression) {
         if (node.computed) {
-            this.getArrayElement(node);
+            this.expressions.push(this.getArrayElement(node));
         } else {
             const identifier = node.property;
 
             if (identifier.name === 'length') {
-                this.getArrayLength(node);
+                this.expressions.push(this.getArrayLength(node));
             } else {
                 throw new Error(`Unknown property ${identifier}`);
             }
@@ -328,38 +328,38 @@ class GeneratorVisitor extends Visitor {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            this.setLocal(val, value);
+            this.statements.push(this.setLocal(val, value));
         } else if (isMemberExpression(val)) {
-            this.setArrayElement(val, value);
+            this.statements.push(this.setArrayElement(val, value));
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
     }
 
     private setLocal(val: Identifier, value: Expression) {
-        this.statements.push(this.module.set_local(this.getVariableIndex(val.name), value));
+        return this.module.set_local(this.getVariableIndex(val.name), value);
     }
 
     private getArrayElement(node: MemberExpression) {
         super.visitMemberExpression(node);
 
         // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-        this.expressions.push(this.module.i32.load(0, 4, this.getPointer()));
+        return this.module.i32.load(0, 4, this.getPointer());
     }
 
     private getArrayLength(node: MemberExpression) {
         this.visit(node.object);
 
         const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
-        this.expressions.push(this.module.i32.load(0, 4, address));
+        return this.module.i32.load(0, 4, address);
     }
 
-    private setArrayElement(memberExpression: MemberExpression, value: Expression) {
+    private setArrayElement(memberExpression: MemberExpression, value: Expression): Statement {
         this.visit(memberExpression.object);
         this.visit(memberExpression.property);
 
         // @ts-ignore because store() returns an expression
-        this.statements.push(this.module.i32.store(0, 4, this.getPointer(), value));
+        return this.module.i32.store(0, 4, this.getPointer(), value);
     }
 
     private getVariableIndex(name: string) {

@@ -1,4 +1,4 @@
-import {Timing, Transpiler} from '../transpiler';
+import {BenchmarkTranspiler, Measurement} from './benchmark_transpiler';
 
 // noinspection TsLint
 type Algorithm = {
@@ -8,16 +8,16 @@ type Algorithm = {
     expectedResult: any,
 };
 
-class Measurement {
+class Benchmark {
 
     private static assert(result: any, expected: any) {
         if (typeof result === 'number' && typeof expected === 'boolean') {
             switch (result) {
                 case 0:
-                    Measurement.assert(false, expected);
+                    Benchmark.assert(false, expected);
                     break;
                 case 1:
-                    Measurement.assert(true, expected);
+                    Benchmark.assert(true, expected);
                     break;
                 default:
                     console.error(`Assertion failed, expected=${expected}, actual=${result}`);
@@ -32,15 +32,15 @@ class Measurement {
     private static executeJS(algorithm: Function,
                              args: any[],
                              expectedResult: any,
-                             rounds: number): Timing[] {
-        const times: Timing[] = [];
+                             rounds: number): Measurement[] {
+        const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
             const start = performance.now();
             const result = algorithm(...args);
             const executionTime = performance.now() - start;
 
-            Measurement.assert(result, expectedResult);
+            Benchmark.assert(result, expectedResult);
 
             times.push({
                 compilationTime: 0,
@@ -52,17 +52,19 @@ class Measurement {
         return times;
     }
 
-    private transpiler: Transpiler;
+    private transpiler: BenchmarkTranspiler;
 
-    public measure(algorithm: Algorithm,
-                   warmupRounds: number,
-                   measureRounds: number): [Timing[], Timing[]] {
+    public benchmark(algorithm: Algorithm,
+                     warmupRounds: number,
+                     measureRounds: number): [Measurement[], Measurement[]] {
+        this.transpiler = new BenchmarkTranspiler();
+
         const func = algorithm.func;
         const args = algorithm.arguments;
         const expectedResult = algorithm.expectedResult;
 
-        Measurement.executeJS(func[0], args, expectedResult, warmupRounds);
-        const jsTimes = Measurement.executeJS(func[0], args, expectedResult, measureRounds);
+        Benchmark.executeJS(func[0], args, expectedResult, warmupRounds);
+        const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
         const wasmArgs = args.slice();
         wasmArgs.unshift(func[0].name);
@@ -78,18 +80,18 @@ class Measurement {
     private executeWasm(algorithm: Function,
                              args: any[],
                              expectedResult: any,
-                             rounds: number): Timing[] {
-        const times: Timing[] = [];
+                             rounds: number): Measurement[] {
+        const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
             const result = algorithm(...args);
-            Measurement.assert(result, expectedResult);
+            Benchmark.assert(result, expectedResult);
 
-            times.push(this.transpiler.getTiming());
+            times.push(this.transpiler.getMeasurement());
         }
 
         return times;
     }
 }
 
-export {Measurement, Algorithm};
+export {Benchmark, Algorithm};

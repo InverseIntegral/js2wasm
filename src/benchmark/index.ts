@@ -1,10 +1,10 @@
-import {Timing} from '../transpiler';
+import {Algorithm, Benchmark} from './benchmark';
+import {Measurement} from './benchmark_transpiler';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
-import {Algorithm, Measurement} from './measurement';
 
 const fibonacciFunc = {
     arguments: [41],
@@ -57,23 +57,23 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
-function extractExecutionTime(timing: Timing): number {
+function extractExecutionTime(timing: Measurement): number {
     return timing.executionTime;
 }
 
-function extractCompilationTime(timing: Timing): number {
+function extractCompilationTime(timing: Measurement): number {
     return timing.compilationTime;
 }
 
-function extractImportTime(timing: Timing) {
+function extractImportTime(timing: Measurement) {
     return timing.importTime;
 }
 
-function extractTotalTime(timing: Timing) {
+function extractTotalTime(timing: Measurement) {
     return extractCompilationTime(timing) + extractImportTime(timing) + extractExecutionTime(timing);
 }
 
-function logResult(result: [Timing[], Timing[]]) {
+function logResult(result: [Measurement[], Measurement[]]) {
     const jsTimes = result[0];
     const wasmTimes = result[1];
 
@@ -124,7 +124,7 @@ window.onload = () => {
         if (algorithm === undefined) {
             console.error('No algorithm selected');
         } else {
-            logResult(new Measurement().measure(algorithm, warmupRounds, measureRounds));
+            logResult(new Benchmark().benchmark(algorithm, warmupRounds, measureRounds));
         }
     });
 };

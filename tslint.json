@@ -6,6 +6,7 @@
     },
     "interface-name": [false],
     "quotemark": [true, "single"],
+    "no-empty": [true, "allow-empty-functions"],
     "new-parens": true,
     "no-arg": true,
     "no-bitwise": true,

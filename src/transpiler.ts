@@ -1,22 +1,6 @@
 import Generator from './generator/generator';
 import Parser from './parser/parser';
-
-// noinspection TsLint
-var performance: any;
-
-// Only require performance when running under nodejs
-if (typeof global === 'object') {
-    // noinspection TsLint
-    performance = require('perf_hooks').performance;
-} else {
-    performance = window.performance;
-}
-
-interface Timing {
-    compilationTime: number;
-    importTime: number;
-    executionTime: number;
-}
+import Module = WebAssembly.Module;
 
 class Transpiler {
 
@@ -50,13 +34,29 @@ class Transpiler {
         return Math.ceil((memoryElementCount * 4) / pageSize);
     }
 
-    private compilationTime: number;
-    private importTime: number;
-    private executionTime: number;
+    private wasmModule: Module;
 
     public transpile(content: string) {
-        const beforeCompilation = performance.now();
+        this.beforeCompilation();
+        this.compile(content);
+        this.afterCompilation();
 
+        return this.callWrapper.bind(this);
+    }
+
+    protected beforeCompilation() {}
+
+    protected afterCompilation() {}
+
+    protected beforeImport() {}
+
+    protected afterImport() {}
+
+    protected beforeExecution() {}
+
+    protected afterExecution() {}
+
+    private compile(content: string) {
         const file = Parser.parse(content);
         const module = Generator.generate(file);
 
@@ -66,42 +66,34 @@ class Transpiler {
             throw new Error('The generated WebAssembly is invalid');
         }
 
-        const wasmModule = new WebAssembly.Module(module.emitBinary());
+        this.wasmModule = new WebAssembly.Module(module.emitBinary());
         module.dispose();
-
-        this.compilationTime = performance.now() - beforeCompilation;
-
-        return (functionName: string, ...parameters: any[]) => {
-            const beforeImport = performance.now();
-            let fixedParameters = parameters;
-            let importObject = {};
-
-            if (parameters.some((parameter) => parameter instanceof Array)) {
-                const memory = new WebAssembly.Memory({ initial: Transpiler.calculateInitialMemorySize(parameters) });
-                const writeableMemory = new Uint32Array(memory.buffer);
-
-                fixedParameters = Transpiler.fillMemory(fixedParameters, writeableMemory);
-                importObject = { transpilerImports: { memory } };
-            }
-
-            this.importTime = performance.now() - beforeImport;
-
-            const beforeExecution = performance.now();
-            const result = new WebAssembly.Instance(wasmModule, importObject).exports[functionName](...fixedParameters);
-            this.executionTime = performance.now() - beforeExecution;
-
-            return result;
-        };
     }
 
-    public getTiming(): Timing {
-        return {
-            compilationTime: this.compilationTime,
-            executionTime: this.executionTime,
-            importTime: this.importTime,
-        };
+    private callWrapper(functionName: string, ...parameters: any[]) {
+        this.beforeImport();
+
+        let fixedParameters = parameters;
+        let importObject = {};
+
+        if (parameters.some((parameter) => parameter instanceof Array)) {
+            const memory = new WebAssembly.Memory({ initial: Transpiler.calculateInitialMemorySize(parameters) });
+            const writeableMemory = new Uint32Array(memory.buffer);
+
+            fixedParameters = Transpiler.fillMemory(fixedParameters, writeableMemory);
+            importObject = { transpilerImports: { memory } };
+        }
+
+        this.afterImport();
+
+        this.beforeExecution();
+        const instance = new WebAssembly.Instance(this.wasmModule, importObject);
+        const result = instance.exports[functionName](...fixedParameters);
+        this.afterExecution();
+
+        return result;
     }
 
 }
 
-export {Transpiler, Timing};
+export default Transpiler;

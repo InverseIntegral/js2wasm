@@ -172,7 +172,7 @@ class GeneratorVisitor extends Visitor {
         } else if (isMemberExpression(node.argument)) {
             this.statements.push(this.setArrayElement(node.argument, updatedValue));
         } else {
-            throw new Error('An update is only allowed on an identifier');
+            throw new Error('An update is only allowed on an identifier or a member access');
         }
     }
 

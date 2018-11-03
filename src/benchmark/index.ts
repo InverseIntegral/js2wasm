@@ -37,7 +37,7 @@ const newtonsMethodFunc = {
 };
 
 const quicksortFunc = {
-    arguments: [new Array(1000000), 0, 99],
+    arguments: [new Array(1000000)],
     expectedResult: true,
     func: [quickSortWhile, isSorted, fill, quickSort, partition, swap],
 };

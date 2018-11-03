@@ -1,3 +1,3 @@
 export function sumArrayWhile(): void;
-export function fill(): void;
+export function sumArrayFill(): void;
 export function sumArray(): void;

@@ -10,7 +10,7 @@ function sumArray(array) {
     return sum;
 }
 
-function fill(array) {
+function sumArrayFill(array) {
     var i = 0;
 
     while (i < array.length) {
@@ -23,7 +23,7 @@ function fill(array) {
 
 function sumArrayWhile(array) {
     var i = 0;
-    fill(array);
+    sumArrayFill(array);
 
     while (i < 100000) {
         sumArray(array);
@@ -33,4 +33,4 @@ function sumArrayWhile(array) {
     return sumArray(array);
 }
 
-module.exports = {sumArrayWhile, fill, sumArray};
+module.exports = {sumArrayWhile, sumArrayFill, sumArray};

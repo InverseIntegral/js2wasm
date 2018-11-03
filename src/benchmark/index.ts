@@ -124,7 +124,7 @@ window.onload = () => {
         if (algorithm === undefined) {
             console.error('No algorithm selected');
         } else {
-            logResult(Measurement.measure(algorithm, warmupRounds, measureRounds));
+            logResult(new Measurement().measure(algorithm, warmupRounds, measureRounds));
         }
     });
 };

@@ -20,58 +20,6 @@ interface Timing {
 
 class Transpiler {
 
-    public static transpile(content: string) {
-        const beforeCompilation = performance.now();
-
-        const file = Parser.parse(content);
-        const module = Generator.generate(file);
-
-        module.optimize();
-
-        if (!module.validate()) {
-            throw new Error('The generated WebAssembly is invalid');
-        }
-
-        const wasmModule = new WebAssembly.Module(module.emitBinary());
-        module.dispose();
-
-        Transpiler.compilationTime = performance.now() - beforeCompilation;
-
-        return (functionName: string, ...parameters: any[]) => {
-            const beforeImport = performance.now();
-            let fixedParameters = parameters;
-            let importObject = {};
-
-            if (parameters.some((parameter) => parameter instanceof Array)) {
-                const memory = new WebAssembly.Memory({ initial: this.calculateInitialMemorySize(parameters) });
-                const writeableMemory = new Uint32Array(memory.buffer);
-
-                fixedParameters = this.fillMemory(fixedParameters, writeableMemory);
-                importObject = { transpilerImports: { memory } };
-            }
-
-            Transpiler.importTime = performance.now() - beforeImport;
-
-            const beforeExecution = performance.now();
-            const result = new WebAssembly.Instance(wasmModule, importObject).exports[functionName](...fixedParameters);
-            Transpiler.executionTime = performance.now() - beforeExecution;
-
-            return result;
-        };
-    }
-
-    public static getTiming(): Timing {
-        return {
-            compilationTime: Transpiler.compilationTime,
-            executionTime: Transpiler.executionTime,
-            importTime: Transpiler.importTime,
-        };
-    }
-
-    private static compilationTime: number;
-    private static importTime: number;
-    private static executionTime: number;
-
     private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {
         // A copy of the parameters array is needed, to not override the content of the original one
         const fixedParameters = parameters.concat();
@@ -100,6 +48,58 @@ class Transpiler {
             .reduce((accumulator, current) => accumulator + current, 0);
 
         return Math.ceil((memoryElementCount * 4) / pageSize);
+    }
+
+    private compilationTime: number;
+    private importTime: number;
+    private executionTime: number;
+
+    public transpile(content: string) {
+        const beforeCompilation = performance.now();
+
+        const file = Parser.parse(content);
+        const module = Generator.generate(file);
+
+        module.optimize();
+
+        if (!module.validate()) {
+            throw new Error('The generated WebAssembly is invalid');
+        }
+
+        const wasmModule = new WebAssembly.Module(module.emitBinary());
+        module.dispose();
+
+        this.compilationTime = performance.now() - beforeCompilation;
+
+        return (functionName: string, ...parameters: any[]) => {
+            const beforeImport = performance.now();
+            let fixedParameters = parameters;
+            let importObject = {};
+
+            if (parameters.some((parameter) => parameter instanceof Array)) {
+                const memory = new WebAssembly.Memory({ initial: Transpiler.calculateInitialMemorySize(parameters) });
+                const writeableMemory = new Uint32Array(memory.buffer);
+
+                fixedParameters = Transpiler.fillMemory(fixedParameters, writeableMemory);
+                importObject = { transpilerImports: { memory } };
+            }
+
+            this.importTime = performance.now() - beforeImport;
+
+            const beforeExecution = performance.now();
+            const result = new WebAssembly.Instance(wasmModule, importObject).exports[functionName](...fixedParameters);
+            this.executionTime = performance.now() - beforeExecution;
+
+            return result;
+        };
+    }
+
+    public getTiming(): Timing {
+        return {
+            compilationTime: this.compilationTime,
+            executionTime: this.executionTime,
+            importTime: this.importTime,
+        };
     }
 
 }

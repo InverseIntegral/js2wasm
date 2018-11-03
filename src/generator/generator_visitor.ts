@@ -214,7 +214,7 @@ class GeneratorVisitor extends Visitor {
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null) {
             this.visit(node.init);
-            this.createSetLocal(node.id);
+            this.handleAssignment(node.id);
         }
     }
 
@@ -225,7 +225,7 @@ class GeneratorVisitor extends Visitor {
             this.handleShorthandAssignment(node);
         }
 
-        this.createSetLocal(node.left);
+        this.handleAssignment(node.left);
     }
 
     protected visitWhileStatement(node: WhileStatement) {
@@ -325,7 +325,7 @@ class GeneratorVisitor extends Visitor {
         }
     }
 
-    private createSetLocal(val: LVal) {
+    private handleAssignment(val: LVal) {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {

@@ -62,13 +62,13 @@ describe('Transpiler', function() {
             expect(transpiler.getCompleteTime()).to.be.lessThan(12000);
         });
 
-        it('should run mergesort faster than 15 seconds', () => {
+        it('should run mergesort faster than 16 seconds', () => {
             const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
                 mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
             const exports = transpiler.transpile(content);
 
             expect(exports('mergeSortWhile', new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(1);
-            expect(transpiler.getCompleteTime()).to.be.lessThan(15000);
+            expect(transpiler.getCompleteTime()).to.be.lessThan(16000);
         });
     });
 });

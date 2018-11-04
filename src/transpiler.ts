@@ -72,6 +72,10 @@ class Transpiler {
 
     protected afterExecution() {}
 
+    protected beforeExport() {}
+
+    protected afterExport() {}
+
     private compile(content: string) {
         const file = Parser.parse(content);
         const module = Generator.generate(file);
@@ -109,12 +113,14 @@ class Transpiler {
         const result = instance.exports[functionName](...fixedParameters);
         this.afterExecution();
 
+        this.beforeExport();
         if (hasArrayParameters) {
             const exportedMemory = instance.exports.memory;
             const readableMemory = new Uint32Array(exportedMemory.buffer);
 
             Transpiler.readMemory(parameters, fixedParameters, readableMemory);
         }
+        this.afterExport();
 
         return result;
     }

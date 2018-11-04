@@ -79,28 +79,28 @@ describe('Transpiler', () => {
         });
 
         it('should handle pre increment on array', () => {
-            const exports = Transpiler.transpile('function setFirst(arr) { ++arr[0]; return arr[0]; }');
+            const exports = transpiler.transpile('function setFirst(arr) { ++arr[0]; return arr[0]; }');
 
             expect(exports('setFirst', [5, 6, 7])).to.equal(6);
             expect(exports('setFirst', [4])).to.equal(5);
         });
 
         it('should handle post increment on array', () => {
-            const exports = Transpiler.transpile('function setFirst(arr) { arr[0]++; return arr[0]; }');
+            const exports = transpiler.transpile('function setFirst(arr) { arr[0]++; return arr[0]; }');
 
             expect(exports('setFirst', [15, 16, 17])).to.equal(16);
             expect(exports('setFirst', [14])).to.equal(15);
         });
 
         it('should handle pre decrement on array', () => {
-            const exports = Transpiler.transpile('function setFirst(arr) { --arr[0]; return arr[0]; }');
+            const exports = transpiler.transpile('function setFirst(arr) { --arr[0]; return arr[0]; }');
 
             expect(exports('setFirst', [5, 6, 7])).to.equal(4);
             expect(exports('setFirst', [4])).to.equal(3);
         });
 
         it('should handle post decrement on array', () => {
-            const exports = Transpiler.transpile('function setFirst(arr) { arr[0]--; return arr[0]; }');
+            const exports = transpiler.transpile('function setFirst(arr) { arr[0]--; return arr[0]; }');
 
             expect(exports('setFirst', [15, 16, 17])).to.equal(14);
             expect(exports('setFirst', [14])).to.equal(13);

@@ -5,18 +5,25 @@ import Module = WebAssembly.Module;
 class Transpiler {
 
     private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {
-        // A copy of the parameters array is needed, to not override the content of the original one
+        // Copy parameters so that the original parameters stay intact
         const fixedParameters = parameters.concat();
         let index = 0;
 
         for (let i = 0; i < fixedParameters.length; i++) {
-            if (fixedParameters[i] instanceof Array) {
-                const array = fixedParameters[i];
-                writeableMemory[index++] = array.length;
+            const current = fixedParameters[i];
+
+            if (Transpiler.isArray(current)) {
+                writeableMemory[index++] = current.length;
                 fixedParameters[i] = index * 4;
 
-                for (const element of array) {
+                for (const element of current) {
                     writeableMemory[index++] = element;
+                }
+            } else if (Transpiler.isObject(current)) {
+                for (const property in current) {
+                    if (current.hasOwnProperty(property)) {
+                        writeableMemory[index++] = current[property];
+                    }
                 }
             }
         }
@@ -24,14 +31,40 @@ class Transpiler {
         return fixedParameters;
     }
 
-    private static calculateInitialMemorySize(params: any[]): number {
+    private static calculateInitialMemorySize(parameters: any[]): number {
         const pageSize = Math.pow(2, 16);
-        const memoryElementCount = params
-            .filter((parameter) => parameter instanceof Array)
-            .map((array) => array.length + 1)
-            .reduce((accumulator, current) => accumulator + current, 0);
+        const arrayElements = Transpiler.countArrayElements(parameters);
+        const objectProperties = Transpiler.countObjectProperties(parameters);
 
-        return Math.ceil((memoryElementCount * 4) / pageSize);
+        return Math.ceil(((arrayElements + objectProperties) * 4) / pageSize);
+    }
+
+    private static countArrayElements(parameters: any[]) {
+        return parameters.filter(Transpiler.isArray)
+            .map((array) => array.length + 1)
+            .reduce(Transpiler.sum, 0);
+    }
+
+    private static countObjectProperties(parameters: any[]) {
+        return parameters.filter((parameter) => Transpiler.isObject(parameter) && !Transpiler.isArray(parameter))
+            .map((object) => Object.keys(object).length)
+            .reduce(Transpiler.sum, 0);
+    }
+
+    private static sum(first: number, second: number) {
+        return first + second;
+    }
+
+    private static requiresImport(parameter: any) {
+        return Transpiler.isArray(parameter) || Transpiler.isObject(parameter);
+    }
+
+    private static isArray(parameter: any) {
+        return parameter instanceof Array;
+    }
+
+    private static isObject(parameter: any) {
+        return parameter instanceof Object;
     }
 
     private wasmModule: Module;
@@ -76,7 +109,7 @@ class Transpiler {
         let fixedParameters = parameters;
         let importObject = {};
 
-        if (parameters.some((parameter) => parameter instanceof Array)) {
+        if (parameters.some(Transpiler.requiresImport)) {
             const memory = new WebAssembly.Memory({ initial: Transpiler.calculateInitialMemorySize(parameters) });
             const writeableMemory = new Uint32Array(memory.buffer);
 

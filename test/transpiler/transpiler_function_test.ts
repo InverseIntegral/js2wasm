@@ -19,7 +19,7 @@ describe('Transpiler', () => {
                 'function add(a, b) { return id(a) + id(b); }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('add', 1, 2)).to.equal(3);
+            expect(exports.run('add', 1, 2)).to.equal(3);
         });
 
         it('should handle recursive function calls', () => {
@@ -28,8 +28,8 @@ describe('Transpiler', () => {
                 'return fibonacci(current - 2) + fibonacci(current - 1); } ';
             const exports = transpiler.transpile(content);
 
-            expect(exports('fibonacci', 6)).to.equal(8);
-            expect(exports('fibonacci', 12)).to.equal(144);
+            expect(exports.run('fibonacci', 6)).to.equal(8);
+            expect(exports.run('fibonacci', 12)).to.equal(144);
         });
 
         it('should handle multiple function calls', () => {
@@ -38,16 +38,16 @@ describe('Transpiler', () => {
                 'function complete(current) {return double(incr(current)); } ';
             const exports = transpiler.transpile(content);
 
-            expect(exports('incr', 3)).to.equal(4);
-            expect(exports('incr', -100)).to.equal(-99);
-            expect(exports('incr', 20)).to.equal(21);
+            expect(exports.run('incr', 3)).to.equal(4);
+            expect(exports.run('incr', -100)).to.equal(-99);
+            expect(exports.run('incr', 20)).to.equal(21);
 
-            expect(exports('double', 20)).to.equal(40);
-            expect(exports('double', 0)).to.equal(0);
-            expect(exports('double', -10)).to.equal(-20);
+            expect(exports.run('double', 20)).to.equal(40);
+            expect(exports.run('double', 0)).to.equal(0);
+            expect(exports.run('double', -10)).to.equal(-20);
 
-            expect(exports('complete', 2)).to.equal(6);
-            expect(exports('complete', -2)).to.equal(-2);
+            expect(exports.run('complete', 2)).to.equal(6);
+            expect(exports.run('complete', -2)).to.equal(-2);
         });
 
         it('should handle function calls without assignments', () => {
@@ -55,8 +55,8 @@ describe('Transpiler', () => {
                 'function complete(current) { double(current); return double(current); } ';
             const exports = transpiler.transpile(content);
 
-            expect(exports('complete', 2)).to.equal(4);
-            expect(exports('complete', -2)).to.equal(-4);
+            expect(exports.run('complete', 2)).to.equal(4);
+            expect(exports.run('complete', -2)).to.equal(-4);
         });
     });
 });

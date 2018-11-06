@@ -17,10 +17,10 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(15);
-            expect(exports('loop', -10, 5)).to.equal(-5);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(15);
+            expect(exports.run('loop', -10, 5)).to.equal(-5);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle nested while', () => {
@@ -32,10 +32,10 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(35);
-            expect(exports('loop', -10, 5)).to.equal(15);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(35);
+            expect(exports.run('loop', -10, 5)).to.equal(15);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle multiple while', () => {
@@ -47,10 +47,10 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(20);
-            expect(exports('loop', -10, 5)).to.equal(0);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(20);
+            expect(exports.run('loop', -10, 5)).to.equal(0);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle while in if', () => {
@@ -60,10 +60,10 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(15);
-            expect(exports('loop', -10, 5)).to.equal(-10);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(15);
+            expect(exports.run('loop', -10, 5)).to.equal(-10);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle if in while', () => {
@@ -73,10 +73,10 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(15);
-            expect(exports('loop', -10, 5)).to.equal(-10);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(15);
+            expect(exports.run('loop', -10, 5)).to.equal(-10);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle else-if in while', () => {
@@ -90,11 +90,11 @@ describe('Transpiler', () => {
                 'return value; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 10, 5)).to.equal(15);
-            expect(exports('loop', -10, 5)).to.equal(0);
-            expect(exports('loop', -20, 5)).to.equal(-4);
-            expect(exports('loop', 10, 0)).to.equal(10);
-            expect(exports('loop', 10, -1)).to.equal(10);
+            expect(exports.run('loop', 10, 5)).to.equal(15);
+            expect(exports.run('loop', -10, 5)).to.equal(0);
+            expect(exports.run('loop', -20, 5)).to.equal(-4);
+            expect(exports.run('loop', 10, 0)).to.equal(10);
+            expect(exports.run('loop', 10, -1)).to.equal(10);
         });
 
         it('should handle while loops without braces', () => {
@@ -104,9 +104,9 @@ describe('Transpiler', () => {
                 'return i; }';
             const exports = transpiler.transpile(content);
 
-            expect(exports('loop', 5)).to.equal(5);
-            expect(exports('loop', 0)).to.equal(0);
-            expect(exports('loop', -1)).to.equal(0);
+            expect(exports.run('loop', 5)).to.equal(5);
+            expect(exports.run('loop', 0)).to.equal(0);
+            expect(exports.run('loop', -1)).to.equal(0);
         });
     });
 });

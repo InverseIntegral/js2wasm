@@ -71,7 +71,8 @@ class Benchmark {
         const wasmArgs = args.slice();
         wasmArgs.unshift(func[0].name);
 
-        const wasmAlgorithm = transpiler.transpile(func.join(''));
+        const callWrapper = transpiler.transpile(func.join(''));
+        const wasmAlgorithm = callWrapper.run.bind(callWrapper);
         this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, warmupRounds);
         const wasmTimes = this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, measureRounds);
 

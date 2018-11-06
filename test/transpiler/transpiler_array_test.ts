@@ -79,31 +79,31 @@ describe('Transpiler', () => {
         });
 
         it('should handle pre increment on array', () => {
-            const exports = transpiler.transpile('function setFirst(arr) { ++arr[0]; return arr[0]; }');
+            const exports = transpiler.transpile('function preIncrement(arr) { ++arr[0]; return arr[0]; }');
 
-            expect(exports('setFirst', [5, 6, 7])).to.equal(6);
-            expect(exports('setFirst', [4])).to.equal(5);
+            expect(exports('preIncrement', [5, 6, 7])).to.equal(6);
+            expect(exports('preIncrement', [4])).to.equal(5);
         });
 
         it('should handle post increment on array', () => {
-            const exports = transpiler.transpile('function setFirst(arr) { arr[0]++; return arr[0]; }');
+            const exports = transpiler.transpile('function postIncrement(arr) { arr[0]++; return arr[0]; }');
 
-            expect(exports('setFirst', [15, 16, 17])).to.equal(16);
-            expect(exports('setFirst', [14])).to.equal(15);
+            expect(exports('postIncrement', [15, 16, 17])).to.equal(16);
+            expect(exports('postIncrement', [14])).to.equal(15);
         });
 
         it('should handle pre decrement on array', () => {
-            const exports = transpiler.transpile('function setFirst(arr) { --arr[0]; return arr[0]; }');
+            const exports = transpiler.transpile('function preDecrement(arr) { --arr[0]; return arr[0]; }');
 
-            expect(exports('setFirst', [5, 6, 7])).to.equal(4);
-            expect(exports('setFirst', [4])).to.equal(3);
+            expect(exports('preDecrement', [5, 6, 7])).to.equal(4);
+            expect(exports('preDecrement', [4])).to.equal(3);
         });
 
         it('should handle post decrement on array', () => {
-            const exports = transpiler.transpile('function setFirst(arr) { arr[0]--; return arr[0]; }');
+            const exports = transpiler.transpile('function postDecrement(arr) { arr[0]--; return arr[0]; }');
 
-            expect(exports('setFirst', [15, 16, 17])).to.equal(14);
-            expect(exports('setFirst', [14])).to.equal(13);
+            expect(exports('postDecrement', [15, 16, 17])).to.equal(14);
+            expect(exports('postDecrement', [14])).to.equal(13);
         });
     });
 });

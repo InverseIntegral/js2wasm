@@ -99,7 +99,10 @@ function extractImportTime(measurement: Measurement) {
 }
 
 function extractTotalTime(measurement: Measurement) {
-    return extractCompilationTime(measurement) + extractExecutionTime(measurement) + extractImportTime(measurement);
+    return extractCompilationTime(measurement)
+        + extractExecutionTime(measurement)
+        + extractExportTime(measurement)
+        + extractImportTime(measurement);
 }
 
 function logResult(result: [Measurement[], Measurement[]]) {

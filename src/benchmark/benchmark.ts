@@ -44,6 +44,7 @@ class Benchmark {
             times.push({
                 compilationTime: 0,
                 executionTime,
+                exportTime: 0,
                 importTime: 0,
             });
         }

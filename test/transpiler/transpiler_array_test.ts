@@ -105,5 +105,46 @@ describe('Transpiler', () => {
             expect(exports('postDecrement', [15, 16, 17])).to.equal(14);
             expect(exports('postDecrement', [14])).to.equal(13);
         });
+
+        it('should handle array export', () => {
+            const exports = transpiler.transpile('function arrayExport(arr) { arr[0] = 5; return arr[0]; }');
+
+            const array1 = [0];
+            exports('arrayExport', array1);
+            expect(array1[0]).to.equal(5);
+
+            const array2 = [1, 2, 3];
+            exports('arrayExport', array2);
+            expect(array2[0]).to.equal(5);
+            expect(array2[1]).to.equal(2);
+            expect(array2[2]).to.equal(3);
+        });
+
+        it('should handle multiple array exports', () => {
+            const content = 'function arrayExport(arr1, arr2) { arr1[0] = 21; arr2[1] = 22; return arr1[0]; }';
+            const exports = transpiler.transpile(content);
+
+            const array1 = [11, 12];
+            const array2 = [13, 14, 15, 16];
+            exports('arrayExport', array1, array2);
+            expect(array1[0]).to.equal(21);
+            expect(array1[1]).to.equal(12);
+            expect(array2[0]).to.equal(13);
+            expect(array2[1]).to.equal(22);
+            expect(array2[2]).to.equal(15);
+            expect(array2[3]).to.equal(16);
+        });
+
+        it('should handle partial array export', () => {
+            const content = 'function arrayExport(arr1, arr2) { arr1[0] = 41; return arr2[0]; }';
+            const exports = transpiler.transpile(content);
+
+            const array1 = [31, 32];
+            const array2 = [33];
+            exports('arrayExport', array1, array2);
+            expect(array1[0]).to.equal(41);
+            expect(array1[1]).to.equal(32);
+            expect(array2[0]).to.equal(33);
+        });
     });
 });

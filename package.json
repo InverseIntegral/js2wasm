@@ -9,7 +9,8 @@
   },
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
-    "test": "mocha --require ts-node/register \"test/**/*.ts\"",
+    "test": "mocha --require ts-node/register \"test/**/*.ts\" --exclude \"test/time_limited/**/*.ts\"",
+    "test_all": "mocha --require ts-node/register \"test/**/*.ts\"",
     "build": "webpack"
   },
   "repository": {

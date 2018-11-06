@@ -82,24 +82,24 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
-function extractExecutionTime(measurement: Measurement): number {
-    return measurement.executionTime;
-}
-
 function extractCompilationTime(measurement: Measurement): number {
     return measurement.compilationTime;
 }
 
-function extractImportTime(measurement: Measurement) {
-    return measurement.importTime;
+function extractExecutionTime(measurement: Measurement): number {
+    return measurement.executionTime;
 }
 
 function extractExportTime(measurement: Measurement) {
     return measurement.exportTime;
 }
 
+function extractImportTime(measurement: Measurement) {
+    return measurement.importTime;
+}
+
 function extractTotalTime(measurement: Measurement) {
-    return extractCompilationTime(measurement) + extractImportTime(measurement) + extractExecutionTime(measurement);
+    return extractCompilationTime(measurement) + extractExecutionTime(measurement) + extractImportTime(measurement);
 }
 
 function logResult(result: [Measurement[], Measurement[]]) {
@@ -110,9 +110,9 @@ function logResult(result: [Measurement[], Measurement[]]) {
     const jsVariance = variance(jsTimes.map(extractExecutionTime));
 
     const wasmCompilationMean = mean(wasmTimes.map(extractCompilationTime));
-    const wasmImportMean = mean(wasmTimes.map((t) => t.importTime));
     const wasmExecutionMean = mean(wasmTimes.map(extractExecutionTime));
     const wasmExportMean = mean(wasmTimes.map(extractExportTime));
+    const wasmImportMean = mean(wasmTimes.map((t) => t.importTime));
 
     const wasmMean = mean(wasmTimes.map(extractTotalTime));
     const wasmVariance = variance(wasmTimes.map(extractTotalTime));

@@ -64,10 +64,6 @@ class Transpiler {
 
     protected afterCompilation() {}
 
-    protected beforeImport() {}
-
-    protected afterImport() {}
-
     protected beforeExecution() {}
 
     protected afterExecution() {}
@@ -75,6 +71,10 @@ class Transpiler {
     protected beforeExport() {}
 
     protected afterExport() {}
+
+    protected beforeImport() {}
+
+    protected afterImport() {}
 
     private compile(content: string) {
         const file = Parser.parse(content);

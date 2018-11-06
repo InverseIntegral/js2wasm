@@ -59,7 +59,7 @@ class BenchmarkTranspiler extends Transpiler {
     }
 
     protected afterExport() {
-        this.measuredExecutionTime = performance.now() - this.beforeExportTime;
+        this.measuredExportTime = performance.now() - this.beforeExportTime;
     }
 }
 

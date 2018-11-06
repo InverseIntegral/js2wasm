@@ -115,7 +115,7 @@ function logResult(result: [Measurement[], Measurement[]]) {
     const wasmCompilationMean = mean(wasmTimes.map(extractCompilationTime));
     const wasmExecutionMean = mean(wasmTimes.map(extractExecutionTime));
     const wasmExportMean = mean(wasmTimes.map(extractExportTime));
-    const wasmImportMean = mean(wasmTimes.map((t) => t.importTime));
+    const wasmImportMean = mean(wasmTimes.map(extractImportTime));
 
     const wasmMean = mean(wasmTimes.map(extractTotalTime));
     const wasmVariance = variance(wasmTimes.map(extractTotalTime));

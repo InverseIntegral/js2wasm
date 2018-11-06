@@ -1,7 +1,7 @@
 import {performance} from 'perf_hooks';
-import Transpiler from '../../src/transpiler';
+import TranspilerHook from '../../src/transpiler_hook';
 
-class NodeBenchmarkTranspiler extends Transpiler {
+class NodeBenchmarkTranspiler extends TranspilerHook {
 
     private beforeCompilationTime: number;
     private afterExecutionTime: number;
@@ -10,11 +10,11 @@ class NodeBenchmarkTranspiler extends Transpiler {
         return this.afterExecutionTime - this.beforeCompilationTime;
     }
 
-    protected beforeCompilation() {
+    public beforeCompilation() {
         this.beforeCompilationTime = performance.now();
     }
 
-    protected afterExecution() {
+    public afterExecution() {
         this.afterExecutionTime = performance.now();
     }
 }

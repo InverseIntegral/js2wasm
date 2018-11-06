@@ -1,4 +1,4 @@
-import Transpiler from '../transpiler';
+import TranspilerHook from '../transpiler_hook';
 
 interface Measurement {
     compilationTime: number;
@@ -7,7 +7,7 @@ interface Measurement {
     importTime: number;
 }
 
-class BenchmarkTranspiler extends Transpiler {
+class MeasurementHook extends TranspilerHook {
 
     private beforeCompilationTime: number;
     private measuredCompilationTime: number;
@@ -30,38 +30,38 @@ class BenchmarkTranspiler extends Transpiler {
         };
     }
 
-    protected beforeCompilation() {
+    public beforeCompilation() {
         this.beforeCompilationTime = performance.now();
     }
 
-    protected afterCompilation() {
+    public afterCompilation() {
         this.measuredCompilationTime = performance.now() - this.beforeCompilationTime;
     }
 
-    protected beforeExecution() {
+    public beforeExecution() {
         this.beforeExecutionTime = performance.now();
     }
 
-    protected afterExecution() {
+    public afterExecution() {
         this.measuredExecutionTime = performance.now() - this.beforeExecutionTime;
     }
 
-    protected beforeExport() {
+    public beforeExport() {
         this.beforeExportTime = performance.now();
     }
 
-    protected afterExport() {
+    public afterExport() {
         this.measuredExportTime = performance.now() - this.beforeExportTime;
     }
 
-    protected beforeImport() {
+    public beforeImport() {
         this.beforeImportTime = performance.now();
     }
 
-    protected afterImport() {
+    public afterImport() {
         this.measuredImportTime = performance.now() - this.beforeImportTime;
     }
 
 }
 
-export {BenchmarkTranspiler, Measurement};
+export {MeasurementHook, Measurement};

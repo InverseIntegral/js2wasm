@@ -1,4 +1,5 @@
-import {BenchmarkTranspiler, Measurement} from './benchmark_transpiler';
+import Transpiler from '../transpiler';
+import {MeasurementHook, Measurement} from './measurement_hook';
 
 interface Algorithm {
     // tslint:disable-next-line
@@ -52,12 +53,13 @@ class Benchmark {
         return times;
     }
 
-    private transpiler: BenchmarkTranspiler;
+    private measurementHook: MeasurementHook;
 
     public benchmark(algorithm: Algorithm,
                      warmupRounds: number,
                      measureRounds: number): [Measurement[], Measurement[]] {
-        this.transpiler = new BenchmarkTranspiler();
+        this.measurementHook = new MeasurementHook();
+        const transpiler = new Transpiler(this.measurementHook);
 
         const func = algorithm.func;
         const args = algorithm.arguments;
@@ -69,7 +71,7 @@ class Benchmark {
         const wasmArgs = args.slice();
         wasmArgs.unshift(func[0].name);
 
-        const wasmAlgorithm = this.transpiler.transpile(func.join(''));
+        const wasmAlgorithm = transpiler.transpile(func.join(''));
         this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, warmupRounds);
         const wasmTimes = this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, measureRounds);
 
@@ -87,7 +89,7 @@ class Benchmark {
             const result = algorithm(...args);
             Benchmark.assert(result, expectedResult);
 
-            times.push(this.transpiler.getMeasurement());
+            times.push(this.measurementHook.getMeasurement());
         }
 
         return times;

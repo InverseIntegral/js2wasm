@@ -1,5 +1,6 @@
 import Generator from './generator/generator';
 import Parser from './parser/parser';
+import TranspilerHook from './transpiler_hook';
 import Module = WebAssembly.Module;
 
 class Transpiler {
@@ -51,30 +52,19 @@ class Transpiler {
     }
 
     private wasmModule: Module;
+    private hook: TranspilerHook;
+
+    public constructor(hook: TranspilerHook = new TranspilerHook()) {
+        this.hook = hook;
+    }
 
     public transpile(content: string) {
-        this.beforeCompilation();
+        this.hook.beforeCompilation();
         this.compile(content);
-        this.afterCompilation();
+        this.hook.afterCompilation();
 
         return this.callWrapper.bind(this);
     }
-
-    protected beforeCompilation() {}
-
-    protected afterCompilation() {}
-
-    protected beforeExecution() {}
-
-    protected afterExecution() {}
-
-    protected beforeExport() {}
-
-    protected afterExport() {}
-
-    protected beforeImport() {}
-
-    protected afterImport() {}
 
     private compile(content: string) {
         const file = Parser.parse(content);
@@ -91,7 +81,7 @@ class Transpiler {
     }
 
     private callWrapper(functionName: string, ...parameters: any[]) {
-        this.beforeImport();
+        this.hook.beforeImport();
 
         let fixedParameters = parameters;
         let importObject = {};
@@ -106,21 +96,23 @@ class Transpiler {
             importObject = { transpilerImports: { memory } };
         }
 
-        this.afterImport();
+        this.hook.afterImport();
 
-        this.beforeExecution();
+        this.hook.beforeExecution();
         const instance = new WebAssembly.Instance(this.wasmModule, importObject);
         const result = instance.exports[functionName](...fixedParameters);
-        this.afterExecution();
+        this.hook.afterExecution();
 
-        this.beforeExport();
+        this.hook.beforeExport();
+
         if (hasArrayParameters) {
             const exportedMemory = instance.exports.memory;
             const readableMemory = new Uint32Array(exportedMemory.buffer);
 
             Transpiler.readMemory(parameters, fixedParameters, readableMemory);
         }
-        this.afterExport();
+
+        this.hook.afterExport();
 
         return result;
     }

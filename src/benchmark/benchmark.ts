@@ -68,13 +68,10 @@ class Benchmark {
         Benchmark.executeJS(func[0], args, expectedResult, warmupRounds);
         const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
-        const wasmArgs = args.slice();
-        wasmArgs.unshift(func[0].name);
-
         const callWrapper = transpiler.transpile(func.join(''));
-        const wasmAlgorithm = callWrapper.run.bind(callWrapper);
-        this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, warmupRounds);
-        const wasmTimes = this.executeWasm(wasmAlgorithm, wasmArgs, expectedResult, measureRounds);
+        const wasmAlgorithm = callWrapper.setCallFunctionName(func[0].name).call.bind(callWrapper);
+        this.executeWasm(wasmAlgorithm, args, expectedResult, warmupRounds);
+        const wasmTimes = this.executeWasm(wasmAlgorithm, args, expectedResult, measureRounds);
 
         return [jsTimes, wasmTimes];
     }

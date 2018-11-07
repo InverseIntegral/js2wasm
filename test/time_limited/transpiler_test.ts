@@ -11,8 +11,8 @@ import {
 } from '../../src/benchmark/cases/mergesort';
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from '../../src/benchmark/cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from '../../src/benchmark/cases/sum_array';
-import NodeBenchmarkHook from './node_benchmark_hook';
 import Transpiler from '../../src/transpiler';
+import NodeBenchmarkHook from './node_benchmark_hook';
 
 describe('Transpiler', function() {
 
@@ -27,50 +27,51 @@ describe('Transpiler', function() {
     });
 
     describe('#transpile()', () => {
-        it('should run isPrime faster than 7 seconds', () => {
+        it('should setCallFunctionName isPrime faster than 7 seconds', () => {
             const exports = transpiler.transpile(isPrime.toString() + isPrimeWhile.toString());
 
-            expect(exports.run('isPrimeWhile', 46327)).to.equal(1);
+            expect(exports.setCallFunctionName('isPrimeWhile').call(46327)).to.equal(1);
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should run fibonacci faster than 7 seconds', () => {
+        it('should setCallFunctionName fibonacci faster than 7 seconds', () => {
             const exports = transpiler.transpile(fibonacci.toString() + fibonacciWhile.toString());
 
-            expect(exports.run('fibonacciWhile', 41)).to.equal(165580141);
+            expect(exports.setCallFunctionName('fibonacciWhile').call(41)).to.equal(165580141);
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should run gcd faster than 11 seconds', () => {
+        it('should setCallFunctionName gcd faster than 11 seconds', () => {
             const exports = transpiler.transpile(gcd.toString() + gcdWhile.toString());
 
-            expect(exports.run('gcdWhile', 978, 2147483646)).to.equal(6);
+            expect(exports.setCallFunctionName('gcdWhile').call(978, 2147483646)).to.equal(6);
             expect(hook.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should run sum array faster than 7 seconds', () => {
+        it('should setCallFunctionName sum array faster than 7 seconds', () => {
             const content = sumArray.toString() + sumArrayFill.toString() + sumArrayWhile.toString();
             const exports = transpiler.transpile(content);
 
-            expect(exports.run('sumArrayWhile', new Array(65535))).to.equal(2147385345);
+            expect(exports.setCallFunctionName('sumArrayWhile').call(new Array(65535))).to.equal(2147385345);
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should run quicksort faster than 12 seconds', () => {
+        it('should setCallFunctionName quicksort faster than 12 seconds', () => {
             const content = swap.toString() + partition.toString() + quickSort.toString() + fill.toString() +
                 isSorted.toString() + quickSortWhile.toString();
             const exports = transpiler.transpile(content);
 
-            expect(exports.run('quickSortWhile', new Array(1000000))).to.equal(1);
+            expect(exports.setCallFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(1);
             expect(hook.getCompleteTime()).to.be.lessThan(12000);
         });
 
-        it('should run mergesort faster than 16 seconds', () => {
+        it('should setCallFunctionName mergesort faster than 16 seconds', () => {
             const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
                 mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
             const exports = transpiler.transpile(content);
+            const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(exports.run('mergeSortWhile', new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(1);
+            expect(exports.setCallFunctionName('mergeSortWhile').call(parameters)).to.equal(1);
             expect(hook.getCompleteTime()).to.be.lessThan(16000);
         });
     });

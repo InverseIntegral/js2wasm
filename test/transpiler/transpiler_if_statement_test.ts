@@ -14,27 +14,28 @@ describe('Transpiler', () => {
         it('should handle if else statements', () => {
             const content = 'function alwaysOne() { if (false) { return 100; } else { return 1; } }';
             const exports = transpiler.transpile(content);
-            expect(exports.run('alwaysOne')).to.equal(1);
+            expect(exports.setCallFunctionName('alwaysOne').call()).to.equal(1);
         });
 
         it('should handle if statements without else part', () => {
             const content = 'function alwaysOne() { if (false) { return 100; } return 1; }';
             const exports = transpiler.transpile(content);
-            expect(exports.run('alwaysOne')).to.equal(1);
+            expect(exports.setCallFunctionName('alwaysOne').call()).to.equal(1);
 
             const content2 = 'function alwaysTwo() { if (true) { return 2; } return 1; }';
             const exports2 = transpiler.transpile(content2);
-            expect(exports2.run('alwaysTwo')).to.equal(2);
+            expect(exports2.setCallFunctionName('alwaysTwo').call()).to.equal(2);
         });
 
         it('should handle else if statements', () => {
             const content = 'function elseIf(a, b) { if (a) { return 0; } else if (b) { return 1; } return 2; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('elseIf');
 
-            expect(exports.run('elseIf', true, false)).to.equal(0);
-            expect(exports.run('elseIf', true, true)).to.equal(0);
-            expect(exports.run('elseIf', false, true)).to.equal(1);
-            expect(exports.run('elseIf', false, false)).to.equal(2);
+            expect(exports.call(true, false)).to.equal(0);
+            expect(exports.call(true, true)).to.equal(0);
+            expect(exports.call(false, true)).to.equal(1);
+            expect(exports.call(false, false)).to.equal(2);
         });
 
         it('should handle multiple else if statements', () => {
@@ -44,15 +45,16 @@ describe('Transpiler', () => {
                 'else if (c) { return 2; } ' +
                 'else { return 3; } }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('elseIf');
 
-            expect(exports.run('elseIf', true, true, true)).to.equal(0);
-            expect(exports.run('elseIf', true, true, false)).to.equal(0);
-            expect(exports.run('elseIf', true, false, true)).to.equal(0);
-            expect(exports.run('elseIf', true, false, false)).to.equal(0);
-            expect(exports.run('elseIf', false, true, true)).to.equal(1);
-            expect(exports.run('elseIf', false, true, false)).to.equal(1);
-            expect(exports.run('elseIf', false, false, true)).to.equal(2);
-            expect(exports.run('elseIf', false, false, false)).to.equal(3);
+            expect(exports.call(true, true, true)).to.equal(0);
+            expect(exports.call(true, true, false)).to.equal(0);
+            expect(exports.call(true, false, true)).to.equal(0);
+            expect(exports.call(true, false, false)).to.equal(0);
+            expect(exports.call(false, true, true)).to.equal(1);
+            expect(exports.call(false, true, false)).to.equal(1);
+            expect(exports.call(false, false, true)).to.equal(2);
+            expect(exports.call(false, false, false)).to.equal(3);
         });
 
         it('should handle logical operators in if statement', () => {
@@ -61,11 +63,12 @@ describe('Transpiler', () => {
                 'else if (a || b) { return 1; }' +
                 'else { return 2; } }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('elseIf');
 
-            expect(exports.run('elseIf', true, true)).to.equal(0);
-            expect(exports.run('elseIf', true, false)).to.equal(1);
-            expect(exports.run('elseIf', false, true)).to.equal(1);
-            expect(exports.run('elseIf', false, false)).to.equal(2);
+            expect(exports.call(true, true)).to.equal(0);
+            expect(exports.call(true, false)).to.equal(1);
+            expect(exports.call(false, true)).to.equal(1);
+            expect(exports.call(false, false)).to.equal(2);
         });
         it('should handle if with multiple statements', () => {
             const content = 'function elseIf(a, b, value) { ' +
@@ -73,27 +76,30 @@ describe('Transpiler', () => {
                 'else if (b) { value += 2; return value; } ' +
                 'else { value += 3; return value; } }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('elseIf');
 
-            expect(exports.run('elseIf', true, false, 1)).to.equal(2);
-            expect(exports.run('elseIf', false, true, 1)).to.equal(3);
-            expect(exports.run('elseIf', false, false, 1)).to.equal(4);
+            expect(exports.call(true, false, 1)).to.equal(2);
+            expect(exports.call(false, true, 1)).to.equal(3);
+            expect(exports.call(false, false, 1)).to.equal(4);
         });
 
         it('should handle if statements without braces', () => {
             const content = 'function ifWithout(a) { if (a) return 10; else return 20; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('ifWithout');
 
-            expect(exports.run('ifWithout', true)).to.equal(10);
-            expect(exports.run('ifWithout', false)).to.equal(20);
+            expect(exports.call(true)).to.equal(10);
+            expect(exports.call(false)).to.equal(20);
         });
 
         it('should handle else if statements without braces', () => {
             const content = 'function ifWithout(a, b) { if (a) return 10; else if(b) return 20; else return 30; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('ifWithout');
 
-            expect(exports.run('ifWithout', true, false)).to.equal(10);
-            expect(exports.run('ifWithout', false, true)).to.equal(20);
-            expect(exports.run('ifWithout', false, false)).to.equal(30);
+            expect(exports.call(true, false)).to.equal(10);
+            expect(exports.call(false, true)).to.equal(20);
+            expect(exports.call(false, false)).to.equal(30);
         });
     });
 });

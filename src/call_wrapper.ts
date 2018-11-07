@@ -52,12 +52,19 @@ class CallWrapper {
     private readonly hook: TranspilerHook;
     private readonly wasmModule: Module;
 
+    private callFunctionName: string;
+
     public constructor(wasmModule: Module, hook: TranspilerHook) {
         this.wasmModule = wasmModule;
         this.hook = hook;
     }
 
-    public run(functionName: string, ...parameters: any[]) {
+    public setCallFunctionName(callFunctionName: string) {
+        this.callFunctionName = callFunctionName;
+        return this;
+    }
+
+    public call(...parameters: any[]) {
         this.hook.beforeImport();
 
         let fixedParameters = parameters;
@@ -77,7 +84,7 @@ class CallWrapper {
 
         this.hook.beforeExecution();
         const instance = new WebAssembly.Instance(this.wasmModule, importObject);
-        const result = instance.exports[functionName](...fixedParameters);
+        const result = instance.exports[this.callFunctionName](...fixedParameters);
         this.hook.afterExecution();
 
         this.hook.beforeExport();

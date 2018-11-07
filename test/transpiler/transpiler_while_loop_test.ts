@@ -16,11 +16,12 @@ describe('Transpiler', () => {
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(15);
-            expect(exports.run('loop', -10, 5)).to.equal(-5);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(15);
+            expect(exports.call(-10, 5)).to.equal(-5);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle nested while', () => {
@@ -31,11 +32,12 @@ describe('Transpiler', () => {
                 'x = 0; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(35);
-            expect(exports.run('loop', -10, 5)).to.equal(15);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(35);
+            expect(exports.call(-10, 5)).to.equal(15);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle multiple while', () => {
@@ -46,11 +48,12 @@ describe('Transpiler', () => {
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(20);
-            expect(exports.run('loop', -10, 5)).to.equal(0);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(20);
+            expect(exports.call(-10, 5)).to.equal(0);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle while in if', () => {
@@ -59,11 +62,12 @@ describe('Transpiler', () => {
                 'if (value >= 0) { while (i < times) { value += 1; i++; } }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(15);
-            expect(exports.run('loop', -10, 5)).to.equal(-10);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(15);
+            expect(exports.call(-10, 5)).to.equal(-10);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle if in while', () => {
@@ -72,11 +76,12 @@ describe('Transpiler', () => {
                 'while (i < times) { if (value >= 0) { value += 1; } i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(15);
-            expect(exports.run('loop', -10, 5)).to.equal(-10);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(15);
+            expect(exports.call(-10, 5)).to.equal(-10);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle else-if in while', () => {
@@ -89,12 +94,13 @@ describe('Transpiler', () => {
                 'i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 10, 5)).to.equal(15);
-            expect(exports.run('loop', -10, 5)).to.equal(0);
-            expect(exports.run('loop', -20, 5)).to.equal(-4);
-            expect(exports.run('loop', 10, 0)).to.equal(10);
-            expect(exports.run('loop', 10, -1)).to.equal(10);
+            expect(exports.call(10, 5)).to.equal(15);
+            expect(exports.call(-10, 5)).to.equal(0);
+            expect(exports.call(-20, 5)).to.equal(-4);
+            expect(exports.call(10, 0)).to.equal(10);
+            expect(exports.call(10, -1)).to.equal(10);
         });
 
         it('should handle while loops without braces', () => {
@@ -103,10 +109,11 @@ describe('Transpiler', () => {
                 'while (i < times) i++;' +
                 'return i; }';
             const exports = transpiler.transpile(content);
+            exports.setCallFunctionName('loop');
 
-            expect(exports.run('loop', 5)).to.equal(5);
-            expect(exports.run('loop', 0)).to.equal(0);
-            expect(exports.run('loop', -1)).to.equal(0);
+            expect(exports.call(5)).to.equal(5);
+            expect(exports.call(0)).to.equal(0);
+            expect(exports.call(-1)).to.equal(0);
         });
     });
 });

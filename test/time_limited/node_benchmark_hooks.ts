@@ -1,7 +1,7 @@
 import {performance} from 'perf_hooks';
-import TranspilerHook from '../../src/transpiler_hook';
+import TranspilerHooks from '../../src/transpiler_hooks';
 
-class NodeBenchmarkTranspiler extends TranspilerHook {
+class NodeBenchmarkTranspiler extends TranspilerHooks {
 
     private beforeCompilationTime: number;
     private afterExecutionTime: number;

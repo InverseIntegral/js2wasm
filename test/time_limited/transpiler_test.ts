@@ -12,18 +12,18 @@ import {
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from '../../src/benchmark/cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from '../../src/benchmark/cases/sum_array';
 import Transpiler from '../../src/transpiler';
-import NodeBenchmarkHook from './node_benchmark_hook';
+import NodeBenchmarkHook from './node_benchmark_hooks';
 
 describe('Transpiler', function() {
 
     this.timeout(0); // Disable timeouts for all tests in this suite
 
-    let hook: NodeBenchmarkHook;
+    let hooks: NodeBenchmarkHook;
     let transpiler: Transpiler;
 
     beforeEach(() => {
-        hook = new NodeBenchmarkHook();
-        transpiler = new Transpiler(hook);
+        hooks = new NodeBenchmarkHook();
+        transpiler = new Transpiler(hooks);
     });
 
     describe('#transpile()', () => {
@@ -31,21 +31,21 @@ describe('Transpiler', function() {
             const wrapper = transpiler.transpile(isPrime.toString() + isPrimeWhile.toString());
 
             expect(wrapper.setFunctionName('isPrimeWhile').call(46327)).to.equal(1);
-            expect(hook.getCompleteTime()).to.be.lessThan(7000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(7000);
         });
 
         it('should run fibonacci faster than 7 seconds', () => {
             const wrapper = transpiler.transpile(fibonacci.toString() + fibonacciWhile.toString());
 
             expect(wrapper.setFunctionName('fibonacciWhile').call(41)).to.equal(165580141);
-            expect(hook.getCompleteTime()).to.be.lessThan(7000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(7000);
         });
 
         it('should run gcd faster than 11 seconds', () => {
             const wrapper = transpiler.transpile(gcd.toString() + gcdWhile.toString());
 
             expect(wrapper.setFunctionName('gcdWhile').call(978, 2147483646)).to.equal(6);
-            expect(hook.getCompleteTime()).to.be.lessThan(11000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(11000);
         });
 
         it('should run sum array faster than 7 seconds', () => {
@@ -53,7 +53,7 @@ describe('Transpiler', function() {
             const wrapper = transpiler.transpile(content);
 
             expect(wrapper.setFunctionName('sumArrayWhile').call(new Array(65535))).to.equal(2147385345);
-            expect(hook.getCompleteTime()).to.be.lessThan(7000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(7000);
         });
 
         it('should run quicksort faster than 12 seconds', () => {
@@ -62,7 +62,7 @@ describe('Transpiler', function() {
             const wrapper = transpiler.transpile(content);
 
             expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(1);
-            expect(hook.getCompleteTime()).to.be.lessThan(12000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(12000);
         });
 
         it('should run mergesort faster than 16 seconds', () => {
@@ -72,7 +72,7 @@ describe('Transpiler', function() {
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
             expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(1);
-            expect(hook.getCompleteTime()).to.be.lessThan(16000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(16000);
         });
     });
 });

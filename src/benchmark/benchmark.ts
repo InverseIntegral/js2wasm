@@ -1,6 +1,6 @@
 import CallWrapper from '../call_wrapper';
 import Transpiler from '../transpiler';
-import {Measurement, MeasurementHook} from './measurement_hook';
+import {Measurement, MeasurementHooks} from './measurement_hooks';
 
 interface Algorithm {
     // tslint:disable-next-line
@@ -54,13 +54,13 @@ class Benchmark {
         return times;
     }
 
-    private measurementHook: MeasurementHook;
+    private measurementHooks: MeasurementHooks;
 
     public benchmark(algorithm: Algorithm,
                      warmupRounds: number,
                      measureRounds: number): [Measurement[], Measurement[]] {
-        this.measurementHook = new MeasurementHook();
-        const transpiler = new Transpiler(this.measurementHook);
+        this.measurementHooks = new MeasurementHooks();
+        const transpiler = new Transpiler(this.measurementHooks);
 
         const func = algorithm.func;
         const args = algorithm.arguments;
@@ -88,7 +88,7 @@ class Benchmark {
             const result = callWrapper.call(...args);
             Benchmark.assert(result, expectedResult);
 
-            times.push(this.measurementHook.getMeasurement());
+            times.push(this.measurementHooks.getMeasurement());
         }
 
         return times;

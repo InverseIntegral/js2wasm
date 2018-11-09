@@ -1,4 +1,4 @@
-import TranspilerHook from './transpiler_hook';
+import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 class CallWrapper {
@@ -49,14 +49,14 @@ class CallWrapper {
         return Math.ceil((memoryElementCount * 4) / pageSize);
     }
 
-    private readonly hook: TranspilerHook;
+    private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
 
     private functionName: string;
 
-    public constructor(wasmModule: Module, hook: TranspilerHook) {
+    public constructor(wasmModule: Module, hooks: TranspilerHooks) {
         this.wasmModule = wasmModule;
-        this.hook = hook;
+        this.hooks = hooks;
     }
 
     public setFunctionName(functionName: string) {
@@ -65,7 +65,7 @@ class CallWrapper {
     }
 
     public call(...parameters: any[]) {
-        this.hook.beforeImport();
+        this.hooks.beforeImport();
 
         let fixedParameters = parameters;
         let importObject = {};
@@ -80,14 +80,14 @@ class CallWrapper {
             importObject = { transpilerImports: { memory } };
         }
 
-        this.hook.afterImport();
+        this.hooks.afterImport();
 
-        this.hook.beforeExecution();
+        this.hooks.beforeExecution();
         const instance = new WebAssembly.Instance(this.wasmModule, importObject);
         const result = instance.exports[this.functionName](...fixedParameters);
-        this.hook.afterExecution();
+        this.hooks.afterExecution();
 
-        this.hook.beforeExport();
+        this.hooks.beforeExport();
 
         if (hasArrayParameters) {
             const exportedMemory = instance.exports.memory;
@@ -96,7 +96,7 @@ class CallWrapper {
             CallWrapper.readMemory(parameters, fixedParameters, readableMemory);
         }
 
-        this.hook.afterExport();
+        this.hooks.afterExport();
 
         return result;
     }

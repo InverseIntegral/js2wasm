@@ -1,4 +1,4 @@
-class TranspilerHook {
+class TranspilerHooks {
 
     public beforeCompilation() {
     }
@@ -26,4 +26,4 @@ class TranspilerHook {
 
 }
 
-export default TranspilerHook;
+export default TranspilerHooks;

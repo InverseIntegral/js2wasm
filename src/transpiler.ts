@@ -1,25 +1,25 @@
 import CallWrapper from './call_wrapper';
 import Generator from './generator/generator';
 import Parser from './parser/parser';
-import TranspilerHook from './transpiler_hook';
+import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 class Transpiler {
 
-    private readonly hook: TranspilerHook;
+    private readonly hooks: TranspilerHooks;
 
     private wasmModule: Module;
 
-    public constructor(hook: TranspilerHook = new TranspilerHook()) {
-        this.hook = hook;
+    public constructor(hooks: TranspilerHooks = new TranspilerHooks()) {
+        this.hooks = hooks;
     }
 
     public transpile(content: string) {
-        this.hook.beforeCompilation();
+        this.hooks.beforeCompilation();
         this.compile(content);
-        this.hook.afterCompilation();
+        this.hooks.afterCompilation();
 
-        return new CallWrapper(this.wasmModule, this.hook);
+        return new CallWrapper(this.wasmModule, this.hooks);
     }
 
     private compile(content: string) {

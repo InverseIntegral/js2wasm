@@ -1,4 +1,4 @@
-import TranspilerHook from '../transpiler_hook';
+import TranspilerHooks from '../transpiler_hooks';
 
 interface Measurement {
     compilationTime: number;
@@ -7,7 +7,7 @@ interface Measurement {
     importTime: number;
 }
 
-class MeasurementHook extends TranspilerHook {
+class MeasurementHooks extends TranspilerHooks {
 
     private beforeCompilationTime: number;
     private measuredCompilationTime: number;
@@ -64,4 +64,4 @@ class MeasurementHook extends TranspilerHook {
 
 }
 
-export {MeasurementHook, Measurement};
+export {MeasurementHooks, Measurement};

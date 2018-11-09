@@ -1,5 +1,5 @@
 import {Algorithm, Benchmark} from './benchmark';
-import {Measurement} from './measurement_hook';
+import {Measurement} from './measurement_hooks';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';

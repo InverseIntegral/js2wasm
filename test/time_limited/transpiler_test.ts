@@ -12,17 +12,17 @@ import {
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from '../../src/benchmark/cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from '../../src/benchmark/cases/sum_array';
 import Transpiler from '../../src/transpiler';
-import NodeBenchmarkHook from './node_benchmark_hooks';
+import NodeBenchmarkHooks from './node_benchmark_hooks';
 
 describe('Transpiler', function() {
 
     this.timeout(0); // Disable timeouts for all tests in this suite
 
-    let hooks: NodeBenchmarkHook;
+    let hooks: NodeBenchmarkHooks;
     let transpiler: Transpiler;
 
     beforeEach(() => {
-        hooks = new NodeBenchmarkHook();
+        hooks = new NodeBenchmarkHooks();
         transpiler = new Transpiler(hooks);
     });
 

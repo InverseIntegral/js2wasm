@@ -12,7 +12,7 @@ describe('Transpiler', () => {
     describe('#transpile()', () => {
         it('should handle addition', () => {
             const exports = transpiler.transpile('function add(a, b) { return a + b; }');
-            exports.setCallFunctionName('add');
+            exports.setFunctionName('add');
 
             expect(exports.call(1, 2)).to.equal(3);
             expect(exports.call(100, 2)).to.equal(102);
@@ -22,7 +22,7 @@ describe('Transpiler', () => {
 
         it('should handle subtraction', () => {
             const exports = transpiler.transpile('function sub(a, b) { return a - b; }');
-            exports.setCallFunctionName('sub');
+            exports.setFunctionName('sub');
 
             expect(exports.call(1, 2)).to.equal(-1);
             expect(exports.call(10, 2)).to.equal(8);
@@ -32,7 +32,7 @@ describe('Transpiler', () => {
 
         it('should handle multiplication', () => {
             const exports = transpiler.transpile('function mul(a, b) { return a * b }');
-            exports.setCallFunctionName('mul');
+            exports.setFunctionName('mul');
 
             expect(exports.call(1, 2)).to.equal(2);
             expect(exports.call(10, 2)).to.equal(20);
@@ -43,18 +43,18 @@ describe('Transpiler', () => {
         it('should handle multiplication before addition', () => {
             const exports = transpiler.transpile('function mul(a, b, c) { return a + b * c }');
 
-            expect(exports.setCallFunctionName('mul').call(3, 2, 5)).to.equal(13);
+            expect(exports.setFunctionName('mul').call(3, 2, 5)).to.equal(13);
         });
 
         it('should handle multiplication before subtraction', () => {
             const exports = transpiler.transpile('function mul(a, b, c) { return a - b * c }');
 
-            expect(exports.setCallFunctionName('mul').call(3, 2, 5)).to.equal(-7);
+            expect(exports.setFunctionName('mul').call(3, 2, 5)).to.equal(-7);
         });
 
         it('should handle division', () => {
             const exports = transpiler.transpile('function div(a, b) { return a / b }');
-            exports.setCallFunctionName('div');
+            exports.setFunctionName('div');
 
             expect(exports.call(1, 2)).to.equal(0);
             expect(exports.call(10, 2)).to.equal(5);
@@ -64,7 +64,7 @@ describe('Transpiler', () => {
 
         it('should handle division by 0', () => {
             const exports = transpiler.transpile('function div(a, b) { return a / b }');
-            exports.setCallFunctionName('div');
+            exports.setFunctionName('div');
 
             expect(() => exports.call(2, 0)).to.throw();
             expect(() => exports.call(2, NaN)).to.throw();
@@ -73,18 +73,18 @@ describe('Transpiler', () => {
         it('should handle division before addition', () => {
             const exports = transpiler.transpile('function div(a, b, c) { return a + b / c }');
 
-            expect(exports.setCallFunctionName('div').call(3, 10, 5)).to.equal(5);
+            expect(exports.setFunctionName('div').call(3, 10, 5)).to.equal(5);
         });
 
         it('should handle division before subtraction', () => {
             const exports = transpiler.transpile('function div(a, b, c) { return a - b / c }');
 
-            expect(exports.setCallFunctionName('div').call(3, 10, 5)).to.equal(1);
+            expect(exports.setFunctionName('div').call(3, 10, 5)).to.equal(1);
         });
 
         it('should handle modulo', () => {
             const exports = transpiler.transpile('function mod(a, b) { return a % b }');
-            exports.setCallFunctionName('mod');
+            exports.setFunctionName('mod');
 
             expect(exports.call(1, 2)).to.equal(1);
             expect(exports.call(10, 2)).to.equal(0);
@@ -94,7 +94,7 @@ describe('Transpiler', () => {
 
         it('should handle modulo by 0', () => {
             const exports = transpiler.transpile('function mod(a, b) { return a % b }');
-            exports.setCallFunctionName('mod');
+            exports.setFunctionName('mod');
 
             expect(() => exports.call(2, 0)).to.throw();
             expect(() => exports.call(2, NaN)).to.throw();
@@ -103,18 +103,18 @@ describe('Transpiler', () => {
         it('should handle modulo before addition', () => {
             const exports = transpiler.transpile('function mod(a, b, c) { return a + b % c }');
 
-            expect(exports.setCallFunctionName('mod').call(3, 10, 6)).to.equal(7);
+            expect(exports.setFunctionName('mod').call(3, 10, 6)).to.equal(7);
         });
 
         it('should handle modulo before subtraction', () => {
             const exports = transpiler.transpile('function mod(a, b, c) { return a - b % c }');
 
-            expect(exports.setCallFunctionName('mod').call(3, 10, 6)).to.equal(-1);
+            expect(exports.setFunctionName('mod').call(3, 10, 6)).to.equal(-1);
         });
 
         it('should handle equality', () => {
             const exports = transpiler.transpile('function eq(a, b) { return a == b }');
-            exports.setCallFunctionName('eq');
+            exports.setFunctionName('eq');
 
             expect(exports.call(3, 3)).to.equal(1);
             expect(exports.call(3, 2)).to.equal(0);
@@ -122,7 +122,7 @@ describe('Transpiler', () => {
 
         it('should handle inequality', () => {
             const exports = transpiler.transpile('function neq(a, b) { return a != b }');
-            exports.setCallFunctionName('neq');
+            exports.setFunctionName('neq');
 
             expect(exports.call(3, 2)).to.equal(1);
             expect(exports.call(3, 3)).to.equal(0);
@@ -130,7 +130,7 @@ describe('Transpiler', () => {
 
         it('should handle less than', () => {
             const exports = transpiler.transpile('function lt(a, b) { return a < b }');
-            exports.setCallFunctionName('lt');
+            exports.setFunctionName('lt');
 
             expect(exports.call(3, 2)).to.equal(0);
             expect(exports.call(3, 3)).to.equal(0);
@@ -141,7 +141,7 @@ describe('Transpiler', () => {
 
         it('should handle less than or equal to', () => {
             const exports = transpiler.transpile('function le(a, b) { return a <= b }');
-            exports.setCallFunctionName('le');
+            exports.setFunctionName('le');
 
             expect(exports.call(3, 2)).to.equal(0);
             expect(exports.call(3, 3)).to.equal(1);
@@ -152,7 +152,7 @@ describe('Transpiler', () => {
 
         it('should handle greater than', () => {
             const exports = transpiler.transpile('function gt(a, b) { return a > b }');
-            exports.setCallFunctionName('gt');
+            exports.setFunctionName('gt');
 
             expect(exports.call(3, 2)).to.equal(1);
             expect(exports.call(3, 3)).to.equal(0);
@@ -163,7 +163,7 @@ describe('Transpiler', () => {
 
         it('should handle greater than or equal to', () => {
             const exports = transpiler.transpile('function ge(a, b) { return a >= b }');
-            exports.setCallFunctionName('ge');
+            exports.setFunctionName('ge');
 
             expect(exports.call(3, 2)).to.equal(1);
             expect(exports.call(3, 3)).to.equal(1);
@@ -174,13 +174,13 @@ describe('Transpiler', () => {
 
         it('should handle parenthesis', () => {
             const exports = transpiler.transpile('function sub(a, b) { return (a + 3) - (b + 2); }');
-            expect(exports.setCallFunctionName('sub').call(10, 2)).to.equal(9);
+            expect(exports.setFunctionName('sub').call(10, 2)).to.equal(9);
         });
 
         it('should handle logical and', () => {
             const content = 'function and(a, b) { return a && b; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('and');
+            exports.setFunctionName('and');
 
             expect(exports.call(true, true)).to.equal(1);
             expect(exports.call(true, false)).to.equal(0);
@@ -191,7 +191,7 @@ describe('Transpiler', () => {
         it('should handle logical or', () => {
             const content = 'function or(a, b) { return a || b; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('or');
+            exports.setFunctionName('or');
 
             expect(exports.call(true, true)).to.equal(1);
             expect(exports.call(true, false)).to.equal(1);
@@ -202,7 +202,7 @@ describe('Transpiler', () => {
         it('should handle multiple logical operators', () => {
             const content = 'function logic(a, b, c) { return a || b && c; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('logic');
+            exports.setFunctionName('logic');
 
             expect(exports.call(true, true, true)).to.equal(1);
             expect(exports.call(true, true, false)).to.equal(1);
@@ -217,7 +217,7 @@ describe('Transpiler', () => {
         it('should handle expression statements', () => {
             const content = 'function add(a, b) { a + b; return a + b; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('add');
+            exports.setFunctionName('add');
 
             expect(exports.call(1, 2)).to.equal(3);
             expect(exports.call(10, 2)).to.equal(12);

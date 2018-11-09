@@ -12,12 +12,12 @@ describe('Transpiler', () => {
     describe('#transpile()', () => {
         it('should handle array access', () => {
             const exports = transpiler.transpile('function array(arr) { return arr[0]; }');
-            expect(exports.setCallFunctionName('array').call([1, 2, 3])).to.equal(1);
+            expect(exports.setFunctionName('array').call([1, 2, 3])).to.equal(1);
         });
 
         it('should handle array access using variable', () => {
             const exports = transpiler.transpile('function array(arr, i) { return arr[i]; }');
-            exports.setCallFunctionName('array');
+            exports.setFunctionName('array');
 
             expect(exports.call([11, 12, 13], 0)).to.equal(11);
             expect(exports.call([14, 15, 16], 1)).to.equal(15);
@@ -26,22 +26,22 @@ describe('Transpiler', () => {
 
         it('should handle array access using expression', () => {
             const exports = transpiler.transpile('function array(arr) { return arr[1 + 2]; }');
-            expect(exports.setCallFunctionName('array').call([101, 102, 103, 104, 105])).to.equal(104);
+            expect(exports.setFunctionName('array').call([101, 102, 103, 104, 105])).to.equal(104);
         });
 
         it('should handle multiple arrays', () => {
             const exports = transpiler.transpile('function array(arr, arr2) { return arr2[2]; }');
-            expect(exports.setCallFunctionName('array').call([111, 112], [114, 115, 116])).to.equal(116);
+            expect(exports.setFunctionName('array').call([111, 112], [114, 115, 116])).to.equal(116);
         });
 
         it('should handle array size', () => {
             const exports = transpiler.transpile('function array(arr) { return arr[-1]; }');
-            expect(exports.setCallFunctionName('array').call([1, 2, 4, 8])).to.equal(4);
+            expect(exports.setFunctionName('array').call([1, 2, 4, 8])).to.equal(4);
         });
 
         it('should handle indexoutofbounds', () => {
             const exports = transpiler.transpile('function array(arr, i) { return arr[i]; }');
-            exports.setCallFunctionName('array');
+            exports.setFunctionName('array');
 
             expect(exports.call([1, 2], 2)).to.equal(0);
             expect(() => exports.call([1, 2], -2)).to.throw();
@@ -50,7 +50,7 @@ describe('Transpiler', () => {
         it('should not modify array', () => {
             const exports = transpiler.transpile('function array(arr) { return arr[0]; }');
             const array = [100, 200, 300];
-            exports.setCallFunctionName('array').call(array);
+            exports.setFunctionName('array').call(array);
             expect(array[0]).to.equal(100);
             expect(array[1]).to.equal(200);
             expect(array[2]).to.equal(300);
@@ -58,7 +58,7 @@ describe('Transpiler', () => {
 
         it('should handle length property', () => {
             const exports = transpiler.transpile('function length(arr) { return arr.length; }');
-            exports.setCallFunctionName('length');
+            exports.setFunctionName('length');
 
             expect(exports.call([0, 1, 2])).to.equal(3);
             expect(exports.call([])).to.equal(0);
@@ -71,7 +71,7 @@ describe('Transpiler', () => {
 
         it('should handle writes to array elements', () => {
             const exports = transpiler.transpile('function setFirst(arr) { arr[0] = 42; return arr[0]; }');
-            exports.setCallFunctionName('setFirst');
+            exports.setFunctionName('setFirst');
 
             expect(exports.call([0, 1, 2])).to.equal(42);
             expect(exports.call([1])).to.equal(42);
@@ -79,7 +79,7 @@ describe('Transpiler', () => {
 
         it('should handle shorthand assignment to array elements', () => {
             const exports = transpiler.transpile('function setFirst(arr) { arr[0] += 42; return arr[0]; }');
-            exports.setCallFunctionName('setFirst');
+            exports.setFunctionName('setFirst');
 
             expect(exports.call([5, 6, 7])).to.equal(47);
             expect(exports.call([4])).to.equal(46);
@@ -87,7 +87,7 @@ describe('Transpiler', () => {
 
         it('should handle pre increment on array', () => {
             const exports = transpiler.transpile('function preIncrement(arr) { ++arr[0]; return arr[0]; }');
-            exports.setCallFunctionName('preIncrement');
+            exports.setFunctionName('preIncrement');
 
             expect(exports.call([5, 6, 7])).to.equal(6);
             expect(exports.call([4])).to.equal(5);
@@ -95,7 +95,7 @@ describe('Transpiler', () => {
 
         it('should handle post increment on array', () => {
             const exports = transpiler.transpile('function postIncrement(arr) { arr[0]++; return arr[0]; }');
-            exports.setCallFunctionName('postIncrement');
+            exports.setFunctionName('postIncrement');
 
             expect(exports.call([15, 16, 17])).to.equal(16);
             expect(exports.call([14])).to.equal(15);
@@ -103,7 +103,7 @@ describe('Transpiler', () => {
 
         it('should handle pre decrement on array', () => {
             const exports = transpiler.transpile('function preDecrement(arr) { --arr[0]; return arr[0]; }');
-            exports.setCallFunctionName('preDecrement');
+            exports.setFunctionName('preDecrement');
 
             expect(exports.call([5, 6, 7])).to.equal(4);
             expect(exports.call([4])).to.equal(3);
@@ -111,7 +111,7 @@ describe('Transpiler', () => {
 
         it('should handle post decrement on array', () => {
             const exports = transpiler.transpile('function postDecrement(arr) { arr[0]--; return arr[0]; }');
-            exports.setCallFunctionName('postDecrement');
+            exports.setFunctionName('postDecrement');
 
             expect(exports.call([15, 16, 17])).to.equal(14);
             expect(exports.call([14])).to.equal(13);
@@ -119,7 +119,7 @@ describe('Transpiler', () => {
 
         it('should handle array export', () => {
             const exports = transpiler.transpile('function arrayExport(arr) { arr[0] = 5; return arr[0]; }');
-            exports.setCallFunctionName('arrayExport');
+            exports.setFunctionName('arrayExport');
 
             const array1 = [0];
             exports.call(array1);
@@ -138,7 +138,7 @@ describe('Transpiler', () => {
 
             const array1 = [11, 12];
             const array2 = [13, 14, 15, 16];
-            exports.setCallFunctionName('arrayExport').call(array1, array2);
+            exports.setFunctionName('arrayExport').call(array1, array2);
             expect(array1[0]).to.equal(21);
             expect(array1[1]).to.equal(12);
             expect(array2[0]).to.equal(13);
@@ -153,7 +153,7 @@ describe('Transpiler', () => {
 
             const array1 = [31, 32];
             const array2 = [33];
-            exports.setCallFunctionName('arrayExport').call(array1, array2);
+            exports.setFunctionName('arrayExport').call(array1, array2);
             expect(array1[0]).to.equal(41);
             expect(array1[1]).to.equal(32);
             expect(array2[0]).to.equal(33);

@@ -16,7 +16,7 @@ describe('Transpiler', () => {
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(15);
             expect(exports.call(-10, 5)).to.equal(-5);
@@ -32,7 +32,7 @@ describe('Transpiler', () => {
                 'x = 0; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(35);
             expect(exports.call(-10, 5)).to.equal(15);
@@ -48,7 +48,7 @@ describe('Transpiler', () => {
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(20);
             expect(exports.call(-10, 5)).to.equal(0);
@@ -62,7 +62,7 @@ describe('Transpiler', () => {
                 'if (value >= 0) { while (i < times) { value += 1; i++; } }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(15);
             expect(exports.call(-10, 5)).to.equal(-10);
@@ -76,7 +76,7 @@ describe('Transpiler', () => {
                 'while (i < times) { if (value >= 0) { value += 1; } i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(15);
             expect(exports.call(-10, 5)).to.equal(-10);
@@ -94,7 +94,7 @@ describe('Transpiler', () => {
                 'i++; }' +
                 'return value; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(10, 5)).to.equal(15);
             expect(exports.call(-10, 5)).to.equal(0);
@@ -109,7 +109,7 @@ describe('Transpiler', () => {
                 'while (i < times) i++;' +
                 'return i; }';
             const exports = transpiler.transpile(content);
-            exports.setCallFunctionName('loop');
+            exports.setFunctionName('loop');
 
             expect(exports.call(5)).to.equal(5);
             expect(exports.call(0)).to.equal(0);

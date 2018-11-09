@@ -71,7 +71,7 @@ describe('Transpiler', function() {
             const wrapper = transpiler.transpile(content);
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhile').call(parameters)).to.equal(1);
+            expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(1);
             expect(hook.getCompleteTime()).to.be.lessThan(16000);
         });
     });

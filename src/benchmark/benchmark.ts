@@ -1,5 +1,6 @@
+import CallWrapper from '../call_wrapper';
 import Transpiler from '../transpiler';
-import {MeasurementHook, Measurement} from './measurement_hook';
+import {Measurement, MeasurementHook} from './measurement_hook';
 
 interface Algorithm {
     // tslint:disable-next-line
@@ -69,22 +70,22 @@ class Benchmark {
         const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
         const callWrapper = transpiler.transpile(func.join(''));
-        const wasmAlgorithm = callWrapper.setCallFunctionName(func[0].name).call.bind(callWrapper);
-        this.executeWasm(wasmAlgorithm, args, expectedResult, warmupRounds);
-        const wasmTimes = this.executeWasm(wasmAlgorithm, args, expectedResult, measureRounds);
+        callWrapper.setCallFunctionName(func[0].name);
+        this.executeWasm(callWrapper, args, expectedResult, warmupRounds);
+        const wasmTimes = this.executeWasm(callWrapper, args, expectedResult, measureRounds);
 
         return [jsTimes, wasmTimes];
     }
 
     // tslint:disable-next-line
-    private executeWasm(algorithm: Function,
+    private executeWasm(callWrapper: CallWrapper,
                         args: any[],
                         expectedResult: any,
                         rounds: number): Measurement[] {
         const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
-            const result = algorithm(...args);
+            const result = callWrapper.call(...args);
             Benchmark.assert(result, expectedResult);
 
             times.push(this.measurementHook.getMeasurement());

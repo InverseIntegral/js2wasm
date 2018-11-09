@@ -27,28 +27,28 @@ describe('Transpiler', function() {
     });
 
     describe('#transpile()', () => {
-        it('should setCallFunctionName isPrime faster than 7 seconds', () => {
+        it('should run isPrime faster than 7 seconds', () => {
             const exports = transpiler.transpile(isPrime.toString() + isPrimeWhile.toString());
 
             expect(exports.setFunctionName('isPrimeWhile').call(46327)).to.equal(1);
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should setCallFunctionName fibonacci faster than 7 seconds', () => {
+        it('should run fibonacci faster than 7 seconds', () => {
             const exports = transpiler.transpile(fibonacci.toString() + fibonacciWhile.toString());
 
             expect(exports.setFunctionName('fibonacciWhile').call(41)).to.equal(165580141);
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should setCallFunctionName gcd faster than 11 seconds', () => {
+        it('should run gcd faster than 11 seconds', () => {
             const exports = transpiler.transpile(gcd.toString() + gcdWhile.toString());
 
             expect(exports.setFunctionName('gcdWhile').call(978, 2147483646)).to.equal(6);
             expect(hook.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should setCallFunctionName sum array faster than 7 seconds', () => {
+        it('should run sum array faster than 7 seconds', () => {
             const content = sumArray.toString() + sumArrayFill.toString() + sumArrayWhile.toString();
             const exports = transpiler.transpile(content);
 
@@ -56,7 +56,7 @@ describe('Transpiler', function() {
             expect(hook.getCompleteTime()).to.be.lessThan(7000);
         });
 
-        it('should setCallFunctionName quicksort faster than 12 seconds', () => {
+        it('should run quicksort faster than 12 seconds', () => {
             const content = swap.toString() + partition.toString() + quickSort.toString() + fill.toString() +
                 isSorted.toString() + quickSortWhile.toString();
             const exports = transpiler.transpile(content);
@@ -65,7 +65,7 @@ describe('Transpiler', function() {
             expect(hook.getCompleteTime()).to.be.lessThan(12000);
         });
 
-        it('should setCallFunctionName mergesort faster than 16 seconds', () => {
+        it('should run mergesort faster than 16 seconds', () => {
             const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
                 mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
             const exports = transpiler.transpile(content);

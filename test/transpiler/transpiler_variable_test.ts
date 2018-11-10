@@ -79,5 +79,16 @@ describe('Transpiler', () => {
             expect(exports('variables', false)).to.equal(20);
         });
 
+        it('should handle duplicate variable declaration', () => {
+            const content = 'function variables() { var x = 20; var x = 10; return x; }';
+            const exports = transpiler.transpile(content);
+
+            expect(exports('variables')).to.equal(10);
+
+            const content2 = 'function variables() { var x = 20; var x; return x; }';
+            const exports2 = transpiler.transpile(content2);
+
+            expect(exports2('variables')).to.equal(20);
+        });
     });
 });

@@ -28,6 +28,8 @@ wrapper.setFunctionName('add').call(21, 21);
 ## CallWrapper
 * CallWrapper#**setFunctionName**(functionName: `string`): `CallWrapper` <br />
   Set the name of the initial function to be called.
+* CallWrapper#**setOutParameters**(...outParameters: `any[]`): `CallWrapper` <br />
+  Set the memory dependent parameters, of which the modified values need to be written back to JavaScript. 
 * CallWrapper#**call**(...parameters: `any[]`): `any` <br />
   Calls the initial function of the transpiled Wasm code.
 

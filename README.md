@@ -16,23 +16,21 @@ const callWrapper = new Transpiler().transpile('function add(a, b) { return a + 
 ```
 
 # API
-## Transpiler creation
+## Transpiler
 * new Transpiler(): `void` <br />
   Creates a new transpiler with an empty hook class.
 * new Transpiler(hooks: `TranspilerHooks`): `void` <br />
   Creates a new transpiler with the specified hook instance.
-
-## Transpiler manipulation
 * Transpiler#**transpile**(content: `string`): `CallWrapper` <br />
   Transpiles the specified content.
 
-## CallWrapper manipulation
+## CallWrapper
 * CallWrapper#**setFunctionName**(functionName: `string`): `CallWrapper` <br />
   Set the name of the initial function to be called.
 * CallWrapper#**call**(...parameters: `any[]`): `any` <br />
   Calls the initial function of the transpiled Wasm code.
 
-## TranspilerHooks manipulation
+## TranspilerHooks
 TranspilerHooks is an interface. The following methods are hook methods, which get called by the `Transpiler` and the `CallWrapper`. The `NullTranspilerHooks` is the default implementation, in which all methods are empty.
 
 * TranspilerHooks#**beforeCompilation**(): `void` <br />

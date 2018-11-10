@@ -1,5 +1,4 @@
 import {Algorithm, Benchmark} from './benchmark';
-import {Measurement} from './measurement_hooks';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
@@ -9,6 +8,7 @@ import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from './cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from './cases/sum_array';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
+import {Measurement} from './measurement_hooks';
 
 const fibonacciFunc = {
     arguments: [41],

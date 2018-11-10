@@ -12,7 +12,8 @@ In order to compile a function you have to supply it as a string to the `transpi
 The returned value is of the type CallWrapper.
 
 ```javascript
-const callWrapper = new Transpiler().transpile('function add(a, b) { return a + b; }');
+const wrapper = new Transpiler().transpile('function add(a, b) { return a + b; }');
+wrapper.setFunctionName('add').call(21, 21);
 ```
 
 # API

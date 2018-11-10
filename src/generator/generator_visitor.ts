@@ -238,11 +238,12 @@ class GeneratorVisitor extends Visitor {
         super.visitForStatement(node);
 
         let updateExpression;
-        let condition = this.module.i32.const(1);
 
         if (node.update !== null) {
             updateExpression = this.popStatement();
         }
+
+        let condition = this.module.i32.const(1);
 
         if (node.test !== null) {
             condition = this.popExpression();

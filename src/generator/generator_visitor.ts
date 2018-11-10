@@ -237,10 +237,10 @@ class GeneratorVisitor extends Visitor {
     protected visitForStatement(node: ForStatement) {
         super.visitForStatement(node);
 
-        let updateExpression;
+        let updateStatement;
 
         if (node.update !== null) {
-            updateExpression = this.popStatement();
+            updateStatement = this.popStatement();
         }
 
         let condition = this.module.i32.const(1);
@@ -249,7 +249,7 @@ class GeneratorVisitor extends Visitor {
             condition = this.popExpression();
         }
 
-        this.statements.push(this.createLoopStatement(condition, updateExpression));
+        this.statements.push(this.createLoopStatement(condition, updateStatement));
     }
 
     protected visitCallExpression(node: CallExpression): void {

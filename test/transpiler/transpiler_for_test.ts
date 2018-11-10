@@ -145,5 +145,45 @@ describe('Transpiler', () => {
             expect(wrapper.call(0)).to.equal(0);
             expect(wrapper.call(-1)).to.equal(0);
         });
+
+        it('should handle for loop with assignment as init', () => {
+            const content = 'function loop(value, times) { ' +
+                'var i;' +
+                'for (i = 0; i < times; i++) { value += 1; }' +
+                'return value; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call(10, 5)).to.equal(15);
+            expect(wrapper.call(-10, 5)).to.equal(-5);
+            expect(wrapper.call(10, 0)).to.equal(10);
+            expect(wrapper.call(10, -1)).to.equal(10);
+        });
+
+        it('should handle for loop with shorthand assignment as update', () => {
+            const content = 'function loop(value, times) { ' +
+                'for (var i = 0; i < times; i += 1) { value += 1; }' +
+                'return value; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call(10, 5)).to.equal(15);
+            expect(wrapper.call(-10, 5)).to.equal(-5);
+            expect(wrapper.call(10, 0)).to.equal(10);
+            expect(wrapper.call(10, -1)).to.equal(10);
+        });
+
+        it('should handle for loop with assignment as update', () => {
+            const content = 'function loop(value, times) { ' +
+                'for (var i = 0; i < times; i = i + 1) { value += 1; }' +
+                'return value; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call(10, 5)).to.equal(15);
+            expect(wrapper.call(-10, 5)).to.equal(-5);
+            expect(wrapper.call(10, 0)).to.equal(10);
+            expect(wrapper.call(10, -1)).to.equal(10);
+        });
     });
 });

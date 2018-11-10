@@ -1,5 +1,5 @@
 import {performance} from 'perf_hooks';
-import {TranspilerHooks} from '../../src/transpiler_hooks';
+import TranspilerHooks from '../../src/transpiler_hooks';
 
 class NodeBenchmarkHooks implements TranspilerHooks {
 

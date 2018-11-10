@@ -1,7 +1,8 @@
 import CallWrapper from './call_wrapper';
 import Generator from './generator/generator';
+import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
-import {NullTranspilerHooks, TranspilerHooks} from './transpiler_hooks';
+import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 class Transpiler {

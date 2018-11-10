@@ -1,4 +1,4 @@
-import {TranspilerHooks} from '../transpiler_hooks';
+import TranspilerHooks from '../transpiler_hooks';
 
 interface Measurement {
     compilationTime: number;

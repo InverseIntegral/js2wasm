@@ -23,25 +23,24 @@ class CallWrapper {
         return fixedParameters;
     }
 
-    private static readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
-        let index = 0;
+    private static readMemory(parameters: any[],
+                              outParameters: any[],
+                              fixedParameters: any[],
+                              readableMemory: Uint32Array) {
 
-        for (let i = 0; i < parameters.length; i++) {
-            if (parameters[i] instanceof Array) {
-                const array = parameters[i];
+        for (const outParameter of outParameters) {
+            const parameterIndex = parameters.indexOf(outParameter);
+            const array = parameters[parameterIndex];
 
-                for (let j = 0; j < array.length; j++) {
-                    array[j] = readableMemory[fixedParameters[index] / 4 + j];
-                }
-
-                index++;
+            for (let j = 0; j < array.length; j++) {
+                array[j] = readableMemory[fixedParameters[parameterIndex] / 4 + j];
             }
         }
     }
 
-    private static calculateInitialMemorySize(params: any[]): number {
+    private static calculateInitialMemorySize(parameters: any[]): number {
         const pageSize = Math.pow(2, 16);
-        const memoryElementCount = params
+        const memoryElementCount = parameters
             .filter((parameter) => parameter instanceof Array)
             .map((array) => array.length + 1)
             .reduce((accumulator, current) => accumulator + current, 0);
@@ -53,6 +52,7 @@ class CallWrapper {
     private readonly wasmModule: Module;
 
     private functionName: string;
+    private outParameters: any[];
 
     public constructor(wasmModule: Module, hooks: TranspilerHooks) {
         this.wasmModule = wasmModule;
@@ -61,6 +61,11 @@ class CallWrapper {
 
     public setFunctionName(functionName: string) {
         this.functionName = functionName;
+        return this;
+    }
+
+    public setOutParameters(...outParameters: any[]) {
+        this.outParameters = outParameters;
         return this;
     }
 
@@ -89,11 +94,11 @@ class CallWrapper {
 
         this.hooks.beforeExport();
 
-        if (hasArrayParameters) {
+        if (hasArrayParameters && this.outParameters !== undefined) {
             const exportedMemory = instance.exports.memory;
             const readableMemory = new Uint32Array(exportedMemory.buffer);
 
-            CallWrapper.readMemory(parameters, fixedParameters, readableMemory);
+            CallWrapper.readMemory(parameters, this.outParameters, fixedParameters, readableMemory);
         }
 
         this.hooks.afterExport();

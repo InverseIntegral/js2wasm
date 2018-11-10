@@ -122,14 +122,23 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('arrayExport');
 
             const array1 = [0];
-            wrapper.call(array1);
+            wrapper.setOutParameters(array1).call(array1);
             expect(array1[0]).to.equal(5);
 
             const array2 = [1, 2, 3];
-            wrapper.call(array2);
+            wrapper.setOutParameters(array2).call(array2);
             expect(array2[0]).to.equal(5);
             expect(array2[1]).to.equal(2);
             expect(array2[2]).to.equal(3);
+        });
+
+        it('should handle array export with non exportable values', () => {
+            const wrapper = transpiler.transpile('function arrayExport(arr, value) { arr[0] = value; return arr[0]; }');
+            wrapper.setFunctionName('arrayExport');
+
+            const array = [0];
+            wrapper.setOutParameters(array).call(array, 3);
+            expect(array[0]).to.equal(3);
         });
 
         it('should handle multiple array wrapper', () => {
@@ -138,7 +147,11 @@ describe('Transpiler', () => {
 
             const array1 = [11, 12];
             const array2 = [13, 14, 15, 16];
-            wrapper.setFunctionName('arrayExport').call(array1, array2);
+
+            wrapper.setFunctionName('arrayExport')
+                .setOutParameters(array1, array2)
+                .call(array1, array2);
+
             expect(array1[0]).to.equal(21);
             expect(array1[1]).to.equal(12);
             expect(array2[0]).to.equal(13);
@@ -148,15 +161,36 @@ describe('Transpiler', () => {
         });
 
         it('should handle partial array export', () => {
-            const content = 'function arrayExport(arr1, arr2) { arr1[0] = 41; return arr2[0]; }';
+            const content = 'function arrayExport(arr1, arr2) { arr1[0] = 41; arr2[0] = 42; return arr2[0]; }';
             const wrapper = transpiler.transpile(content);
 
             const array1 = [31, 32];
             const array2 = [33];
-            wrapper.setFunctionName('arrayExport').call(array1, array2);
+
+            const result = wrapper.setFunctionName('arrayExport')
+                .setOutParameters(array1)
+                .call(array1, array2);
+
+            expect(result).to.equal(42);
             expect(array1[0]).to.equal(41);
             expect(array1[1]).to.equal(32);
             expect(array2[0]).to.equal(33);
+        });
+
+        it('should handle different out and call parameter order in array export', () => {
+            const content = 'function arrayExport(arr1, arr2) { arr1[0] = 61; arr2[0] = 62; return arr1[0]; }';
+            const wrapper = transpiler.transpile(content);
+
+            const array1 = [51];
+            const array2 = [52, 53];
+
+            wrapper.setFunctionName('arrayExport')
+                .setOutParameters(array2, array1)
+                .call(array1, array2);
+
+            expect(array1[0]).to.equal(61);
+            expect(array2[0]).to.equal(62);
+            expect(array2[1]).to.equal(53);
         });
     });
 });

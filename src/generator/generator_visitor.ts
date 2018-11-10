@@ -5,6 +5,7 @@ import {
     BooleanLiteral,
     CallExpression,
     ExpressionStatement,
+    ForStatement,
     FunctionDeclaration,
     Identifier,
     IfStatement,
@@ -230,18 +231,24 @@ class GeneratorVisitor extends Visitor {
 
     protected visitWhileStatement(node: WhileStatement) {
         super.visitWhileStatement(node);
+        this.statements.push(this.createLoopStatement(this.popExpression()));
+    }
 
-        const endLabel = this.generateLabel();
-        const beginLabel = this.generateLabel();
+    protected visitForStatement(node: ForStatement) {
+        super.visitForStatement(node);
 
-        const conditionBranch = this.module.br_if(endLabel, this.module.i32.eqz(this.popExpression()));
-        const loopBranch = this.module.br(beginLabel);
-        const whilePart = this.popStatement();
+        let updateExpression;
+        let condition = this.module.i32.const(1);
 
-        const loopBlock = this.module.block(endLabel, [conditionBranch, whilePart, loopBranch]);
-        const whileStatement = this.module.loop(beginLabel, loopBlock);
+        if (node.update !== null) {
+            updateExpression = this.popStatement();
+        }
 
-        this.statements.push(whileStatement);
+        if (node.test !== null) {
+            condition = this.popExpression();
+        }
+
+        this.statements.push(this.createLoopStatement(condition, updateExpression));
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -335,6 +342,26 @@ class GeneratorVisitor extends Visitor {
         } else {
             throw new Error('Assignment to non-identifier or member expression');
         }
+    }
+
+    private createLoopStatement(condition: Expression, update?: Statement) {
+        const endLabel = this.generateLabel();
+        const beginLabel = this.generateLabel();
+
+        const conditionBranch = this.module.br_if(endLabel, this.module.i32.eqz(condition));
+        const loopBranch = this.module.br(beginLabel);
+        const loopBody = this.popStatement();
+
+        const children: Statement[] = [conditionBranch, loopBody];
+
+        if (update !== undefined) {
+            children.push(update);
+        }
+
+        children.push(loopBranch);
+
+        const loopBlock = this.module.block(endLabel, children);
+        return this.module.loop(beginLabel, loopBlock);
     }
 
     private setLocal(val: Identifier, value: Expression) {

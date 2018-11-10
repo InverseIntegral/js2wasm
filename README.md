@@ -30,24 +30,24 @@ const callWrapper = new Transpiler().transpile('function add(a, b) { return a + 
 * CallWrapper#**setFunctionName**(functionName: `string`): `CallWrapper` <br />
   Set the name of the initial function to be called.
 * CallWrapper#**call**(...parameters: `any[]`): `any` <br />
-  Call the initial function of the transpiled Wasm code.
+  Calls the initial function of the transpiled Wasm code.
 
 ## TranspilerHooks manipulation
-All methods are hook methods, which are called by the `Transpiler` and the `CallWrapper`. The default implementation of all these hook methods is empty, but it can be derived from and passed along to the `Transpiler`.
+TranspilerHooks is an interface. The following methods are hook methods, which get called by the `Transpiler` and the `CallWrapper`. The `NullTranspilerHooks` is the default implementation, in which all methods are empty.
 
 * TranspilerHooks#**beforeCompilation**(): `void` <br />
-  Called before the transpilation process
+  Called before the transpilation process.
 * TranspilerHooks#**afterCompilation**(): `void` <br />
-  Called after the transpilation process has finished
+  Called after the transpilation process has finished.
 * TranspilerHooks#**beforeImport**(): `void` <br />
-  Called before the memory import process
+  Called before the memory import process.
 * TranspilerHooks#**afterImport**(): `void` <br />
-  Called after the memroy import process has finished
+  Called after the memroy import process has finished.
 * TranspilerHooks#**beforeExecution**(): `void` <br />
-  Called before the Wasm code gets executed
+  Called before the Wasm code gets executed.
 * TranspilerHooks#**afterExecution**(): `void` <br />
-  Called after the Wasm execution has finished
+  Called after the Wasm execution has finished.
 * TranspilerHooks#**beforeExport**(): `void` <br />
-  Called before the memory export process
+  Called before the memory export process.
 * TranspilerHooks#**afterExport**(): `void` <br />
-  Called after the memory export process has finished
+  Called after the memory export process has finished.

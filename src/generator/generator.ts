@@ -1,19 +1,19 @@
-import {File, FunctionDeclaration, isFunctionDeclaration, isMemberExpression} from '@babel/types';
+import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
-import {ContainsMemoryDependentElementVisitor} from './contains_memory_dependent_element_visitor';
 import {DeclarationVisitor, Mapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
+import {MemoryAccessVisitor} from './memory_access_visitor';
 
 class Generator {
 
     public static generate(file: File): Module {
         const module = new Module();
 
-        const containsMemoryDependentElement = file.program.body.some((statement) => {
-            return isFunctionDeclaration(statement) && new ContainsMemoryDependentElementVisitor().run(statement);
+        const isMemoryDependent = file.program.body.some((statement) => {
+            return isFunctionDeclaration(statement) && new MemoryAccessVisitor().run(statement);
         });
 
-        if (containsMemoryDependentElement) {
+        if (isMemoryDependent) {
             module.addMemoryImport('0', 'transpilerImports', 'memory');
         }
 
@@ -24,6 +24,10 @@ class Generator {
 
             this.generateFunction(module, statement);
         });
+
+        if (isMemoryDependent) {
+            module.addMemoryExport('0', 'memory');
+        }
 
         return module;
     }

@@ -1,5 +1,4 @@
 import {Algorithm, Benchmark} from './benchmark';
-import {Measurement} from './benchmark_transpiler';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
@@ -9,6 +8,7 @@ import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from './cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from './cases/sum_array';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
+import {Measurement} from './measurement_hooks';
 
 const fibonacciFunc = {
     arguments: [41],
@@ -82,12 +82,16 @@ function variance(values: number[]): number {
     return mean(values.map((n) => Math.pow(n - meanValue, 2)));
 }
 
+function extractCompilationTime(measurement: Measurement): number {
+    return measurement.compilationTime;
+}
+
 function extractExecutionTime(measurement: Measurement): number {
     return measurement.executionTime;
 }
 
-function extractCompilationTime(measurement: Measurement): number {
-    return measurement.compilationTime;
+function extractExportTime(measurement: Measurement) {
+    return measurement.exportTime;
 }
 
 function extractImportTime(measurement: Measurement) {
@@ -95,7 +99,10 @@ function extractImportTime(measurement: Measurement) {
 }
 
 function extractTotalTime(measurement: Measurement) {
-    return extractCompilationTime(measurement) + extractImportTime(measurement) + extractExecutionTime(measurement);
+    return extractCompilationTime(measurement)
+        + extractExecutionTime(measurement)
+        + extractExportTime(measurement)
+        + extractImportTime(measurement);
 }
 
 function logResult(result: [Measurement[], Measurement[]]) {
@@ -106,8 +113,9 @@ function logResult(result: [Measurement[], Measurement[]]) {
     const jsVariance = variance(jsTimes.map(extractExecutionTime));
 
     const wasmCompilationMean = mean(wasmTimes.map(extractCompilationTime));
-    const wasmImportMean = mean(wasmTimes.map((t) => t.importTime));
     const wasmExecutionMean = mean(wasmTimes.map(extractExecutionTime));
+    const wasmExportMean = mean(wasmTimes.map(extractExportTime));
+    const wasmImportMean = mean(wasmTimes.map(extractImportTime));
 
     const wasmMean = mean(wasmTimes.map(extractTotalTime));
     const wasmVariance = variance(wasmTimes.map(extractTotalTime));
@@ -122,6 +130,7 @@ function logResult(result: [Measurement[], Measurement[]]) {
         wasmCompilationMean,
         wasmImportMean,
         wasmExecutionMean,
+        wasmExportMean,
     ].toString());
 }
 

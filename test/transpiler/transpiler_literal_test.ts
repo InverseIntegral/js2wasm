@@ -11,22 +11,24 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should handle numeric literals', () => {
-            const exports = transpiler.transpile('function answer() { return 42; }');
-            expect(exports('answer')).to.equal(42);
+            const wrapper = transpiler.transpile('function answer() { return 42; }');
+            expect(wrapper.setFunctionName('answer').call()).to.equal(42);
         });
 
         it('should return correct boolean value', () => {
-            const exports = transpiler.transpile('function id(a) { return a; }');
-            expect(exports('id', true)).to.equal(1);
-            expect(exports('id', false)).to.equal(0);
+            const wrapper = transpiler.transpile('function id(a) { return a; }');
+            wrapper.setFunctionName('id');
+
+            expect(wrapper.call(true)).to.equal(1);
+            expect(wrapper.call(false)).to.equal(0);
         });
 
         it('should handle boolean literals', () => {
-            const exports = transpiler.transpile('function alwaysTrue() { return true; }');
-            expect(exports('alwaysTrue')).to.equal(1);
+            const wrapper = transpiler.transpile('function alwaysTrue() { return true; }');
+            expect(wrapper.setFunctionName('alwaysTrue').call()).to.equal(1);
 
-            const exports2 = transpiler.transpile('function alwaysFalse() { return false; }');
-            expect(exports2('alwaysFalse')).to.equal(0);
+            const wrapper2 = transpiler.transpile('function alwaysFalse() { return false; }');
+            expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(0);
         });
     });
 });

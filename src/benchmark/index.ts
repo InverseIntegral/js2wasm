@@ -2,10 +2,21 @@ import {Algorithm, Benchmark} from './benchmark';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
-import {mergeSort, mergeSortCopyArray, mergeSortFill,
-    mergeSortIsSorted, mergeSortMerge, mergeSortWhile} from './cases/mergesort';
+import {mergeSort,
+    mergeSortCopyArray,
+    mergeSortFill,
+    mergeSortIsSorted,
+    mergeSortMerge,
+    mergeSortWhile,
+} from './cases/mergesort';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
-import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from './cases/quicksort';
+import {quickSort,
+    quickSortFill,
+    quickSortIsSorted,
+    quickSortPartition,
+    quickSortSwap,
+    quickSortWhile,
+} from './cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from './cases/sum_array';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
@@ -55,7 +66,7 @@ const mergeSortFunc = {
 const quicksortFunc = {
     arguments: [new Array(1000000)],
     expectedResult: true,
-    func: [quickSortWhile, isSorted, fill, quickSort, partition, swap],
+    func: [quickSortWhile, quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortSwap],
 };
 
 const algorithms = new Map<string, Algorithm>([

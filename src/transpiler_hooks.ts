@@ -1,4 +1,22 @@
-class TranspilerHooks {
+interface TranspilerHooks {
+    beforeCompilation(): void;
+
+    afterCompilation(): void;
+
+    beforeExecution(): void;
+
+    afterExecution(): void;
+
+    beforeExport(): void;
+
+    afterExport(): void;
+
+    beforeImport(): void;
+
+    afterImport(): void;
+}
+
+class NullTranspilerHooks implements TranspilerHooks {
 
     public beforeCompilation() {
     }
@@ -26,4 +44,4 @@ class TranspilerHooks {
 
 }
 
-export default TranspilerHooks;
+export {NullTranspilerHooks, TranspilerHooks};

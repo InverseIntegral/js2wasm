@@ -1,7 +1,7 @@
 import {performance} from 'perf_hooks';
-import TranspilerHooks from '../../src/transpiler_hooks';
+import {TranspilerHooks} from '../../src/transpiler_hooks';
 
-class NodeBenchmarkHooks extends TranspilerHooks {
+class NodeBenchmarkHooks implements TranspilerHooks {
 
     private beforeCompilationTime: number;
     private afterExecutionTime: number;
@@ -16,6 +16,24 @@ class NodeBenchmarkHooks extends TranspilerHooks {
 
     public afterExecution() {
         this.afterExecutionTime = performance.now();
+    }
+
+    public afterCompilation() {
+    }
+
+    public afterExport() {
+    }
+
+    public afterImport() {
+    }
+
+    public beforeExecution() {
+    }
+
+    public beforeExport() {
+    }
+
+    public beforeImport() {
     }
 }
 

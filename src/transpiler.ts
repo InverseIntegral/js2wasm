@@ -1,7 +1,7 @@
 import CallWrapper from './call_wrapper';
 import Generator from './generator/generator';
 import Parser from './parser/parser';
-import TranspilerHooks from './transpiler_hooks';
+import {NullTranspilerHooks, TranspilerHooks} from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 class Transpiler {
@@ -10,7 +10,7 @@ class Transpiler {
 
     private wasmModule: Module;
 
-    public constructor(hooks: TranspilerHooks = new TranspilerHooks()) {
+    public constructor(hooks: TranspilerHooks = new NullTranspilerHooks()) {
         this.hooks = hooks;
     }
 

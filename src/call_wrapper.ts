@@ -1,4 +1,4 @@
-import TranspilerHooks from './transpiler_hooks';
+import {TranspilerHooks} from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 class CallWrapper {

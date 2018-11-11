@@ -183,16 +183,18 @@ describe('Transpiler', () => {
             expect(array2).to.eql([62, 53]);
         });
 
-        it('should handle nonexistent out parameter in array export', () => {
+        it('should handle out parameter with no call parameters', () => {
             const content = 'function arrayExport() { return 0; }';
             const wrapper = transpiler.transpile(content);
 
             expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call()).to.throw();
+        });
 
-            const content2 = 'function arrayExport(arr) { return arr[0]; }';
-            const wrapper2 = transpiler.transpile(content2);
+        it('should handle nonexistent out parameter in array export', () => {
+            const content = 'function arrayExport(arr) { return arr[0]; }';
+            const wrapper = transpiler.transpile(content);
 
-            expect(() => wrapper2.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
+            expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
         });
     });
 });

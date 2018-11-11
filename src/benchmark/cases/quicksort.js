@@ -1,4 +1,4 @@
-function swap(items, first, second) {
+function quickSortSwap(items, first, second) {
     var temp = items[first];
     items[first] = items[second];
     items[second] = temp;
@@ -6,7 +6,7 @@ function swap(items, first, second) {
     return 0;
 }
 
-function partition(items, left, right) {
+function quickSortPartition(items, left, right) {
     var pivot = items[left];
     var i = left;
     var j = right;
@@ -21,7 +21,7 @@ function partition(items, left, right) {
         }
 
         if (i <= j) {
-            swap(items, i, j);
+            quickSortSwap(items, i, j);
             i++;
             j--;
         }
@@ -35,7 +35,7 @@ function quickSort(items, left, right) {
         return items;
     }
 
-    var index = partition(items, left, right);
+    var index = quickSortPartition(items, left, right);
 
     if (left < index - 1) {
         quickSort(items, left, index - 1);
@@ -48,26 +48,29 @@ function quickSort(items, left, right) {
     return items;
 }
 
-// LCG with GCCs parameters
-function fill(array) {
+function quickSortFill(array) {
     var i = 0;
 
-    var modulus = 0x80000000; // 2^31
-    var multiplier = 1103515245;
-    var increment = 12345;
-
-    var state = 42;
+    var current = 1;
+    var state = false;
 
     while (i < array.length) {
-        state = (multiplier * state + increment) % modulus;
-        array[i] = state;
+        array[i] = current;
+
+        current *= -1;
+
+        if (state) {
+            current++;
+        }
+
+        state = !state;
         i++;
     }
 
     return 0;
 }
 
-function isSorted(array) {
+function quickSortIsSorted(array) {
     var i = 0;
 
     while (i < array.length - 1) {
@@ -85,10 +88,10 @@ function quickSortWhile(items) {
     var i = 0;
 
     while (i < 100) {
-        fill(items);
+        quickSortFill(items);
         quickSort(items, 0, items.length - 1);
 
-        if (!isSorted(items)) {
+        if (!quickSortIsSorted(items)) {
             return false;
         }
 
@@ -98,4 +101,4 @@ function quickSortWhile(items) {
     return true;
 }
 
-module.exports = {quickSortWhile, isSorted, fill, quickSort, partition, swap};
+module.exports = {quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortWhile, quickSortSwap};

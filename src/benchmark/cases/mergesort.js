@@ -73,15 +73,19 @@ function mergeSortIsSorted(array) {
 function mergeSortFill(array) {
     var i = 0;
 
-    var modulus = 0x80000000; // 2^31
-    var multiplier = 1103515245;
-    var increment = 12345;
-
-    var state = 42;
+    var current = 1;
+    var state = false;
 
     while (i < array.length) {
-        state = (multiplier * state + increment) % modulus;
-        array[i] = state;
+        array[i] = current;
+
+        current *= -1;
+
+        if (state) {
+            current++;
+        }
+
+        state = !state;
         i++;
     }
 

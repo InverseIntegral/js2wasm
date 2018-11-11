@@ -9,7 +9,13 @@ import {
     mergeSortMerge,
     mergeSortWhile,
 } from '../../src/benchmark/cases/mergesort';
-import {fill, isSorted, partition, quickSort, quickSortWhile, swap} from '../../src/benchmark/cases/quicksort';
+import {quickSort,
+    quickSortFill,
+    quickSortIsSorted,
+    quickSortPartition,
+    quickSortSwap,
+    quickSortWhile,
+} from '../../src/benchmark/cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayWhile} from '../../src/benchmark/cases/sum_array';
 import Transpiler from '../../src/transpiler';
 import NodeBenchmarkHooks from './node_benchmark_hooks';
@@ -57,8 +63,8 @@ describe('Transpiler', function() {
         });
 
         it('should run quicksort faster than 12 seconds', () => {
-            const content = swap.toString() + partition.toString() + quickSort.toString() + fill.toString() +
-                isSorted.toString() + quickSortWhile.toString();
+            const content = quickSortSwap.toString() + quickSortPartition.toString() + quickSort.toString() +
+                quickSortFill.toString() + quickSortIsSorted.toString() + quickSortWhile.toString();
             const wrapper = transpiler.transpile(content);
 
             expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(1);

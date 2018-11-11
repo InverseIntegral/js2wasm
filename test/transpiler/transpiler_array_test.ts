@@ -192,5 +192,17 @@ describe('Transpiler', () => {
             expect(array2[0]).to.equal(62);
             expect(array2[1]).to.equal(53);
         });
+
+        it('should handle nonexistent out parameter in array export', () => {
+            const content = 'function arrayExport() { return 0; }';
+            const wrapper = transpiler.transpile(content);
+
+            expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call()).to.throw();
+
+            const content2 = 'function arrayExport(arr) { return arr[0]; }';
+            const wrapper2 = transpiler.transpile(content2);
+
+            expect(() => wrapper2.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
+        });
     });
 });

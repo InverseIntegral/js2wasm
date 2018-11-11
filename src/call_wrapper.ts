@@ -30,6 +30,11 @@ class CallWrapper {
 
         for (const outParameter of outParameters) {
             const outParameterIndex = parameters.indexOf(outParameter);
+
+            if (outParameterIndex === -1) {
+                throw new Error('Output parameter not found in call parameter list');
+            }
+
             const outArray = parameters[outParameterIndex];
             const memoryAddress = fixedParameters[outParameterIndex] / 4;
 
@@ -100,6 +105,8 @@ class CallWrapper {
             const readableMemory = new Uint32Array(exportedMemory.buffer);
 
             CallWrapper.readMemory(parameters, this.outParameters, fixedParameters, readableMemory);
+        } else if (this.outParameters !== undefined) {
+            throw new Error('Output parameters with no memory dependent parameters');
         }
 
         this.hooks.afterExport();

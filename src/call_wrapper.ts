@@ -31,9 +31,10 @@ class CallWrapper {
         for (const outParameter of outParameters) {
             const outParameterIndex = parameters.indexOf(outParameter);
             const outArray = parameters[outParameterIndex];
+            const memoryAddress = fixedParameters[outParameterIndex] / 4;
 
             for (let j = 0; j < outArray.length; j++) {
-                outArray[j] = readableMemory[fixedParameters[outParameterIndex] / 4 + j];
+                outArray[j] = readableMemory[memoryAddress + j];
             }
         }
     }

@@ -141,7 +141,7 @@ describe('Transpiler', () => {
             expect(array[0]).to.equal(3);
         });
 
-        it('should handle multiple array wrapper', () => {
+        it('should handle multiple array exports', () => {
             const content = 'function arrayExport(arr1, arr2) { arr1[0] = 21; arr2[1] = 22; return arr1[0]; }';
             const wrapper = transpiler.transpile(content);
 

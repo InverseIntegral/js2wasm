@@ -100,13 +100,15 @@ class CallWrapper {
 
         this.hooks.beforeExport();
 
-        if (hasArrayParameters && this.outParameters !== undefined) {
-            const exportedMemory = instance.exports.memory;
-            const readableMemory = new Uint32Array(exportedMemory.buffer);
+        if (this.outParameters !== undefined) {
+            if (hasArrayParameters) {
+                const exportedMemory = instance.exports.memory;
+                const readableMemory = new Uint32Array(exportedMemory.buffer);
 
-            CallWrapper.readMemory(parameters, this.outParameters, fixedParameters, readableMemory);
-        } else if (this.outParameters !== undefined) {
-            throw new Error('Output parameters with no memory dependent parameters');
+                CallWrapper.readMemory(parameters, this.outParameters, fixedParameters, readableMemory);
+            } else {
+                throw new Error('Output parameters with no memory dependent parameters');
+            }
         }
 
         this.hooks.afterExport();

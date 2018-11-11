@@ -87,5 +87,16 @@ describe('Transpiler', () => {
             expect(wrapper.call(false)).to.equal(20);
         });
 
+        it('should handle duplicate variable declaration', () => {
+            const content = 'function variables() { var x = 20; var x = 10; return x; }';
+            const wrapper = transpiler.transpile(content);
+
+            expect(wrapper.setFunctionName('variables').call()).to.equal(10);
+
+            const content2 = 'function variables() { var x = 20; var x; return x; }';
+            const wrapper2 = transpiler.transpile(content2);
+
+            expect(wrapper2.setFunctionName('variables').call()).to.equal(20);
+        });
     });
 });

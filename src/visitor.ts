@@ -2,18 +2,23 @@ import {
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
-    BooleanLiteral, CallExpression,
+    BooleanLiteral,
+    CallExpression,
     ExpressionStatement,
+    ForStatement,
     Identifier,
     IfStatement,
     isAssignmentExpression,
     isBinaryExpression,
     isBlockStatement,
-    isBooleanLiteral, isCallExpression,
+    isBooleanLiteral,
+    isCallExpression,
     isExpressionStatement,
+    isForStatement,
     isIdentifier,
     isIfStatement,
-    isLogicalExpression, isMemberExpression,
+    isLogicalExpression,
+    isMemberExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
@@ -21,7 +26,8 @@ import {
     isVariableDeclaration,
     isVariableDeclarator,
     isWhileStatement,
-    LogicalExpression, MemberExpression,
+    LogicalExpression,
+    MemberExpression,
     Node,
     NumericLiteral,
     ReturnStatement,
@@ -65,6 +71,8 @@ abstract class Visitor {
             this.visitAssignmentExpression(node);
         } else if (isWhileStatement(node)) {
             this.visitWhileStatement(node);
+        } else if (isForStatement(node)) {
+            this.visitForStatement(node);
         } else if (isCallExpression(node)) {
             this.visitCallExpression(node);
         } else if (isMemberExpression(node)) {
@@ -147,6 +155,22 @@ abstract class Visitor {
         this.visit(node.body);
     }
 
+    protected visitForStatement(node: ForStatement) {
+        if (node.init !== null) {
+            this.visit(node.init);
+        }
+
+        if (node.test !== null) {
+            this.visit(node.test);
+        }
+
+        this.visit(node.body);
+
+        if (node.update !== null) {
+            this.visit(node.update);
+        }
+    }
+
     protected visitCallExpression(node: CallExpression) {
         for (const argument of node.arguments) {
             this.visit(argument);
@@ -159,6 +183,7 @@ abstract class Visitor {
         this.visit(node.object);
         this.visit(node.property);
     }
+
 }
 
 export default Visitor;

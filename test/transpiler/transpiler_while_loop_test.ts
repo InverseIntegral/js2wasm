@@ -103,7 +103,7 @@ describe('Transpiler', () => {
             expect(wrapper.call(10, -1)).to.equal(10);
         });
 
-        it('should handle while loops without braces', () => {
+        it('should handle while loop without braces', () => {
             const content = 'function loop(times) { ' +
                 'var i = 0;' +
                 'while (i < times) i++;' +

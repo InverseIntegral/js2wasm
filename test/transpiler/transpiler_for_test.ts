@@ -14,8 +14,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) {' +
                 'for (var i = 0; i < times; i++) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);
@@ -28,8 +27,7 @@ describe('Transpiler', () => {
                 'for (var i = 0; i < times; i++) { ' +
                 'for (var x = 0; x < times; x++) { value += 1; } }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(35);
             expect(wrapper.call(-10, 5)).to.equal(15);
@@ -42,8 +40,7 @@ describe('Transpiler', () => {
                 'for (var i = 0; i < times; i++) { value += 1; }' +
                 'for (var i = 0; i < times; i++) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(20);
             expect(wrapper.call(-10, 5)).to.equal(0);
@@ -55,8 +52,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) { ' +
                 'if (value >= 0) { for (var i = 0; i < times; i++) { value += 1; } }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-10);
@@ -68,8 +64,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) { ' +
                 'for (var i = 0; i < times; i++) { if (value >= 0) { value += 1; } }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-10);
@@ -84,8 +79,7 @@ describe('Transpiler', () => {
                 'else if (value >= -10) { value += 2; }' +
                 'else { value += 4; } }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(0);
@@ -99,8 +93,7 @@ describe('Transpiler', () => {
                 'var loopCount = 0;' +
                 'for (var i = 0; i < times; i++) loopCount++; ' +
                 'return loopCount; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(5)).to.equal(5);
             expect(wrapper.call(0)).to.equal(0);
@@ -112,8 +105,7 @@ describe('Transpiler', () => {
                 'var i = 0;' +
                 'for (; i < times; i++) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);
@@ -125,8 +117,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) { ' +
                 'for (var i = 0; i < times;) { value += 1; i++; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);
@@ -138,8 +129,7 @@ describe('Transpiler', () => {
             const content = 'function loop(times) { ' +
                 'for (var i = 0;; i++) { return 0; }' +
                 'return -1; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(5)).to.equal(0);
             expect(wrapper.call(0)).to.equal(0);
@@ -151,8 +141,7 @@ describe('Transpiler', () => {
                 'var i;' +
                 'for (i = 0; i < times; i++) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);
@@ -164,8 +153,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) { ' +
                 'for (var i = 0; i < times; i += 1) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);
@@ -177,8 +165,7 @@ describe('Transpiler', () => {
             const content = 'function loop(value, times) { ' +
                 'for (var i = 0; i < times; i = i + 1) { value += 1; }' +
                 'return value; }';
-            const wrapper = transpiler.transpile(content);
-            wrapper.setFunctionName('loop');
+            const wrapper = transpiler.transpile(content).setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
             expect(wrapper.call(-10, 5)).to.equal(-5);

@@ -29,11 +29,11 @@ class CallWrapper {
                               readableMemory: Uint32Array) {
 
         for (const outParameter of outParameters) {
-            const parameterIndex = parameters.indexOf(outParameter);
-            const array = parameters[parameterIndex];
+            const outParameterIndex = parameters.indexOf(outParameter);
+            const outArray = parameters[outParameterIndex];
 
-            for (let j = 0; j < array.length; j++) {
-                array[j] = readableMemory[fixedParameters[parameterIndex] / 4 + j];
+            for (let j = 0; j < outArray.length; j++) {
+                outArray[j] = readableMemory[fixedParameters[outParameterIndex] / 4 + j];
             }
         }
     }

@@ -36,10 +36,10 @@ class CallWrapper {
             }
 
             const outArray = parameters[outParameterIndex];
-            const memoryAddress = fixedParameters[outParameterIndex] / 4;
+            const memoryBaseIndex = fixedParameters[outParameterIndex] / 4;
 
             for (let j = 0; j < outArray.length; j++) {
-                outArray[j] = readableMemory[memoryAddress + j];
+                outArray[j] = readableMemory[memoryBaseIndex + j];
             }
         }
     }

@@ -1,36 +1,29 @@
 function sumArray(array) {
     var sum = 0;
-    var i = 0;
 
-    while (i < array.length) {
+    for (var i = 0; i < array.length; i++) {
         sum += array[i];
-        i++;
     }
 
     return sum;
 }
 
 function sumArrayFill(array) {
-    var i = 0;
-
-    while (i < array.length) {
+    for (var i = 0; i < array.length; i++) {
         array[i] = i;
-        i++;
     }
 
     return 0;
 }
 
-function sumArrayWhile(array) {
-    var i = 0;
+function sumArrayFor(array) {
     sumArrayFill(array);
 
-    while (i < 100000) {
+    for (var i = 0; i < 100000; i++) {
         sumArray(array);
-        i++;
     }
 
     return sumArray(array);
 }
 
-module.exports = {sumArrayWhile, sumArrayFill, sumArray};
+module.exports = {sumArrayFor, sumArrayFill, sumArray};

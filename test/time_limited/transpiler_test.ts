@@ -16,7 +16,7 @@ import {quickSort,
     quickSortSwap,
     quickSortWhile,
 } from '../../src/benchmark/cases/quicksort';
-import {sumArray, sumArrayFill, sumArrayWhile} from '../../src/benchmark/cases/sum_array';
+import {sumArray, sumArrayFill, sumArrayFor} from '../../src/benchmark/cases/sum_array';
 import Transpiler from '../../src/transpiler';
 import NodeBenchmarkHooks from './node_benchmark_hooks';
 
@@ -55,10 +55,10 @@ describe('Transpiler', function() {
         });
 
         it('should run sum array faster than 7 seconds', () => {
-            const content = sumArray.toString() + sumArrayFill.toString() + sumArrayWhile.toString();
+            const content = sumArray.toString() + sumArrayFill.toString() + sumArrayFor.toString();
             const wrapper = transpiler.transpile(content);
 
-            expect(wrapper.setFunctionName('sumArrayWhile').call(new Array(65535))).to.equal(2147385345);
+            expect(wrapper.setFunctionName('sumArrayFor').call(new Array(65535))).to.equal(2147385345);
             expect(hooks.getCompleteTime()).to.be.lessThan(7000);
         });
 

@@ -17,7 +17,7 @@ import {quickSort,
     quickSortSwap,
     quickSortWhile,
 } from './cases/quicksort';
-import {sumArray, sumArrayFill, sumArrayWhile} from './cases/sum_array';
+import {sumArray, sumArrayFill, sumArrayFor} from './cases/sum_array';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
 
@@ -36,7 +36,7 @@ const gcdFunc = {
 const sumArrayFunc = {
     arguments: [new Array(65535)],
     expectedResult: 2147385345,
-    func: [sumArrayWhile, sumArrayFill, sumArray],
+    func: [sumArrayFor, sumArrayFill, sumArray],
 };
 
 const sumIntegersFunc = {

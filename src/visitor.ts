@@ -6,6 +6,7 @@ import {
     BooleanLiteral,
     CallExpression,
     ExpressionStatement,
+    ForStatement,
     Identifier,
     IfStatement,
     isArrayExpression,
@@ -15,9 +16,11 @@ import {
     isBooleanLiteral,
     isCallExpression,
     isExpressionStatement,
+    isForStatement,
     isIdentifier,
     isIfStatement,
     isLogicalExpression,
+    isMemberExpression,
     isNumericLiteral,
     isReturnStatement,
     isUnaryExpression,
@@ -26,6 +29,7 @@ import {
     isVariableDeclarator,
     isWhileStatement,
     LogicalExpression,
+    MemberExpression,
     Node,
     NumericLiteral,
     ReturnStatement,
@@ -69,29 +73,24 @@ abstract class Visitor {
             this.visitAssignmentExpression(node);
         } else if (isWhileStatement(node)) {
             this.visitWhileStatement(node);
+        } else if (isForStatement(node)) {
+            this.visitForStatement(node);
         } else if (isCallExpression(node)) {
             this.visitCallExpression(node);
         } else if (isArrayExpression(node)) {
             this.visitArrayExpression(node);
+        } else if (isMemberExpression(node)) {
+            this.visitMemberExpression(node);
         } else {
             throw new Error(`Unknown node of type ${node.type} visited`);
         }
     }
 
-    // noinspection TsLint
-    protected visitIdentifier(node: Identifier) {
+    protected visitIdentifier(node: Identifier) {}
 
-    }
+    protected visitNumericLiteral(node: NumericLiteral) {}
 
-    // noinspection TsLint
-    protected visitNumericLiteral(node: NumericLiteral) {
-
-    }
-
-    // noinspection TsLint
-    protected visitBooleanLiteral(node: BooleanLiteral) {
-
-    }
+    protected visitBooleanLiteral(node: BooleanLiteral) {}
 
     protected visitReturnStatement(node: ReturnStatement) {
         const argument = node.argument;
@@ -160,12 +159,33 @@ abstract class Visitor {
         this.visit(node.body);
     }
 
+    protected visitForStatement(node: ForStatement) {
+        if (node.init !== null) {
+            this.visit(node.init);
+        }
+
+        if (node.test !== null) {
+            this.visit(node.test);
+        }
+
+        this.visit(node.body);
+
+        if (node.update !== null) {
+            this.visit(node.update);
+        }
+    }
+
     protected visitCallExpression(node: CallExpression) {
         for (const argument of node.arguments) {
             this.visit(argument);
         }
 
         this.visit(node.callee);
+    }
+
+    protected visitMemberExpression(node: MemberExpression) {
+        this.visit(node.object);
+        this.visit(node.property);
     }
 
     private visitArrayExpression(node: ArrayExpression) {
@@ -175,6 +195,7 @@ abstract class Visitor {
             }
         }
     }
+
 }
 
 export default Visitor;

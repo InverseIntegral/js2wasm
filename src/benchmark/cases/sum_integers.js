@@ -1,4 +1,4 @@
-function sum() {
+function sumIntegers() {
     var sum = 0;
     var i = 1;
 
@@ -10,4 +10,15 @@ function sum() {
     return sum;
 }
 
-module.exports = sum;
+function sumIntegersWhile() {
+    var i = 0;
+
+    while (i < 100000) {
+        sumIntegers();
+        i++;
+    }
+
+    return sumIntegers();
+}
+
+module.exports = {sumIntegers, sumIntegersWhile};

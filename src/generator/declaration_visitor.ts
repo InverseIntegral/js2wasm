@@ -35,7 +35,9 @@ class DeclarationVisitor extends Visitor {
 
     private registerDeclaration(val: LVal, map: VariableMapping) {
         if (isIdentifier(val)) {
-            map.set(val.name, this.index++);
+            if (!map.has(val.name)) {
+                map.set(val.name, this.index++);
+            }
         } else {
             throw new Error('LValue is not an identifier');
         }

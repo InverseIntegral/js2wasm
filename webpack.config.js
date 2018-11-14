@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    mode: "development",
+    mode: 'development',
     module: {
         rules: [
             {
@@ -22,5 +22,5 @@ module.exports = {
         filename: '[name]/bundle.js',
         path: path.resolve(__dirname, 'dist')
     },
-    target: "node" // because of require in binaryen
+    target: 'node' // because of require in binaryen
 };

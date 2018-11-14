@@ -2,12 +2,20 @@ import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
+import {MemoryAccessVisitor} from './memory_access_visitor';
 
 class Generator {
 
     public static generate(file: File): Module {
         const module = new Module();
-        module.setMemory(Math.pow(2, 10), Math.pow(2, 20));
+
+        const isMemoryDependent = file.program.body.some((statement) => {
+            return isFunctionDeclaration(statement) && new MemoryAccessVisitor().run(statement);
+        });
+
+        if (isMemoryDependent) {
+            module.addMemoryImport('0', 'transpilerImports', 'memory');
+        }
 
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {
@@ -16,6 +24,10 @@ class Generator {
 
             this.generateFunction(module, statement);
         });
+
+        if (isMemoryDependent) {
+            module.addMemoryExport('0', 'memory');
+        }
 
         return module;
     }

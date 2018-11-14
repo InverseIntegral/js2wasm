@@ -1,1 +1,2 @@
-export default function sum(): void;
+export function sumIntegers(): void;
+export function sumIntegersWhile(): void;

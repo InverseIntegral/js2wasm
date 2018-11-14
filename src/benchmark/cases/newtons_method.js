@@ -9,4 +9,15 @@ function newtonsMethod(iterations, initial) {
     return initial;
 }
 
-module.exports = newtonsMethod;
+function newtonsMethodWhile(iterations, initial) {
+    var i = 0;
+
+    while (i < 10000000) {
+        newtonsMethod(iterations, initial);
+        i++;
+    }
+
+    return newtonsMethod(iterations, initial);
+}
+
+module.exports = {newtonsMethod, newtonsMethodWhile};

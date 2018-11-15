@@ -1,4 +1,5 @@
 import {
+    ArrayExpression,
     FunctionDeclaration,
     MemberExpression,
 } from '@babel/types';
@@ -12,6 +13,10 @@ class MemoryAccessVisitor extends Visitor {
         this.visit(tree.body);
 
         return this.isMemoryDependent;
+    }
+
+    protected visitArrayExpression(node: ArrayExpression) {
+        this.isMemoryDependent = true;
     }
 
     protected visitMemberExpression(node: MemberExpression) {

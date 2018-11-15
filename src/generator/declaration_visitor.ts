@@ -15,19 +15,18 @@ class DeclarationVisitor extends Visitor {
     private memoryOffset: number = 0;
     private parameters: VariableMapping = new Map();
     private variables: VariableMapping = new Map();
-    private arrays: VariableMapping = new Map();
 
-    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping, VariableMapping] {
+    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping] {
         tree.params.forEach((node) => this.registerDeclaration(node, this.parameters));
 
         this.visit(tree.body);
 
-        return [this.parameters, this.variables, this.arrays];
+        return [this.parameters, this.variables];
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init != null && isArrayExpression(node.init)) {
-            this.registerArrayDeclaration(node.id, node.init.elements.length, this.arrays);
+            this.registerArrayDeclaration(node.id, node.init.elements.length, this.variables);
         } else {
             this.registerDeclaration(node.id, this.variables);
         }

@@ -39,9 +39,9 @@ class Generator {
 
         const functionName = tree.id.name;
 
-        const [parameterMapping, variableMapping, arrayMapping] = new DeclarationVisitor().run(tree);
+        const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
-        const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping, arrayMapping);
+        const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);
         const parameters = new Array(parameterMapping.size).fill(i32);
 
@@ -54,9 +54,8 @@ class Generator {
     }
 
     private static mergeMappings(first: VariableMapping,
-                                 second: VariableMapping,
-                                 third: VariableMapping): VariableMapping {
-        return new Map([...first, ...second, ...third]);
+                                 second: VariableMapping): VariableMapping {
+        return new Map([...first, ...second]);
     }
 
 }

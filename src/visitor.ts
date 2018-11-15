@@ -188,7 +188,7 @@ abstract class Visitor {
         this.visit(node.property);
     }
 
-    private visitArrayExpression(node: ArrayExpression) {
+    protected visitArrayExpression(node: ArrayExpression) {
         for (const element of node.elements) {
             if (element !== null) {
                 this.visit(element);

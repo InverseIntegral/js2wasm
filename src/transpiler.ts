@@ -4,12 +4,14 @@ import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
+import {ArrayLiteralVisitor} from "./generator/array_literal_visitor";
 
 class Transpiler {
 
     private readonly hooks: TranspilerHooks;
 
     private wasmModule: Module;
+    private arrayLiteralMemorySize: number = 0;
 
     public constructor(hooks: TranspilerHooks = new NullTranspilerHooks()) {
         this.hooks = hooks;
@@ -20,11 +22,12 @@ class Transpiler {
         this.compile(content);
         this.hooks.afterCompilation();
 
-        return new CallWrapper(this.wasmModule, this.hooks);
+        return new CallWrapper(this.wasmModule, this.hooks, this.arrayLiteralMemorySize);
     }
 
     private compile(content: string) {
         const file = Parser.parse(content);
+        this.arrayLiteralMemorySize = new ArrayLiteralVisitor().run(file);
         const module = Generator.generate(file);
 
         module.optimize();

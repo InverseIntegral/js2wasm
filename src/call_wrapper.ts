@@ -3,10 +3,10 @@ import Module = WebAssembly.Module;
 
 class CallWrapper {
 
-    private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {
+    private static fillMemory(parameters: any[], writeableMemory: Uint32Array, initialSize: number) {
         // A copy of the parameters array is needed, to not override the content of the original one
         const fixedParameters = parameters.concat();
-        let index = 0;
+        let index = initialSize;
 
         for (let i = 0; i < fixedParameters.length; i++) {
             if (fixedParameters[i] instanceof Array) {
@@ -44,25 +44,27 @@ class CallWrapper {
         }
     }
 
-    private static calculateInitialMemorySize(parameters: any[]): number {
+    private static calculateInitialMemorySize(parameters: any[], initialMemorySize: number): number {
         const pageSize = Math.pow(2, 16);
         const memoryElementCount = parameters
             .filter((parameter) => parameter instanceof Array)
             .map((array) => array.length + 1)
             .reduce((accumulator, current) => accumulator + current, 0);
 
-        return Math.ceil((memoryElementCount * 4) / pageSize);
+        return Math.ceil(((memoryElementCount + initialMemorySize) * 4) / pageSize);
     }
 
     private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
+    private readonly arrayLiteralMemorySize: number;
 
     private functionName: string;
     private outParameters: any[];
 
-    public constructor(wasmModule: Module, hooks: TranspilerHooks) {
+    public constructor(wasmModule: Module, hooks: TranspilerHooks, arrayLiteralMemorySize: number) {
         this.wasmModule = wasmModule;
         this.hooks = hooks;
+        this.arrayLiteralMemorySize = arrayLiteralMemorySize;
     }
 
     public setFunctionName(functionName: string) {
@@ -83,11 +85,15 @@ class CallWrapper {
 
         const hasArrayParameters = parameters.some((parameter) => parameter instanceof Array);
 
-        if (hasArrayParameters) {
-            const memory = new WebAssembly.Memory({ initial: CallWrapper.calculateInitialMemorySize(parameters) });
+        if (hasArrayParameters || this.arrayLiteralMemorySize !== 0) {
+            const memoryDescriptor = {
+                initial: CallWrapper.calculateInitialMemorySize(parameters, this.arrayLiteralMemorySize),
+            };
+
+            const memory = new WebAssembly.Memory(memoryDescriptor);
             const writeableMemory = new Uint32Array(memory.buffer);
 
-            fixedParameters = CallWrapper.fillMemory(fixedParameters, writeableMemory);
+            fixedParameters = CallWrapper.fillMemory(fixedParameters, writeableMemory, this.arrayLiteralMemorySize);
             importObject = { transpilerImports: { memory } };
         }
 

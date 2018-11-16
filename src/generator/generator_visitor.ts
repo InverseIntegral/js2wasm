@@ -31,16 +31,18 @@ class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
     private readonly variableMapping: Map<string, number>;
+    private readonly localArrayPointers: Map<string, number>;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
 
     private labelCounter: number = 0;
 
-    constructor(module: Module, variableMapping: Map<string, number>) {
+    constructor(module: Module, variableMapping: Map<string, number>, localArrayPointers: Map<string, number>) {
         super();
         this.module = module;
         this.variableMapping = variableMapping;
+        this.localArrayPointers = localArrayPointers;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -402,7 +404,7 @@ class GeneratorVisitor extends Visitor {
             throw new Error('Assigned to unknown variable');
         }
 
-        const memoryLocation = this.getVariableIndex(val.name);
+        const memoryLocation = this.getArrayMemoryLocation(val.name);
         const lengthAddress = this.module.i32.const(memoryLocation - 4);
         // @ts-ignore because store() returns an expression
         this.statements.push(this.module.i32.store(0, 4, lengthAddress, this.module.i32.const(length)));
@@ -414,6 +416,16 @@ class GeneratorVisitor extends Visitor {
         }
 
         this.expressions.push(this.module.i32.const(memoryLocation));
+    }
+
+    private getArrayMemoryLocation(name: string) {
+        const memoryLocation = this.localArrayPointers.get(name);
+
+        if (memoryLocation === undefined) {
+            throw new Error(`Memory location unknown for ${name}`);
+        }
+
+        return memoryLocation;
     }
 
     private getVariableIndex(name: string) {

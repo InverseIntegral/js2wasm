@@ -15,21 +15,22 @@ class DeclarationVisitor extends Visitor {
     private memoryOffset: number = 0;
     private parameters: VariableMapping = new Map();
     private variables: VariableMapping = new Map();
+    private localArrayPointers: VariableMapping = new Map();
 
-    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping] {
+    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping, VariableMapping] {
         tree.params.forEach((node) => this.registerDeclaration(node, this.parameters));
 
         this.visit(tree.body);
 
-        return [this.parameters, this.variables];
+        return [this.parameters, this.variables, this.localArrayPointers];
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null && isArrayExpression(node.init)) {
-            this.registerArrayDeclaration(node.id, node.init.elements.length, this.variables);
-        } else {
-            this.registerDeclaration(node.id, this.variables);
+            this.registerArray(node.id, node.init.elements.length, this.localArrayPointers);
         }
+
+        this.registerDeclaration(node.id, this.variables);
     }
 
     private registerDeclaration(val: LVal, map: VariableMapping) {
@@ -42,7 +43,7 @@ class DeclarationVisitor extends Visitor {
         }
     }
 
-    private registerArrayDeclaration(val: LVal, length: number, map: VariableMapping) {
+    private registerArray(val: LVal, length: number, map: VariableMapping) {
         if (!isIdentifier(val)) {
             throw new Error('LValue is not an identifier');
         }

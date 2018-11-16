@@ -203,5 +203,13 @@ describe('Transpiler', () => {
 
             expect(wrapper.setFunctionName('func').call()).to.equal(0);
         });
+
+        it('should handle array literal length', () => {
+            const content = 'function func() { var array = [1, 2, 3]; return array.length; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(3);
+        });
     });
 });

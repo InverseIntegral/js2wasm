@@ -10,7 +10,7 @@ import {
     Identifier,
     IfStatement,
     isArrayExpression,
-    isAssignmentExpression, isExpression,
+    isAssignmentExpression,
     isIdentifier,
     isMemberExpression,
     isUpdateExpression,
@@ -402,20 +402,18 @@ class GeneratorVisitor extends Visitor {
             throw new Error('Assigned to unknown variable');
         }
 
-        const memoryLocation = this.variableMapping.get(val.name);
+        const memoryLocation = this.getVariableIndex(val.name);
 
-        if (memoryLocation === undefined) {
-            throw new Error('Assigned to unknown variable');
-        }
-
-        const ptr = this.module.i32.const(memoryLocation);
-        this.module.i32.store(0, 0, ptr, this.module.i32.const(length));
+        const address = this.module.i32.const(memoryLocation);
+        const lengthAddress = this.module.i32.const(memoryLocation - 4);
+        // @ts-ignore because store() returns an expression
+        this.statements.push(this.module.i32.store(0, 4, lengthAddress, this.module.i32.const(length)));
 
         for (let i: number = 0; i < length; i++) {
-            this.module.i32.store(i + 1, 0, ptr, this.popExpression());
+            this.module.i32.store(i + 1, 0, address, this.popExpression());
         }
 
-        this.expressions.push(ptr);
+        this.expressions.push(address);
     }
 
     private getVariableIndex(name: string) {

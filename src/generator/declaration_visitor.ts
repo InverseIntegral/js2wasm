@@ -47,8 +47,9 @@ class DeclarationVisitor extends Visitor {
             throw new Error('LValue is not an identifier');
         }
 
-        map.set(val.name, this.memoryOffset);
-        this.memoryOffset = length + 1;
+        // Skip one memory offset to store the size in it
+        map.set(val.name, ++this.memoryOffset * 4);
+        this.memoryOffset += length;
     }
 }
 

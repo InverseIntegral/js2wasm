@@ -12,8 +12,19 @@ type VariableMapping = Map<string, number>;
 
 class DeclarationVisitor extends Visitor {
 
+    private static memoryOffset: number = 0;
+
+    private static registerArray(val: LVal, length: number, map: VariableMapping) {
+        if (!isIdentifier(val)) {
+            throw new Error('LValue is not an identifier');
+        }
+
+        // Skip one memory offset to store the size in it
+        map.set(val.name, ++DeclarationVisitor.memoryOffset * 4);
+        DeclarationVisitor.memoryOffset += length;
+    }
+
     private index: number = 0;
-    private memoryOffset: number = 0;
     private parameters: VariableMapping = new Map();
     private variables: VariableMapping = new Map();
     private localArrayPointers: VariableMapping = new Map();
@@ -28,7 +39,7 @@ class DeclarationVisitor extends Visitor {
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null && isArrayExpression(node.init)) {
-            this.registerArray(node.id, node.init.elements.length, this.localArrayPointers);
+            DeclarationVisitor.registerArray(node.id, node.init.elements.length, this.localArrayPointers);
         }
 
         this.registerDeclaration(node.id, this.variables);
@@ -36,7 +47,7 @@ class DeclarationVisitor extends Visitor {
 
     protected visitAssignmentExpression(node: AssignmentExpression) {
         if (isArrayExpression(node.right)) {
-            this.registerArray(node.left, node.right.elements.length, this.localArrayPointers);
+            DeclarationVisitor.registerArray(node.left, node.right.elements.length, this.localArrayPointers);
         }
     }
 
@@ -50,15 +61,6 @@ class DeclarationVisitor extends Visitor {
         }
     }
 
-    private registerArray(val: LVal, length: number, map: VariableMapping) {
-        if (!isIdentifier(val)) {
-            throw new Error('LValue is not an identifier');
-        }
-
-        // Skip one memory offset to store the size in it
-        map.set(val.name, ++this.memoryOffset * 4);
-        this.memoryOffset += length;
-    }
 }
 
 export {VariableMapping, DeclarationVisitor};

@@ -299,5 +299,15 @@ describe('Transpiler', () => {
             expect(wrapper.call(0)).to.equal(2);
             expect(wrapper.call(1)).to.equal(3);
         });
+
+        it('should handle array literals with multiple methods and same array variable name', () => {
+            const content = 'function func2() { var array = [3, 4]; return 0; }' +
+                'function func() { var array = [1, 2]; func2(); return array[0]; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(1);
+        });
     });
 });

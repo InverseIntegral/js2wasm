@@ -242,13 +242,13 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals with array parameters', () => {
-            const content = 'function func(arr) { var array = [10, 11, 12]; arr[0] = 1; return array[0]; }';
+            const content = 'function func(arr) { var array = [arr[3], 11, 12]; arr[0] = 1; return array[0]; }';
             const wrapper = transpiler.transpile(content);
 
             const array = [13, 14, 15, 16];
             wrapper.setFunctionName('func').setOutParameters(array);
 
-            expect(wrapper.call(array)).to.equal(10);
+            expect(wrapper.call(array)).to.equal(16);
             expect(array).to.eql([1, 14, 15, 16]);
         });
 

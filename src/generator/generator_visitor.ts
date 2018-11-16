@@ -403,17 +403,17 @@ class GeneratorVisitor extends Visitor {
         }
 
         const memoryLocation = this.getVariableIndex(val.name);
-
-        const address = this.module.i32.const(memoryLocation);
         const lengthAddress = this.module.i32.const(memoryLocation - 4);
         // @ts-ignore because store() returns an expression
         this.statements.push(this.module.i32.store(0, 4, lengthAddress, this.module.i32.const(length)));
 
-        for (let i: number = 0; i < length; i++) {
-            this.module.i32.store(i + 1, 0, address, this.popExpression());
+        for (let i: number = length - 1; i >= 0; i--) {
+            // @ts-ignore because store() returns an expression
+            this.statements.push(this.module.i32.store(i * 4, 4,
+                this.module.i32.const(memoryLocation), this.popExpression()));
         }
 
-        this.expressions.push(address);
+        this.expressions.push(this.module.i32.const(memoryLocation));
     }
 
     private getVariableIndex(name: string) {

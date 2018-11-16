@@ -25,7 +25,7 @@ class DeclarationVisitor extends Visitor {
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
-        if (node.init != null && isArrayExpression(node.init)) {
+        if (node.init !== null && isArrayExpression(node.init)) {
             this.registerArrayDeclaration(node.id, node.init.elements.length, this.variables);
         } else {
             this.registerDeclaration(node.id, this.variables);

@@ -213,12 +213,53 @@ describe('Transpiler', () => {
             expect(wrapper.call(1)).to.equal(9);
         });
 
+        it('should handle array literal manipulation', () => {
+            const content = 'function func(index, value) {' +
+                'var array = [23, 46, 7]; array[index] = value; return array[index]; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 11)).to.equal(11);
+            expect(wrapper.call(1, 50)).to.equal(50);
+            expect(wrapper.call(2, 93)).to.equal(93);
+        });
+
         it('should handle array literal length', () => {
             const content = 'function func() { var array = [1, 2, 3]; return array.length; }';
             const wrapper = transpiler.transpile(content);
             wrapper.setFunctionName('func');
 
             expect(wrapper.call()).to.equal(3);
+        });
+
+        it('should handle multiple array literals', () => {
+            const content = 'function func() {' +
+                'var array = [40, 42, 24]; var array2 = [10, 11, 12]; return array2[0]; }';
+            const wrapper = transpiler.transpile(content);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(10);
+        });
+
+        it('should handle array literals with array parameters', () => {
+            const content = 'function func(arr) { var array = [10, 11, 12]; arr[0] = 1; return array[0]; }';
+            const wrapper = transpiler.transpile(content);
+
+            const array = [13, 14, 15, 16];
+            wrapper.setFunctionName('func').setOutParameters(array);
+
+            expect(wrapper.call(array)).to.equal(10);
+            expect(array).to.eql([1, 14, 15, 16]);
+        });
+
+        it('should handle array literals with variables', () => {
+            const content = 'function func(index, a) { var b = 15; var array = [a, b]; return array[index]; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 14)).to.equal(14);
+            expect(wrapper.call(1, 16)).to.equal(15);
         });
     });
 });

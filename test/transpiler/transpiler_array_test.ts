@@ -271,5 +271,12 @@ describe('Transpiler', () => {
             expect(wrapper.call(0)).to.equal(248);
             expect(wrapper.call(1)).to.equal(192);
         });
+
+        it('should handle empty array literals', () => {
+            const content = 'function func() { var array = []; return 0; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func').call();
+        });
     });
 });

@@ -1,5 +1,6 @@
-import {FunctionDeclaration, FunctionExpression, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
+import {FunctionDeclaration, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
 import Visitor from '../visitor';
+
 type Mapping = Map<string, number>;
 
 class DeclarationVisitor extends Visitor {
@@ -22,7 +23,9 @@ class DeclarationVisitor extends Visitor {
 
     private registerDeclaration(val: LVal, map: Mapping) {
         if (isIdentifier(val)) {
-            map.set(val.name, this.index++);
+            if (!map.has(val.name)) {
+                map.set(val.name, this.index++);
+            }
         } else {
             throw new Error('LValue is not an identifier');
         }

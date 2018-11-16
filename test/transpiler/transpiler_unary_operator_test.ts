@@ -1,67 +1,81 @@
 import {expect} from 'chai';
-import {createSingleIntegerOnlyFunction} from '../../src/generator/wasm_type';
+import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
 
 describe('Transpiler', () => {
+
+    let transpiler: Transpiler;
+
+    beforeEach(() => {
+        transpiler = new Transpiler();
+    });
+
     describe('#transpile()', () => {
 
         it('should handle unary plus', () => {
-            const content = 'function func(a) { return +a + +40; }';
-            const {func} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('func', 1));
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const wrapper = transpiler.transpile('function func(a) { return +a + +40; }', type);
+            wrapper.setFunctionName('func');
 
-            expect(func(2)).to.equal(42);
-            expect(func(-2)).to.equal(38);
+            expect(wrapper.call(2)).to.equal(42);
+            expect(wrapper.call(-2)).to.equal(38);
         });
 
         it('should handle unary minus', () => {
-            const content = 'function func(a) { return -a + -40; }';
-            const {func} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('func', 1));
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const wrapper = transpiler.transpile('function func(a) { return -a + -40; }', type);
+            wrapper.setFunctionName('func');
 
-            expect(func(2)).to.equal(-42);
-            expect(func(-2)).to.equal(-38);
+            expect(wrapper.call(2)).to.equal(-42);
+            expect(wrapper.call(-2)).to.equal(-38);
         });
 
         it('should handle multiple consecutive unary operators', () => {
-            const content = 'function func(a) { return a + -+-+-40; }';
-            const {func} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('func', 1));
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const wrapper = transpiler.transpile('function func(a) { return a + -+-+-40; }', type);
 
-            expect(func(2)).to.equal(-38);
+            expect(wrapper.setFunctionName('func').call(2)).to.equal(-38);
         });
 
         it('should handle unary not', () => {
-            const content = 'function func(a) { return !a; }';
-            const {func} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('func', 1));
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const wrapper = transpiler.transpile('function func(a) { return !a; }', type);
+            wrapper.setFunctionName('func');
 
-            expect(func(true)).to.equal(0);
-            expect(func(false)).to.equal(1);
+            expect(wrapper.call(true)).to.equal(0);
+            expect(wrapper.call(false)).to.equal(1);
         });
 
         it('should handle pre increment', () => {
+            const type = new Map([['preInc', [WebAssemblyType.INT_32]]]);
             const content = 'function preInc(a) { ++a; return a; }';
-            const {preInc} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('preInc', 1));
+            const wrapper = transpiler.transpile(content, type);
 
-            expect(preInc(10)).to.equal(11);
+            expect(wrapper.setFunctionName('preInc').call(10)).to.equal(11);
         });
 
         it('should handle post increment', () => {
+            const type = new Map([['postInc', [WebAssemblyType.INT_32]]]);
             const content = 'function postInc(a) { a++; return a; }';
-            const {postInc} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('postInc', 1));
+            const wrapper = transpiler.transpile(content, type);
 
-            expect(postInc(10)).to.equal(11);
+            expect(wrapper.setFunctionName('postInc').call(10)).to.equal(11);
         });
 
         it('should handle pre decrement', () => {
+            const type = new Map([['preDec', [WebAssemblyType.INT_32]]]);
             const content = 'function preDec(a) { --a; return a; }';
-            const {preDec} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('preDec', 1));
+            const wrapper = transpiler.transpile(content, type);
 
-            expect(preDec(10)).to.equal(9);
+            expect(wrapper.setFunctionName('preDec').call(10)).to.equal(9);
         });
 
         it('should handle post decrement', () => {
+            const type = new Map([['postDec', [WebAssemblyType.INT_32]]]);
             const content = 'function postDec(a) { a--; return a; }';
-            const {postDec} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('postDec', 1));
+            const wrapper = transpiler.transpile(content, type);
 
-            expect(postDec(10)).to.equal(9);
+            expect(wrapper.setFunctionName('postDec').call(10)).to.equal(9);
         });
     });
 });

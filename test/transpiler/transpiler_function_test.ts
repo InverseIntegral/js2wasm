@@ -1,58 +1,88 @@
 import {expect} from 'chai';
-import {createMultipleIntegerOnlyFunctions, createSingleIntegerOnlyFunction} from '../../src/generator/wasm_type';
+import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
+import set = Reflect.set;
 
 describe('Transpiler', () => {
+
+    let transpiler: Transpiler;
+
+    beforeEach(() => {
+        transpiler = new Transpiler();
+    });
+
     describe('#transpile()', () => {
         it('should not work on non-functions', () => {
-            expect(() => Transpiler.transpile('1 + 2;', new Map())).to.throw();
+            expect(() => transpiler.transpile('1 + 2;', new Map())).to.throw();
         });
 
         it('should handle function calls', () => {
+            const types = new Map();
+            types.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
+            types.set('id', [WebAssemblyType.INT_32]);
+
             const content = 'function id(a) { return a; }' +
                 'function add(a, b) { return id(a) + id(b); }';
-            const {add} = Transpiler.transpile(content, createMultipleIntegerOnlyFunctions(['id', 'add'], [1, 2]));
+            const wrapper = transpiler.transpile(content, types);
 
-            expect(add(1, 2)).to.equal(3);
+            expect(wrapper.setFunctionName('add').call(1, 2)).to.equal(3);
         });
 
         it('should handle recursive function calls', () => {
+            const type = new Map([['fibonacci', [WebAssemblyType.INT_32]]]);
             const content = 'function fibonacci(current) { ' +
                 'if (current <= 2) { return 1; } ' +
                 'return fibonacci(current - 2) + fibonacci(current - 1); } ';
-            const {fibonacci} = Transpiler.transpile(content, createSingleIntegerOnlyFunction('fibonacci', 1));
 
-            expect(fibonacci(6)).to.equal(8);
-            expect(fibonacci(12)).to.equal(144);
+            const wrapper = transpiler.transpile(content, type);
+            wrapper.setFunctionName('fibonacci');
+
+            expect(wrapper.call(6)).to.equal(8);
+            expect(wrapper.call(12)).to.equal(144);
         });
 
         it('should handle multiple function calls', () => {
+            const types = new Map();
+            types.set('incr', [WebAssemblyType.INT_32]);
+            types.set('double', [WebAssemblyType.INT_32]);
+            types.set('complete', [WebAssemblyType.INT_32]);
+
             const content = 'function incr(current) { return current + 1; }' +
                 'function double(current) { return 2 * current; }' +
                 'function complete(current) {return double(incr(current)); } ';
-            const functionTypes = createMultipleIntegerOnlyFunctions(['incr', 'double', 'complete'], [1, 1, 1]);
-            const {incr, double, complete} = Transpiler.transpile(content, functionTypes);
 
-            expect(incr(3)).to.equal(4);
-            expect(incr(-100)).to.equal(-99);
-            expect(incr(20)).to.equal(21);
+            const wrapper = transpiler.transpile(content, types);
+            wrapper.setFunctionName('incr');
 
-            expect(double(20)).to.equal(40);
-            expect(double(0)).to.equal(0);
-            expect(double(-10)).to.equal(-20);
+            expect(wrapper.call(3)).to.equal(4);
+            expect(wrapper.call(-100)).to.equal(-99);
+            expect(wrapper.call(20)).to.equal(21);
 
-            expect(complete(2)).to.equal(6);
-            expect(complete(-2)).to.equal(-2);
+            wrapper.setFunctionName('double');
+
+            expect(wrapper.call(20)).to.equal(40);
+            expect(wrapper.call(0)).to.equal(0);
+            expect(wrapper.call(-10)).to.equal(-20);
+
+            wrapper.setFunctionName('complete');
+
+            expect(wrapper.call(2)).to.equal(6);
+            expect(wrapper.call(-2)).to.equal(-2);
         });
 
         it('should handle function calls without assignments', () => {
+            const types = new Map();
+            types.set('double', [WebAssemblyType.INT_32]);
+            types.set('complete', [WebAssemblyType.INT_32]);
+
             const content = 'function double(current) { return 2 * current; }' +
                 'function complete(current) { double(current); return double(current); } ';
-            const functionTypes = createMultipleIntegerOnlyFunctions(['double', 'complete'], [1, 1]);
-            const {complete} = Transpiler.transpile(content, functionTypes);
 
-            expect(complete(2)).to.equal(4);
-            expect(complete(-2)).to.equal(-4);
+            const wrapper = transpiler.transpile(content, types);
+            wrapper.setFunctionName('complete');
+
+            expect(wrapper.call(2)).to.equal(4);
+            expect(wrapper.call(-2)).to.equal(-4);
         });
     });
 });

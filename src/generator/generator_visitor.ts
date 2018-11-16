@@ -5,14 +5,17 @@ import {
     BooleanLiteral,
     CallExpression,
     ExpressionStatement,
+    ForStatement,
     FunctionDeclaration,
     Identifier,
     IfStatement,
     isAssignmentExpression,
     isIdentifier,
+    isMemberExpression,
     isUpdateExpression,
     LogicalExpression,
     LVal,
+    MemberExpression,
     NumericLiteral,
     ReturnStatement,
     UnaryExpression,
@@ -78,7 +81,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
                 break;
             case '!':
-                this.expressions.push(this.negate(operand));
+                this.expressions.push(this.module.i32.eqz(operand));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -152,24 +155,25 @@ class GeneratorVisitor extends Visitor {
         super.visitUpdateExpression(node);
 
         const currentValue = this.popExpression();
-
-        if (!isIdentifier(node.argument)) {
-            throw new Error('An update is only allowed on an identifier');
-        }
-
-        const index = this.getVariableIndex(node.argument.name);
+        let updatedValue;
 
         switch (node.operator) {
             case '++':
-                this.statements.push(this.module.set_local(index,
-                    this.module.i32.add(currentValue, this.module.i32.const(1))));
+                updatedValue = this.module.i32.add(currentValue, this.module.i32.const(1));
                 break;
             case '--':
-                this.statements.push(this.module.set_local(index,
-                    this.module.i32.sub(currentValue, this.module.i32.const(1))));
+                updatedValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
+        }
+
+        if (isIdentifier(node.argument)) {
+            this.statements.push(this.setLocal(node.argument, updatedValue));
+        } else if (isMemberExpression(node.argument)) {
+            this.statements.push(this.setArrayElement(node.argument, updatedValue));
+        } else {
+            throw new Error('An update is only allowed on an identifier or a member access');
         }
     }
 
@@ -211,7 +215,7 @@ class GeneratorVisitor extends Visitor {
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null) {
             this.visit(node.init);
-            this.createSetLocal(node.id);
+            this.handleAssignment(node.id);
         }
     }
 
@@ -222,23 +226,30 @@ class GeneratorVisitor extends Visitor {
             this.handleShorthandAssignment(node);
         }
 
-        this.createSetLocal(node.left);
+        this.handleAssignment(node.left);
     }
 
     protected visitWhileStatement(node: WhileStatement) {
         super.visitWhileStatement(node);
+        this.statements.push(this.createLoopStatement(this.popExpression()));
+    }
 
-        const endLabel = this.generateLabel();
-        const beginLabel = this.generateLabel();
+    protected visitForStatement(node: ForStatement) {
+        super.visitForStatement(node);
 
-        const conditionBranch = this.module.br_if(endLabel, this.negate(this.popExpression()));
-        const loopBranch = this.module.br(beginLabel);
-        const whilePart = this.popStatement();
+        let updateStatement;
 
-        const loopBlock = this.module.block(endLabel, [conditionBranch, whilePart, loopBranch]);
-        const whileStatement = this.module.loop(beginLabel, loopBlock);
+        if (node.update !== null) {
+            updateStatement = this.popStatement();
+        }
 
-        this.statements.push(whileStatement);
+        let condition = this.module.i32.const(1);
+
+        if (node.test !== null) {
+            condition = this.popExpression();
+        }
+
+        this.statements.push(this.createLoopStatement(condition, updateStatement));
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -262,6 +273,20 @@ class GeneratorVisitor extends Visitor {
         // Update and assignment expressions already generate a complete statement
         if (!isUpdateExpression(node.expression) && !isAssignmentExpression((node.expression))) {
             this.statements.push(this.module.drop(this.popExpression()));
+        }
+    }
+
+    protected visitMemberExpression(node: MemberExpression) {
+        if (node.computed) {
+            this.expressions.push(this.getArrayElement(node));
+        } else {
+            const identifier = node.property;
+
+            if (identifier.name === 'length') {
+                this.expressions.push(this.getArrayLength(node));
+            } else {
+                throw new Error(`Unknown property ${identifier}`);
+            }
         }
     }
 
@@ -308,20 +333,62 @@ class GeneratorVisitor extends Visitor {
         }
     }
 
-    private createSetLocal(val: LVal) {
+    private handleAssignment(val: LVal) {
         const value = this.popExpression();
 
         if (isIdentifier(val)) {
-            const id = this.variableMapping.get(val.name);
-
-            if (id === undefined) {
-                throw new Error('Assigned to unknown variable');
-            }
-
-            this.statements.push(this.module.set_local(id, value));
+            this.statements.push(this.setLocal(val, value));
+        } else if (isMemberExpression(val)) {
+            this.statements.push(this.setArrayElement(val, value));
         } else {
-            throw new Error('Assignment to non-identifier');
+            throw new Error('Assignment to non-identifier or member expression');
         }
+    }
+
+    private createLoopStatement(condition: Expression, update?: Statement) {
+        const endLabel = this.generateLabel();
+        const beginLabel = this.generateLabel();
+
+        const conditionBranch = this.module.br_if(endLabel, this.module.i32.eqz(condition));
+        const loopBranch = this.module.br(beginLabel);
+        const loopBody = this.popStatement();
+
+        const children: Statement[] = [conditionBranch, loopBody];
+
+        if (update !== undefined) {
+            children.push(update);
+        }
+
+        children.push(loopBranch);
+
+        const loopBlock = this.module.block(endLabel, children);
+        return this.module.loop(beginLabel, loopBlock);
+    }
+
+    private setLocal(val: Identifier, value: Expression) {
+        return this.module.set_local(this.getVariableIndex(val.name), value);
+    }
+
+    private getArrayElement(node: MemberExpression) {
+        super.visitMemberExpression(node);
+
+        // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
+        return this.module.i32.load(0, 4, this.getPointer());
+    }
+
+    private getArrayLength(node: MemberExpression) {
+        this.visit(node.object);
+
+        const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
+        return this.module.i32.load(0, 4, address);
+    }
+
+    private setArrayElement(memberExpression: MemberExpression, value: Expression): Statement {
+        this.visit(memberExpression.object);
+        this.visit(memberExpression.property);
+
+        // @ts-ignore because store() returns an expression
+        return this.module.i32.store(0, 4, this.getPointer(), value);
     }
 
     private getVariableIndex(name: string) {
@@ -334,14 +401,17 @@ class GeneratorVisitor extends Visitor {
         return index;
     }
 
-    private negate(expression: Expression) {
-        return this.module.i32.rem_s(this.module.i32.add(expression,
-            this.module.i32.const(1)), this.module.i32.const(2));
+    private getPointer() {
+        const index = this.popExpression();
+        const basePointer = this.popExpression();
+
+        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(4)));
     }
 
     private generateLabel() {
         return 'label_' + this.labelCounter++;
     }
+
 }
 
 export default GeneratorVisitor;

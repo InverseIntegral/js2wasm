@@ -1,17 +1,25 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
 import {DeclarationVisitor, Mapping} from './declaration_visitor';
-import Function from './function';
 import GeneratorVisitor from './generator_visitor';
-import {toBinaryenType} from './wasm_type';
+import {MemoryAccessVisitor} from './memory_access_visitor';
+import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
-// noinspection TsLint
-type Functions = Map<string, Function>;
+// @ts-ignore
+type Functions = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
     public static generate(file: File, functions: Functions): Module {
         const module = new Module();
+
+        const isMemoryDependent = file.program.body.some((statement) => {
+            return isFunctionDeclaration(statement) && new MemoryAccessVisitor().run(statement);
+        });
+
+        if (isMemoryDependent) {
+            module.addMemoryImport('0', 'transpilerImports', 'memory');
+        }
 
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {
@@ -20,6 +28,10 @@ class Generator {
 
             this.generateFunction(module, statement, functions);
         });
+
+        if (isMemoryDependent) {
+            module.addMemoryExport('0', 'memory');
+        }
 
         return module;
     }
@@ -36,8 +48,7 @@ class Generator {
             throw new Error(`No type for function ${functionName} defined`);
         }
 
-        const parameterTypes = functionSignature.parameterTypes.map(toBinaryenType);
-        const returnType = toBinaryenType(functionSignature.returnType);
+        const parameterTypes = functionSignature.map(toBinaryenType);
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
@@ -47,7 +58,7 @@ class Generator {
         const generatorVisitor = new GeneratorVisitor(module, totalMapping);
         const body = generatorVisitor.run(tree);
 
-        const functionType = module.addFunctionType(functionName, returnType, parameterTypes);
+        const functionType = module.addFunctionType(functionName, i32, parameterTypes);
         module.addFunction(functionName, functionType, variables, body);
         module.addFunctionExport(functionName, functionName);
     }

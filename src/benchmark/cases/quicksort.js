@@ -1,11 +1,13 @@
-function swap(items, first, second) {
+function quickSortSwap(items, first, second) {
     var temp = items[first];
     items[first] = items[second];
     items[second] = temp;
+
+    return 0;
 }
 
-function partition(items, left, right) {
-    var pivot = items[Math.floor((right + left) / 2)];
+function quickSortPartition(items, left, right) {
+    var pivot = items[left];
     var i = left;
     var j = right;
 
@@ -19,7 +21,7 @@ function partition(items, left, right) {
         }
 
         if (i <= j) {
-            swap(items, i, j);
+            quickSortSwap(items, i, j);
             i++;
             j--;
         }
@@ -33,7 +35,7 @@ function quickSort(items, left, right) {
         return items;
     }
 
-    var index = partition(items, left, right);
+    var index = quickSortPartition(items, left, right);
 
     if (left < index - 1) {
         quickSort(items, left, index - 1);
@@ -46,9 +48,57 @@ function quickSort(items, left, right) {
     return items;
 }
 
-function run() {
-    let size = 10000;
-    quickSort([...Array(size).keys()].reverse(), 0, size);
+function quickSortFill(array) {
+    var i = 0;
+
+    var current = 1;
+    var state = false;
+
+    while (i < array.length) {
+        array[i] = current;
+
+        current *= -1;
+
+        if (state) {
+            current++;
+        }
+
+        state = !state;
+        i++;
+    }
+
+    return 0;
 }
 
-module.exports = run;
+function quickSortIsSorted(array) {
+    var i = 0;
+
+    while (i < array.length - 1) {
+        if (array[i] > array[i + 1]) {
+            return false;
+        }
+
+        i++;
+    }
+
+    return true;
+}
+
+function quickSortWhile(items) {
+    var i = 0;
+
+    while (i < 100) {
+        quickSortFill(items);
+        quickSort(items, 0, items.length - 1);
+
+        if (!quickSortIsSorted(items)) {
+            return false;
+        }
+
+        i++;
+    }
+
+    return true;
+}
+
+module.exports = {quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortWhile, quickSortSwap};

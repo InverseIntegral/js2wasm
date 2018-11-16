@@ -234,6 +234,10 @@ class GeneratorVisitor extends Visitor {
             this.handleShorthandAssignment(node);
         }
 
+        if (isArrayExpression(node.right)) {
+            this.createLocalArray(node.left, node.right.elements.length);
+        }
+
         this.handleAssignment(node.left);
     }
 

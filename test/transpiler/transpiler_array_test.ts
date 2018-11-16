@@ -261,5 +261,15 @@ describe('Transpiler', () => {
             expect(wrapper.call(0, 14)).to.equal(14);
             expect(wrapper.call(1, 16)).to.equal(15);
         });
+
+        it('should handle array literals assignment', () => {
+            const content = 'function func(index) { var array; array = [248, 192]; return array[index]; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0)).to.equal(248);
+            expect(wrapper.call(1)).to.equal(192);
+        });
     });
 });

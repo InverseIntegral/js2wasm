@@ -1,4 +1,5 @@
 import {
+    AssignmentExpression,
     FunctionDeclaration,
     isArrayExpression,
     isIdentifier,
@@ -31,6 +32,12 @@ class DeclarationVisitor extends Visitor {
         }
 
         this.registerDeclaration(node.id, this.variables);
+    }
+
+    protected visitAssignmentExpression(node: AssignmentExpression) {
+        if (isArrayExpression(node.right)) {
+            this.registerArray(node.left, node.right.elements.length, this.localArrayPointers);
+        }
     }
 
     private registerDeclaration(val: LVal, map: VariableMapping) {

@@ -278,5 +278,26 @@ describe('Transpiler', () => {
 
             wrapper.setFunctionName('func').call();
         });
+
+        it('should handle array literals with calculation as element', () => {
+            const content = 'function func(index, value) { var array = [1 + value, 2 + value]; return array[index]; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 5)).to.equal(6);
+            expect(wrapper.call(1, 6)).to.equal(8);
+        });
+
+        it('should handle array literals with method call as element', () => {
+            const content = 'function elementCall(parameter) { return parameter + 1; }' +
+                'function func(index) { var array = [elementCall(1), elementCall(2)]; return array[index]; }';
+            const wrapper = transpiler.transpile(content);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0)).to.equal(2);
+            expect(wrapper.call(1)).to.equal(3);
+        });
     });
 });

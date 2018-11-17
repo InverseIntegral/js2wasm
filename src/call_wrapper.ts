@@ -3,57 +3,6 @@ import Module = WebAssembly.Module;
 
 class CallWrapper {
 
-    private static fillMemory(parameters: any[], writeableMemory: Uint32Array, initialSize: number) {
-        // A copy of the parameters array is needed, to not override the content of the original one
-        const fixedParameters = parameters.concat();
-        let index = initialSize;
-
-        for (let i = 0; i < fixedParameters.length; i++) {
-            if (fixedParameters[i] instanceof Array) {
-                const array = fixedParameters[i];
-                writeableMemory[index++] = array.length;
-                fixedParameters[i] = index * 4;
-
-                for (const element of array) {
-                    writeableMemory[index++] = element;
-                }
-            }
-        }
-
-        return fixedParameters;
-    }
-
-    private static readMemory(parameters: any[],
-                              outParameters: any[],
-                              fixedParameters: any[],
-                              readableMemory: Uint32Array) {
-
-        for (const outParameter of outParameters) {
-            const outParameterIndex = parameters.indexOf(outParameter);
-
-            if (outParameterIndex === -1) {
-                throw new Error('Output parameter not found in call parameter list');
-            }
-
-            const outArray = parameters[outParameterIndex];
-            const memoryBaseIndex = fixedParameters[outParameterIndex] / 4;
-
-            for (let j = 0; j < outArray.length; j++) {
-                outArray[j] = readableMemory[memoryBaseIndex + j];
-            }
-        }
-    }
-
-    private static calculateInitialMemorySize(parameters: any[], initialMemorySize: number): number {
-        const pageSize = Math.pow(2, 16);
-        const memoryElementCount = parameters
-            .filter((parameter) => parameter instanceof Array)
-            .map((array) => array.length + 1)
-            .reduce((accumulator, current) => accumulator + current, 0);
-
-        return Math.ceil(((memoryElementCount + initialMemorySize) * 4) / pageSize);
-    }
-
     private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
     private readonly arrayLiteralMemorySize: number;
@@ -86,14 +35,12 @@ class CallWrapper {
         const hasArrayParameters = parameters.some((parameter) => parameter instanceof Array);
 
         if (hasArrayParameters || this.arrayLiteralMemorySize !== 0) {
-            const memoryDescriptor = {
-                initial: CallWrapper.calculateInitialMemorySize(parameters, this.arrayLiteralMemorySize),
-            };
+            const memoryDescriptor = { initial: this.calculateInitialMemorySize(parameters) };
 
             const memory = new WebAssembly.Memory(memoryDescriptor);
             const writeableMemory = new Uint32Array(memory.buffer);
 
-            fixedParameters = CallWrapper.fillMemory(fixedParameters, writeableMemory, this.arrayLiteralMemorySize);
+            fixedParameters = this.fillMemory(fixedParameters, writeableMemory);
             importObject = { transpilerImports: { memory } };
         }
 
@@ -111,7 +58,7 @@ class CallWrapper {
                 const exportedMemory = instance.exports.memory;
                 const readableMemory = new Uint32Array(exportedMemory.buffer);
 
-                CallWrapper.readMemory(parameters, this.outParameters, fixedParameters, readableMemory);
+                this.readMemory(parameters, fixedParameters, readableMemory);
             } else {
                 throw new Error('Output parameters with no memory dependent parameters');
             }
@@ -120,6 +67,54 @@ class CallWrapper {
         this.hooks.afterExport();
 
         return result;
+    }
+
+    private fillMemory(parameters: any[], writeableMemory: Uint32Array) {
+        // A copy of the parameters array is needed, to not override the content of the original one
+        const fixedParameters = parameters.concat();
+        let index = this.arrayLiteralMemorySize;
+
+        for (let i = 0; i < fixedParameters.length; i++) {
+            if (fixedParameters[i] instanceof Array) {
+                const array = fixedParameters[i];
+                writeableMemory[index++] = array.length;
+                fixedParameters[i] = index * 4;
+
+                for (const element of array) {
+                    writeableMemory[index++] = element;
+                }
+            }
+        }
+
+        return fixedParameters;
+    }
+
+    private readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
+
+        for (const outParameter of this.outParameters) {
+            const outParameterIndex = parameters.indexOf(outParameter);
+
+            if (outParameterIndex === -1) {
+                throw new Error('Output parameter not found in call parameter list');
+            }
+
+            const outArray = parameters[outParameterIndex];
+            const memoryBaseIndex = fixedParameters[outParameterIndex] / 4;
+
+            for (let j = 0; j < outArray.length; j++) {
+                outArray[j] = readableMemory[memoryBaseIndex + j];
+            }
+        }
+    }
+
+    private calculateInitialMemorySize(parameters: any[]): number {
+        const pageSize = Math.pow(2, 16);
+        const memoryElementCount = parameters
+            .filter((parameter) => parameter instanceof Array)
+            .map((array) => array.length + 1)
+            .reduce((accumulator, current) => accumulator + current, 0);
+
+        return Math.ceil(((memoryElementCount + this.arrayLiteralMemorySize) * 4) / pageSize);
     }
 
 }

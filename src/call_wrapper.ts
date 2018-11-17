@@ -117,7 +117,6 @@ class CallWrapper {
     }
 
     private readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
-
         for (const outParameter of this.outParameters) {
             const outParameterIndex = parameters.indexOf(outParameter);
 

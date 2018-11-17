@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
-import set = Reflect.set;
 
 describe('Transpiler', () => {
 

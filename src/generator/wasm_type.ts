@@ -24,7 +24,7 @@ function toBinaryenType(type: WebAssemblyType) {
 function isOfType(toCheck: any, type: WebAssemblyType) {
     switch (type) {
         case WebAssemblyType.INT_32:
-            return isInt(toCheck);
+            return isInteger(toCheck);
         case WebAssemblyType.INT_32_ARRAY:
             return isArray(toCheck, WebAssemblyType.INT_32);
         case WebAssemblyType.BOOLEAN:
@@ -34,11 +34,8 @@ function isOfType(toCheck: any, type: WebAssemblyType) {
     }
 }
 
-function isInt(value: any) {
-    return !isNaN(value) &&
-        // tslint:disable-next-line
-        parseInt(value) == value &&
-        !isNaN(parseInt(value, 10));
+function isInteger(value: any) {
+    return Number.isInteger(value);
 }
 
 function isArray(value: any, type: WebAssemblyType) {
@@ -49,7 +46,7 @@ function isArray(value: any, type: WebAssemblyType) {
     } else {
         switch (type) {
             case WebAssemblyType.INT_32:
-                return value.every(isInt);
+                return value.every(isInteger);
             default:
                 throw new Error(`Unknown array element type ${WebAssemblyType[type]}`);
         }

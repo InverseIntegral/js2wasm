@@ -61,13 +61,6 @@ describe('Transpiler', () => {
         });
 
         it('should handle a single variable with direct assignment', () => {
-            const type = new Map([['variables', [WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function variables(a) { var x; x = 10; return x; }', type);
-
-            expect(wrapper.setFunctionName('variables').call(100)).to.equal(10);
-        });
-
-        it('should handle a single variable with direct assignment', () => {
             const type = new Map([['variables', []]]);
             const wrapper = transpiler.transpile('function variables() { var x = 10; return x; }', type);
 

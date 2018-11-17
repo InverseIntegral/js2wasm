@@ -38,7 +38,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle unary not', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['func', [WebAssemblyType.BOOLEAN]]]);
             const wrapper = transpiler.transpile('function func(a) { return !a; }', type);
             wrapper.setFunctionName('func');
 

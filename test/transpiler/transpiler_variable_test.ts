@@ -91,7 +91,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle variables within branches', () => {
-            const type = new Map([['variables', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['variables', [WebAssemblyType.BOOLEAN]]]);
             const content = 'function variables(a) { var x; if (a) { x = 10; } else { x = 20; } return x; }';
             const wrapper = transpiler.transpile(content, type);
 
@@ -102,7 +102,7 @@ describe('Transpiler', () => {
         });
 
         it('should hoist variable declarations', () => {
-            const type = new Map([['variables', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['variables', [WebAssemblyType.BOOLEAN]]]);
             const content = 'function variables(a) { x = 20; if (a) { var x; } return x; }';
             const wrapper = transpiler.transpile(content, type);
 

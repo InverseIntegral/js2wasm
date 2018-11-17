@@ -35,7 +35,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle else if statements', () => {
-            const type = new Map([['elseIf', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
+            const type = new Map([['elseIf', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]]]);
             const content = 'function elseIf(a, b) { if (a) { return 0; } else if (b) { return 1; } return 2; }';
 
             const wrapper = transpiler.transpile(content, type);
@@ -48,7 +48,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple else if statements', () => {
-            const signature = [WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32];
+            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN];
             const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b, c) { ' +
                 'if (a) { return 0; } ' +
@@ -70,7 +70,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle logical operators in if statement', () => {
-            const signature = [WebAssemblyType.INT_32, WebAssemblyType.INT_32];
+            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN];
             const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b) {' +
                 'if (a && b) { return 0; }' +
@@ -86,7 +86,7 @@ describe('Transpiler', () => {
             expect(wrapper.call(false, false)).to.equal(2);
         });
         it('should handle if with multiple statements', () => {
-            const signature = [WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32];
+            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32];
             const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b, value) { ' +
                 'if (a) { value += 1; return value; } ' +
@@ -102,7 +102,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle if statements without braces', () => {
-            const type = new Map([['ifWithout', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['ifWithout', [WebAssemblyType.BOOLEAN]]]);
             const content = 'function ifWithout(a) { if (a) return 10; else return 20; }';
 
             const wrapper = transpiler.transpile(content, type);
@@ -113,7 +113,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle else if statements without braces', () => {
-            const type = new Map([['ifWithout', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
+            const type = new Map([['ifWithout', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]]]);
             const content = 'function ifWithout(a, b) { if (a) return 10; else if(b) return 20; else return 30; }';
 
             const wrapper = transpiler.transpile(content, type);

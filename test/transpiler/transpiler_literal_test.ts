@@ -18,7 +18,7 @@ describe('Transpiler', () => {
         });
 
         it('should return correct boolean value', () => {
-            const type = new Map([['id', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['id', [WebAssemblyType.BOOLEAN]]]);
             const wrapper = transpiler.transpile('function id(a) { return a; }', type);
             wrapper.setFunctionName('id');
 

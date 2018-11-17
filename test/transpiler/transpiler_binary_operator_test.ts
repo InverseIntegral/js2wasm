@@ -203,7 +203,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle logical and', () => {
-            const type = createFunctionWithIntParameters('and', 2);
+            const type = new Map();
+            type.set('and', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]);
+
             const content = 'function and(a, b) { return a && b; }';
             const wrapper = transpiler.transpile(content, type);
             wrapper.setFunctionName('and');
@@ -215,7 +217,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle logical or', () => {
-            const type = createFunctionWithIntParameters('or', 2);
+            const type = new Map();
+            type.set('or', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]);
+
             const content = 'function or(a, b) { return a || b; }';
             const wrapper = transpiler.transpile(content, type);
             wrapper.setFunctionName('or');
@@ -227,7 +231,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple logical operators', () => {
-            const type = createFunctionWithIntParameters('logic', 3);
+            const type = new Map();
+            type.set('logic', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]);
+
             const content = 'function logic(a, b, c) { return a || b && c; }';
             const wrapper = transpiler.transpile(content, type);
             wrapper.setFunctionName('logic');

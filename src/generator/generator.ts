@@ -10,7 +10,7 @@ type FunctionSignatures = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
-    public static generate(file: File, functions: FunctionSignatures): Module {
+    public static generate(file: File, signatures: FunctionSignatures): Module {
         const module = new Module();
 
         const isMemoryDependent = file.program.body.some((statement) => {
@@ -26,7 +26,7 @@ class Generator {
                 throw new Error('File can only contain function declarations');
             }
 
-            this.generateFunction(module, statement, functions);
+            this.generateFunction(module, statement, signatures);
         });
 
         if (isMemoryDependent) {
@@ -36,16 +36,24 @@ class Generator {
         return module;
     }
 
-    public static generateFunction(module: Module, tree: FunctionDeclaration, functions: FunctionSignatures) {
+    public static generateFunction(module: Module, tree: FunctionDeclaration, signatures: FunctionSignatures) {
         if (tree.id === null) {
             throw new Error('Function expression has to have a name in order to be translated');
         }
 
         const functionName = tree.id.name;
-        const functionSignature = functions.get(functionName);
+        const functionSignature = signatures.get(functionName);
 
         if (functionSignature === undefined) {
             throw new Error(`No type for function ${functionName} defined`);
+        }
+
+        const actualLength = tree.params.length;
+        const expectedLength = functionSignature.length;
+
+        if (actualLength !== expectedLength) {
+            throw new Error('The provided type signature has '
+                + expectedLength + ' parameters and the function has ' + actualLength + ' parameters');
         }
 
         const parameterTypes = functionSignature.map(toBinaryenType);

@@ -66,5 +66,14 @@ describe('Transpiler', () => {
             expect(() => wrapper.call([1.4, 1])).to.throw();
             expect(() => wrapper.call([1, 2, 3, true])).to.throw();
         });
+
+        it('should check if the parameters match the signature', () => {
+            const signatures = new Map();
+            signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
+
+            expect(() => transpiler.transpile('function add(a, b, c) { return a + b; }', signatures)).to.throw();
+            expect(() => transpiler.transpile('function add(a) { return a + 10; }', signatures)).to.throw();
+            expect(() => transpiler.transpile('function add() { return 10; }', signatures)).to.throw();
+        });
     });
 });

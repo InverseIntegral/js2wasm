@@ -68,7 +68,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle a single variable with direct assignment', () => {
-            const type = new Map([['variables', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['variables', []]]);
             const wrapper = transpiler.transpile('function variables() { var x = 10; return x; }', type);
 
             expect(wrapper.setFunctionName('variables').call()).to.equal(10);
@@ -113,13 +113,13 @@ describe('Transpiler', () => {
         });
 
         it('should handle duplicate variable declaration', () => {
-            const type = new Map([['variables', [WebAssemblyType.INT_32]]]);
+            const type = new Map([['variables', []]]);
             const content = 'function variables() { var x = 20; var x = 10; return x; }';
             const wrapper = transpiler.transpile(content, type);
 
             expect(wrapper.setFunctionName('variables').call()).to.equal(10);
 
-            const type2 = new Map([['variables', [WebAssemblyType.INT_32]]]);
+            const type2 = new Map([['variables', []]]);
             const content2 = 'function variables() { var x = 20; var x; return x; }';
             const wrapper2 = transpiler.transpile(content2, type2);
 

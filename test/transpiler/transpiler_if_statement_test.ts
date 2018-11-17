@@ -70,7 +70,7 @@ describe('Transpiler', () => {
         });
 
         it('should handle logical operators in if statement', () => {
-            const signature = [WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32];
+            const signature = [WebAssemblyType.INT_32, WebAssemblyType.INT_32];
             const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b) {' +
                 'if (a && b) { return 0; }' +

@@ -1,6 +1,7 @@
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 import {FunctionSignatures} from './generator/generator';
+import {isOfType} from './generator/wasm_type';
 
 class CallWrapper {
 
@@ -85,12 +86,19 @@ class CallWrapper {
 
         this.hooks.beforeImport();
 
-        const expectedLength = this.getCurrentSignature().length;
+        const currentSignature = this.getCurrentSignature();
+        const expectedLength = currentSignature.length;
         const actualLength = parameters.length;
 
         if (actualLength !== expectedLength) {
             throw new Error('The signature of ' + this.functionName +
                 ' has ' + expectedLength + ' parameters but ' + actualLength + ' were provided');
+        }
+
+        if (!parameters.every((parameter, index) => {
+            return isOfType(parameter, currentSignature[index]);
+        })) {
+            throw new Error('At least one parameter did not match its signature type');
         }
 
         let fixedParameters = parameters;

@@ -23,7 +23,6 @@ describe('Transpiler', () => {
             expect(wrapper.call(1, 2)).to.equal(3);
             expect(wrapper.call(100, 2)).to.equal(102);
             expect(wrapper.call(-20, 20)).to.equal(0);
-            expect(wrapper.call(NaN, 2)).to.equal(2);
         });
 
         it('should handle subtraction', () => {
@@ -34,7 +33,6 @@ describe('Transpiler', () => {
             expect(wrapper.call(1, 2)).to.equal(-1);
             expect(wrapper.call(10, 2)).to.equal(8);
             expect(wrapper.call(-20, 20)).to.equal(-40);
-            expect(wrapper.call(NaN, 2)).to.equal(-2);
         });
 
         it('should handle multiplication', () => {
@@ -45,7 +43,6 @@ describe('Transpiler', () => {
             expect(wrapper.call(1, 2)).to.equal(2);
             expect(wrapper.call(10, 2)).to.equal(20);
             expect(wrapper.call(-10, 2)).to.equal(-20);
-            expect(wrapper.call(NaN, 2)).to.equal(0);
         });
 
         it('should handle multiplication before addition', () => {
@@ -70,7 +67,6 @@ describe('Transpiler', () => {
             expect(wrapper.call(1, 2)).to.equal(0);
             expect(wrapper.call(10, 2)).to.equal(5);
             expect(wrapper.call(-10, 2)).to.equal(-5);
-            expect(wrapper.call(NaN, 2)).to.equal(0);
         });
 
         it('should handle division by 0', () => {
@@ -79,7 +75,7 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('div');
 
             expect(() => wrapper.call(2, 0)).to.throw();
-            expect(() => wrapper.call(2, NaN)).to.throw();
+            expect(() => wrapper.call(10, 0)).to.throw();
         });
 
         it('should handle division before addition', () => {
@@ -104,7 +100,6 @@ describe('Transpiler', () => {
             expect(wrapper.call(1, 2)).to.equal(1);
             expect(wrapper.call(10, 2)).to.equal(0);
             expect(wrapper.call(-10, 2)).to.equal(0);
-            expect(wrapper.call(NaN, 2)).to.equal(0);
         });
 
         it('should handle modulo by 0', () => {
@@ -113,7 +108,7 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('mod');
 
             expect(() => wrapper.call(2, 0)).to.throw();
-            expect(() => wrapper.call(2, NaN)).to.throw();
+            expect(() => wrapper.call(10, 0)).to.throw();
         });
 
         it('should handle modulo before addition', () => {

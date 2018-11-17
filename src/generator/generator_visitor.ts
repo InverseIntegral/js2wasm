@@ -26,6 +26,7 @@ import {
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
+import {VariableMapping} from './declaration_visitor';
 
 class GeneratorVisitor extends Visitor {
 
@@ -38,7 +39,7 @@ class GeneratorVisitor extends Visitor {
 
     private labelCounter: number = 0;
 
-    constructor(module: Module, variableMapping: Map<string, number>, localArrayPointers: Map<string, number>) {
+    constructor(module: Module, variableMapping: VariableMapping, localArrayPointers: VariableMapping) {
         super();
         this.module = module;
         this.variableMapping = variableMapping;

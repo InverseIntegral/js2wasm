@@ -79,6 +79,10 @@ class CallWrapper {
     }
 
     public call(...parameters: any[]) {
+        if (this.functionName === undefined) {
+            throw new Error('The function name is not set, did you forget to call setFunctionName?');
+        }
+
         this.hooks.beforeImport();
 
         const expectedLength = this.getCurrentSignature().length;

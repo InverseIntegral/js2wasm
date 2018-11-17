@@ -22,5 +22,15 @@ describe('Transpiler', () => {
             expect(() => wrapper.call(1, 2, 3, 4)).to.throw();
             expect(() => wrapper.call(1)).to.throw();
         });
+
+        it('should check if the function name is set', () => {
+            const signatures = new Map();
+            signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
+
+            const wrapper = transpiler.transpile('function add(a, b) { return a + b; }', signatures);
+
+            expect(() => wrapper.call(1, 2)).to.throw();
+            expect(() => wrapper.call(3, 4)).to.throw();
+        });
     });
 });

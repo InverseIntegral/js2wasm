@@ -1,5 +1,6 @@
-import {FunctionDeclaration, FunctionExpression, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
+import {FunctionDeclaration, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
 import Visitor from '../visitor';
+
 type Mapping = Map<string, number>;
 
 class DeclarationVisitor extends Visitor {

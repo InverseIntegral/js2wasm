@@ -1,4 +1,5 @@
 import CallWrapper from '../call_wrapper';
+import {FunctionSignatures} from '../generator/generator';
 import Transpiler from '../transpiler';
 import {Measurement, MeasurementHooks} from './measurement_hooks';
 
@@ -7,6 +8,7 @@ interface Algorithm {
     func: Function[];
     arguments: any[];
     expectedResult: any;
+    signatures: FunctionSignatures;
 }
 
 class Benchmark {
@@ -65,11 +67,12 @@ class Benchmark {
         const func = algorithm.func;
         const args = algorithm.arguments;
         const expectedResult = algorithm.expectedResult;
+        const signatures = algorithm.signatures;
 
         Benchmark.executeJS(func[0], args, expectedResult, warmupRounds);
         const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
-        const callWrapper = transpiler.transpile(func.join(''));
+        const callWrapper = transpiler.transpile(func.join(''), signatures);
         callWrapper.setFunctionName(func[0].name);
         this.executeWasm(callWrapper, args, expectedResult, warmupRounds);
         const wasmTimes = this.executeWasm(callWrapper, args, expectedResult, measureRounds);

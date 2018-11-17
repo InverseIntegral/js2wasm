@@ -18,23 +18,17 @@ class NodeBenchmarkHooks implements TranspilerHooks {
         this.afterExecutionTime = performance.now();
     }
 
-    public afterCompilation() {
-    }
+    public afterCompilation() {}
 
-    public afterExport() {
-    }
+    public afterExport() {}
 
-    public afterImport() {
-    }
+    public afterImport() {}
 
-    public beforeExecution() {
-    }
+    public beforeExecution() {}
 
-    public beforeExport() {
-    }
+    public beforeExport() {}
 
-    public beforeImport() {
-    }
+    public beforeImport() {}
 }
 
 export default NodeBenchmarkHooks;

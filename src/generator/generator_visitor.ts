@@ -406,7 +406,7 @@ class GeneratorVisitor extends Visitor {
 
     private createLocalArray(val: LVal, length: number) {
         if (!isIdentifier(val)) {
-            throw new Error('Array creation only allowed using an identifiers');
+            throw new Error('Array expression assigned to a non identifier');
         }
 
         const memoryLocation = this.getMemoryLocationOfArray(val.name);

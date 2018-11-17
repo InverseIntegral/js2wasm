@@ -408,10 +408,10 @@ class GeneratorVisitor extends Visitor {
             throw new Error('Assigned to unknown variable');
         }
 
-        const memoryLocation = this.getArrayMemoryLocation(val.name);
-        const lengthAddress = this.module.i32.const(memoryLocation - 4);
+        const memoryLocation = this.getMemoryLocationOfArray(val.name);
+        const lengthPointer = this.module.i32.const(memoryLocation - 4);
         // @ts-ignore because store() returns an expression
-        this.statements.push(this.module.i32.store(0, 4, lengthAddress, this.module.i32.const(length)));
+        this.statements.push(this.module.i32.store(0, 4, lengthPointer, this.module.i32.const(length)));
 
         for (let i = length - 1; i >= 0; i--) {
             // @ts-ignore because store() returns an expression
@@ -422,7 +422,7 @@ class GeneratorVisitor extends Visitor {
         this.expressions.push(this.module.i32.const(memoryLocation));
     }
 
-    private getArrayMemoryLocation(name: string) {
+    private getMemoryLocationOfArray(name: string) {
         const memoryLocation = this.localArrayPointers.get(name);
 
         if (memoryLocation === undefined) {

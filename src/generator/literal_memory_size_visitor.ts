@@ -5,7 +5,7 @@ import {
 } from '@babel/types';
 import Visitor from '../visitor';
 
-class ArrayLiteralVisitor extends Visitor {
+class LiteralMemorySizeVisitor extends Visitor {
 
     private arrayLiteralMemorySize = 0;
 
@@ -25,4 +25,4 @@ class ArrayLiteralVisitor extends Visitor {
 
 }
 
-export {ArrayLiteralVisitor};
+export {LiteralMemorySizeVisitor};

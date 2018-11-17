@@ -1,6 +1,6 @@
 import CallWrapper from './call_wrapper';
-import {ArrayLiteralVisitor} from './generator/array_literal_visitor';
 import Generator from './generator/generator';
+import {LiteralMemorySizeVisitor} from './generator/literal_memory_size_visitor';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
 import TranspilerHooks from './transpiler_hooks';
@@ -27,7 +27,7 @@ class Transpiler {
 
     private compile(content: string) {
         const file = Parser.parse(content);
-        this.arrayLiteralMemorySize = new ArrayLiteralVisitor().run(file);
+        this.arrayLiteralMemorySize = new LiteralMemorySizeVisitor().run(file);
         const module = Generator.generate(file);
 
         module.optimize();

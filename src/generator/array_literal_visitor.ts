@@ -20,6 +20,10 @@ class ArrayLiteralVisitor extends Visitor {
         return this.localArrayPointers;
     }
 
+    public get arrayLiteralMemorySize() {
+        return this.memoryOffset;
+    }
+
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null && isArrayExpression(node.init)) {
             this.registerArray(node.id, node.init.elements.length);

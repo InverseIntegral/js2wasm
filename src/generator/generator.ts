@@ -11,7 +11,7 @@ type FunctionSignatures = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
-    public static generate(file: File, signatures: FunctionSignatures): Module {
+    public static generate(file: File, arrayLiteralVisitor: ArrayLiteralVisitor, signatures: FunctionSignatures) {
         const module = new Module();
 
         const isMemoryDependent = file.program.body.some((statement) => {
@@ -21,8 +21,6 @@ class Generator {
         if (isMemoryDependent) {
             module.addMemoryImport('0', 'transpilerImports', 'memory');
         }
-
-        const arrayLiteralVisitor = new ArrayLiteralVisitor();
 
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {

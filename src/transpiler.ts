@@ -1,5 +1,5 @@
 import CallWrapper from './call_wrapper';
-import {Functions, Generator} from './generator/generator';
+import {FunctionSignatures, Generator} from './generator/generator';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
 import TranspilerHooks from './transpiler_hooks';
@@ -15,17 +15,17 @@ class Transpiler {
         this.hooks = hooks;
     }
 
-    public transpile(content: string, functions: Functions) {
+    public transpile(content: string, signatures: FunctionSignatures) {
         this.hooks.beforeCompilation();
-        this.compile(content, functions);
+        this.compile(content, signatures);
         this.hooks.afterCompilation();
 
         return new CallWrapper(this.wasmModule, this.hooks);
     }
 
-    private compile(content: string, functions: Functions) {
+    private compile(content: string, signatures: FunctionSignatures) {
         const file = Parser.parse(content);
-        const module = Generator.generate(file, functions);
+        const module = Generator.generate(file, signatures);
 
         module.optimize();
 

@@ -28,7 +28,7 @@ const fibonacciFunc = {
     arguments: [41],
     expectedResult: 165580141,
     func: [fibonacciWhile, fibonacci],
-    types: new Map([
+    signatures: new Map([
         ['fibonacci', [WebAssemblyType.INT_32]],
         ['fibonacciWhile', [WebAssemblyType.INT_32]],
     ]),
@@ -38,7 +38,7 @@ const gcdFunc = {
     arguments: [978, 2147483646],
     expectedResult: 6,
     func: [gcdWhile, gcd],
-    types: new Map([
+    signatures: new Map([
         ['gcd', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
         ['gcdWhile', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
     ]),
@@ -48,7 +48,7 @@ const sumArrayFunc = {
     arguments: [new Array(65535)],
     expectedResult: 2147385345,
     func: [sumArrayFor, sumArrayFill, sumArray],
-    types: new Map([
+    signatures: new Map([
         ['sumArray', [WebAssemblyType.INT_32_ARRAY]],
         ['sumArrayFill', [WebAssemblyType.INT_32_ARRAY]],
         ['sumArrayFor', [WebAssemblyType.INT_32_ARRAY]],
@@ -59,7 +59,7 @@ const sumIntegersFunc = {
     arguments: [],
     expectedResult: 2147385345,
     func: [sumIntegersWhile, sumIntegers],
-    types: new Map([
+    signatures: new Map([
         ['sumIntegers', []],
         ['sumIntegersWhile', []],
     ]),
@@ -69,7 +69,7 @@ const isPrimeFunc = {
     arguments: [46327],
     expectedResult: true,
     func: [isPrimeWhile, isPrime],
-    types: new Map([
+    signatures: new Map([
         ['isPrime', [WebAssemblyType.INT_32]],
         ['isPrimeWhile', [WebAssemblyType.INT_32]],
     ]),
@@ -79,7 +79,7 @@ const newtonsMethodFunc = {
     arguments: [200, 32],
     expectedResult: 24,
     func: [newtonsMethodWhile, newtonsMethod],
-    types: new Map([
+    signatures: new Map([
         ['newtonsMethod', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
         ['newtonsMethodWhile', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
     ]),
@@ -89,7 +89,7 @@ const mergeSortFunc = {
     arguments: [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))],
     expectedResult: true,
     func: [mergeSortWhile, mergeSortCopyArray, mergeSortFill, mergeSortIsSorted, mergeSortMerge, mergeSort],
-    types: new Map([
+    signatures: new Map([
         ['mergeSortCopyArray', [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
@@ -113,7 +113,7 @@ const quicksortFunc = {
     arguments: [new Array(1000000)],
     expectedResult: true,
     func: [quickSortWhile, quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortSwap],
-    types: new Map([
+    signatures: new Map([
         ['quickSortSwap', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
         ['quickSortPartition', [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,

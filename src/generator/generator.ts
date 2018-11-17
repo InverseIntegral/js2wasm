@@ -6,11 +6,11 @@ import {MemoryAccessVisitor} from './memory_access_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 // @ts-ignore
-type Functions = Map<string, WebAssemblyType[]>;
+type FunctionSignatures = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
-    public static generate(file: File, functions: Functions): Module {
+    public static generate(file: File, functions: FunctionSignatures): Module {
         const module = new Module();
 
         const isMemoryDependent = file.program.body.some((statement) => {
@@ -36,7 +36,7 @@ class Generator {
         return module;
     }
 
-    public static generateFunction(module: Module, tree: FunctionDeclaration, functions: Functions) {
+    public static generateFunction(module: Module, tree: FunctionDeclaration, functions: FunctionSignatures) {
         if (tree.id === null) {
             throw new Error('Function expression has to have a name in order to be translated');
         }
@@ -70,4 +70,4 @@ class Generator {
 
 }
 
-export {Generator, Functions};
+export {Generator, FunctionSignatures};

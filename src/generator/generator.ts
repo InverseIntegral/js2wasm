@@ -1,6 +1,6 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
-import {ArrayLiteralVisitor} from './array_literal_visitor';
+import {ArrayExpressionVisitor} from './array_expression_visitor';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
@@ -11,7 +11,7 @@ type FunctionSignatures = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
-    public static generate(file: File, arrayLiteralVisitor: ArrayLiteralVisitor, signatures: FunctionSignatures) {
+    public static generate(file: File, arrayLiteralVisitor: ArrayExpressionVisitor, signatures: FunctionSignatures) {
         const module = new Module();
 
         const isMemoryDependent = file.program.body.some((statement) => {
@@ -39,7 +39,7 @@ class Generator {
 
     public static generateFunction(module: Module,
                                    tree: FunctionDeclaration,
-                                   arrayLiteralVisitor: ArrayLiteralVisitor,
+                                   arrayLiteralVisitor: ArrayExpressionVisitor,
                                    signatures: FunctionSignatures) {
 
         if (tree.id === null) {

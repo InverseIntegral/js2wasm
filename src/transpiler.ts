@@ -1,5 +1,5 @@
 import CallWrapper from './call_wrapper';
-import {ArrayLiteralVisitor} from './generator/array_literal_visitor';
+import {ArrayExpressionVisitor} from './generator/array_expression_visitor';
 import {FunctionSignatures, Generator} from './generator/generator';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
@@ -27,7 +27,7 @@ class Transpiler {
 
     private compile(content: string, signatures: FunctionSignatures) {
         const file = Parser.parse(content);
-        const arrayLiteralVisitor = new ArrayLiteralVisitor();
+        const arrayLiteralVisitor = new ArrayExpressionVisitor();
         const module = Generator.generate(file, arrayLiteralVisitor, signatures);
         this.arrayLiteralMemorySize = arrayLiteralVisitor.arrayLiteralMemorySize;
 

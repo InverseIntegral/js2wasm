@@ -9,7 +9,7 @@ import {
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 
-class ArrayLiteralVisitor extends Visitor {
+class ArrayExpressionVisitor extends Visitor {
 
     private memoryOffset = 0;
     private localArrayPointers: VariableMapping;
@@ -48,4 +48,4 @@ class ArrayLiteralVisitor extends Visitor {
 
 }
 
-export {ArrayLiteralVisitor};
+export {ArrayExpressionVisitor};

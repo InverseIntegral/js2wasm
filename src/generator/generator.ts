@@ -1,5 +1,6 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
+import {ArrayLiteralVisitor} from './array_literal_visitor';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
@@ -17,12 +18,14 @@ class Generator {
             module.addMemoryImport('0', 'transpilerImports', 'memory');
         }
 
+        const arrayLiteralVisitor = new ArrayLiteralVisitor();
+
         file.program.body.forEach((statement) => {
             if (!isFunctionDeclaration(statement)) {
                 throw new Error('File can only contain function declarations');
             }
 
-            this.generateFunction(module, statement);
+            this.generateFunction(module, statement, arrayLiteralVisitor);
         });
 
         if (isMemoryDependent) {
@@ -32,14 +35,18 @@ class Generator {
         return module;
     }
 
-    public static generateFunction(module: Module, tree: FunctionDeclaration) {
+    public static generateFunction(module: Module,
+                                   tree: FunctionDeclaration,
+                                   arrayLiteralVisiotr: ArrayLiteralVisitor) {
+
         if (tree.id === null) {
             throw new Error('Function expression has to have a name in order to be translated');
         }
 
         const functionName = tree.id.name;
 
-        const [parameterMapping, variableMapping, localArrayPointers] = new DeclarationVisitor().run(tree);
+        const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
+        const localArrayPointers = arrayLiteralVisiotr.run(tree, variableMapping);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);

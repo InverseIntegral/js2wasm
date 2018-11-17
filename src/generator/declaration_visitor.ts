@@ -1,7 +1,5 @@
 import {
-    AssignmentExpression,
     FunctionDeclaration,
-    isArrayExpression,
     isIdentifier,
     LVal,
     VariableDeclarator,
@@ -12,43 +10,20 @@ type VariableMapping = Map<string, number>;
 
 class DeclarationVisitor extends Visitor {
 
-    private static memoryOffset: number = 0;
-
-    private static registerArray(val: LVal, length: number, map: VariableMapping) {
-        if (!isIdentifier(val)) {
-            throw new Error('LValue is not an identifier');
-        }
-
-        // Skip one memory offset to store the size in it
-        map.set(val.name, ++DeclarationVisitor.memoryOffset * 4);
-        DeclarationVisitor.memoryOffset += length;
-    }
-
     private index: number = 0;
     private parameters: VariableMapping = new Map();
     private variables: VariableMapping = new Map();
-    private localArrayPointers: VariableMapping = new Map();
 
-    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping, VariableMapping] {
+    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping] {
         tree.params.forEach((node) => this.registerDeclaration(node, this.parameters));
 
         this.visit(tree.body);
 
-        return [this.parameters, this.variables, this.localArrayPointers];
+        return [this.parameters, this.variables];
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator) {
-        if (node.init !== null && isArrayExpression(node.init)) {
-            DeclarationVisitor.registerArray(node.id, node.init.elements.length, this.localArrayPointers);
-        }
-
         this.registerDeclaration(node.id, this.variables);
-    }
-
-    protected visitAssignmentExpression(node: AssignmentExpression) {
-        if (isArrayExpression(node.right)) {
-            DeclarationVisitor.registerArray(node.left, node.right.elements.length, this.localArrayPointers);
-        }
     }
 
     private registerDeclaration(val: LVal, map: VariableMapping) {

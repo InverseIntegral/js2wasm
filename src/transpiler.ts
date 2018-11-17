@@ -1,5 +1,5 @@
 import CallWrapper from './call_wrapper';
-import Generator from './generator/generator';
+import {FunctionSignatures, Generator} from './generator/generator';
 import {LiteralMemorySizeVisitor} from './generator/literal_memory_size_visitor';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
@@ -17,18 +17,18 @@ class Transpiler {
         this.hooks = hooks;
     }
 
-    public transpile(content: string) {
+    public transpile(content: string, signatures: FunctionSignatures) {
         this.hooks.beforeCompilation();
-        this.compile(content);
+        this.compile(content, signatures);
         this.hooks.afterCompilation();
 
-        return new CallWrapper(this.wasmModule, this.hooks, this.arrayLiteralMemorySize);
+        return new CallWrapper(this.wasmModule, this.hooks, this.arrayLiteralMemorySize, signatures);
     }
 
-    private compile(content: string) {
+    private compile(content: string, signatures: FunctionSignatures) {
         const file = Parser.parse(content);
         this.arrayLiteralMemorySize = new LiteralMemorySizeVisitor().run(file);
-        const module = Generator.generate(file);
+        const module = Generator.generate(file, signatures);
 
         module.optimize();
 

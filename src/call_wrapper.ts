@@ -1,3 +1,5 @@
+import {FunctionSignatures} from './generator/generator';
+import {isOfType} from './generator/wasm_type';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
@@ -6,14 +8,20 @@ class CallWrapper {
     private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
     private readonly arrayLiteralMemorySize: number;
+    private readonly signatures: FunctionSignatures;
 
     private functionName: string;
     private outParameters: any[];
 
-    public constructor(wasmModule: Module, hooks: TranspilerHooks, arrayLiteralMemorySize: number) {
+    public constructor(wasmModule: Module,
+                       hooks: TranspilerHooks,
+                       arrayLiteralMemorySize: number,
+                       signatures: FunctionSignatures) {
+
         this.wasmModule = wasmModule;
         this.hooks = hooks;
         this.arrayLiteralMemorySize = arrayLiteralMemorySize;
+        this.signatures = signatures;
     }
 
     public setFunctionName(functionName: string) {
@@ -27,7 +35,26 @@ class CallWrapper {
     }
 
     public call(...parameters: any[]) {
+        if (this.functionName === undefined) {
+            throw new Error('The function name is not set, did you forget to call setFunctionName?');
+        }
+
         this.hooks.beforeImport();
+
+        const currentSignature = this.getCurrentSignature();
+        const expectedLength = currentSignature.length;
+        const actualLength = parameters.length;
+
+        if (actualLength !== expectedLength) {
+            throw new Error('The signature of ' + this.functionName +
+                ' has ' + expectedLength + ' parameters but ' + actualLength + ' were provided');
+        }
+
+        if (!parameters.every((parameter, index) => {
+            return isOfType(parameter, currentSignature[index]);
+        })) {
+            throw new Error('At least one parameter did not match its signature type');
+        }
 
         let fixedParameters = parameters;
         let importObject = {};
@@ -115,6 +142,16 @@ class CallWrapper {
             .reduce((accumulator, current) => accumulator + current, 0);
 
         return Math.ceil(((memoryElementCount + this.arrayLiteralMemorySize) * 4) / pageSize);
+    }
+
+    private getCurrentSignature() {
+        const signature = this.signatures.get(this.functionName);
+
+        if (signature === undefined) {
+            throw new Error(`Undefined signature for function ${this.functionName}`);
+        }
+
+        return signature;
     }
 
 }

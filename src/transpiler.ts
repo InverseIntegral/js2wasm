@@ -1,17 +1,17 @@
 import CallWrapper from './call_wrapper';
+import {ArrayLiteralVisitor} from './generator/array_literal_visitor';
 import Generator from './generator/generator';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
-import {ArrayLiteralVisitor} from "./generator/array_literal_visitor";
 
 class Transpiler {
 
     private readonly hooks: TranspilerHooks;
 
     private wasmModule: Module;
-    private arrayLiteralMemorySize: number = 0;
+    private arrayLiteralMemorySize = 0;
 
     public constructor(hooks: TranspilerHooks = new NullTranspilerHooks()) {
         this.hooks = hooks;

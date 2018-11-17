@@ -7,7 +7,7 @@ import Visitor from '../visitor';
 
 class ArrayLiteralVisitor extends Visitor {
 
-    private arrayLiteralMemorySize: number = 0;
+    private arrayLiteralMemorySize = 0;
 
     public run(file: File) {
         file.program.body.forEach((statement) => {

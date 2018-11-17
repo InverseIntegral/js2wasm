@@ -413,7 +413,7 @@ class GeneratorVisitor extends Visitor {
         // @ts-ignore because store() returns an expression
         this.statements.push(this.module.i32.store(0, 4, lengthAddress, this.module.i32.const(length)));
 
-        for (let i: number = length - 1; i >= 0; i--) {
+        for (let i = length - 1; i >= 0; i--) {
             // @ts-ignore because store() returns an expression
             this.statements.push(this.module.i32.store(i * 4, 4,
                 this.module.i32.const(memoryLocation), this.popExpression()));

@@ -12,11 +12,9 @@ import {VariableMapping} from './declaration_visitor';
 class ArrayLiteralVisitor extends Visitor {
 
     private memoryOffset = 0;
-    private variables: VariableMapping;
     private localArrayPointers: VariableMapping;
 
-    public run(tree: FunctionDeclaration, variables: VariableMapping): VariableMapping {
-        this.variables = variables;
+    public run(tree: FunctionDeclaration): VariableMapping {
         this.localArrayPointers = new Map();
         this.visit(tree.body);
         return this.localArrayPointers;

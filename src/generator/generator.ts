@@ -66,7 +66,7 @@ class Generator {
         const parameterTypes = functionSignature.map(toBinaryenType);
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
-        const localArrayPointers = arrayLiteralVisitor.run(tree, variableMapping);
+        const localArrayPointers = arrayLiteralVisitor.run(tree);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);

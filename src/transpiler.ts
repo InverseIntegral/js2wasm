@@ -20,7 +20,7 @@ class Transpiler {
         this.compile(content, signatures);
         this.hooks.afterCompilation();
 
-        return new CallWrapper(this.wasmModule, this.hooks);
+        return new CallWrapper(this.wasmModule, this.hooks, signatures);
     }
 
     private compile(content: string, signatures: FunctionSignatures) {

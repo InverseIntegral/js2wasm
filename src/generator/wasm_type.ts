@@ -39,9 +39,7 @@ function isInteger(value: any) {
 }
 
 function isArray(value: any, type: WebAssemblyType) {
-    const instanceOfArray = value instanceof Array;
-
-    if (!instanceOfArray) {
+    if (!(value instanceof Array)) {
         return false;
     } else {
         switch (type) {

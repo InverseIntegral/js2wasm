@@ -4,6 +4,7 @@ import {ArrayExpressionVisitor} from './array_expression_visitor';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
+import {TypeInferenceVisitor} from './type_inference_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 // @ts-ignore
@@ -65,6 +66,8 @@ class Generator {
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
         const localArrayPointers = arrayLiteralVisitor.run(tree);
+
+        const variableTypes = new TypeInferenceVisitor().run(tree, functionSignature);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);

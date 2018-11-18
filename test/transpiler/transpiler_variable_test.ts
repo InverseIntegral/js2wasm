@@ -118,5 +118,13 @@ describe('Transpiler', () => {
 
             expect(wrapper2.setFunctionName('variables').call()).to.equal(20);
         });
+
+        it('should handle expressions in assignments', () => {
+            const type = new Map([['variables', []]]);
+            const content = 'function variables() { var x = 20 * 10; return x; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            expect(wrapper.setFunctionName('variables').call()).to.equal(200);
+        });
     });
 });

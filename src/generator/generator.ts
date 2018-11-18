@@ -1,6 +1,7 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
 import {i32, Module} from 'binaryen';
-import {DeclarationVisitor, Mapping} from './declaration_visitor';
+import {ArrayExpressionVisitor} from './array_expression_visitor';
+import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
@@ -10,7 +11,7 @@ type FunctionSignatures = Map<string, WebAssemblyType[]>;
 
 class Generator {
 
-    public static generate(file: File, signatures: FunctionSignatures): Module {
+    public static generate(file: File, arrayLiteralVisitor: ArrayExpressionVisitor, signatures: FunctionSignatures) {
         const module = new Module();
 
         const isMemoryDependent = file.program.body.some((statement) => {
@@ -26,7 +27,7 @@ class Generator {
                 throw new Error('File can only contain function declarations');
             }
 
-            this.generateFunction(module, statement, signatures);
+            this.generateFunction(module, statement, arrayLiteralVisitor, signatures);
         });
 
         if (isMemoryDependent) {
@@ -36,7 +37,11 @@ class Generator {
         return module;
     }
 
-    public static generateFunction(module: Module, tree: FunctionDeclaration, signatures: FunctionSignatures) {
+    public static generateFunction(module: Module,
+                                   tree: FunctionDeclaration,
+                                   arrayLiteralVisitor: ArrayExpressionVisitor,
+                                   signatures: FunctionSignatures) {
+
         if (tree.id === null) {
             throw new Error('Function expression has to have a name in order to be translated');
         }
@@ -59,11 +64,12 @@ class Generator {
         const parameterTypes = functionSignature.map(toBinaryenType);
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
+        const localArrayPointers = arrayLiteralVisitor.run(tree);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);
 
-        const generatorVisitor = new GeneratorVisitor(module, totalMapping);
+        const generatorVisitor = new GeneratorVisitor(module, totalMapping, localArrayPointers);
         const body = generatorVisitor.run(tree);
 
         const functionType = module.addFunctionType(functionName, i32, parameterTypes);
@@ -71,8 +77,8 @@ class Generator {
         module.addFunctionExport(functionName, functionName);
     }
 
-    private static mergeMappings(first: Mapping,
-                                 second: Mapping): Mapping {
+    private static mergeMappings(first: VariableMapping,
+                                 second: VariableMapping): VariableMapping {
         return new Map([...first, ...second]);
     }
 

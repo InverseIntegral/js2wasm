@@ -9,6 +9,7 @@ import {
     FunctionDeclaration,
     Identifier,
     IfStatement,
+    isArrayExpression,
     isAssignmentExpression,
     isIdentifier,
     isMemberExpression,
@@ -25,21 +26,24 @@ import {
 } from '@babel/types';
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
+import {VariableMapping} from './declaration_visitor';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
     private readonly variableMapping: Map<string, number>;
+    private readonly localArrayPointers: Map<string, number>;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
 
     private labelCounter: number = 0;
 
-    constructor(module: Module, variableMapping: Map<string, number>) {
+    constructor(module: Module, variableMapping: VariableMapping, localArrayPointers: VariableMapping) {
         super();
         this.module = module;
         this.variableMapping = variableMapping;
+        this.localArrayPointers = localArrayPointers;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -215,6 +219,11 @@ class GeneratorVisitor extends Visitor {
     protected visitVariableDeclarator(node: VariableDeclarator) {
         if (node.init !== null) {
             this.visit(node.init);
+
+            if (isArrayExpression(node.init)) {
+                this.createLocalArray(node.id, node.init.elements.length);
+            }
+
             this.handleAssignment(node.id);
         }
     }
@@ -224,6 +233,10 @@ class GeneratorVisitor extends Visitor {
 
         if (node.operator !== '=') {
             this.handleShorthandAssignment(node);
+        }
+
+        if (isArrayExpression(node.right)) {
+            this.createLocalArray(node.left, node.right.elements.length);
         }
 
         this.handleAssignment(node.left);
@@ -389,6 +402,35 @@ class GeneratorVisitor extends Visitor {
 
         // @ts-ignore because store() returns an expression
         return this.module.i32.store(0, 4, this.getPointer(), value);
+    }
+
+    private createLocalArray(val: LVal, length: number) {
+        if (!isIdentifier(val)) {
+            throw new Error('Array expression assigned to a non identifier');
+        }
+
+        const memoryLocation = this.getMemoryLocationOfArray(val.name);
+        const lengthPointer = this.module.i32.const(memoryLocation - 4);
+        // @ts-ignore because store() returns an expression
+        this.statements.push(this.module.i32.store(0, 4, lengthPointer, this.module.i32.const(length)));
+
+        for (let i = length - 1; i >= 0; i--) {
+            const arrayPointer = this.module.i32.const(memoryLocation);
+            // @ts-ignore because store() returns an expression
+            this.statements.push(this.module.i32.store(i * 4, 4, arrayPointer, this.popExpression()));
+        }
+
+        this.expressions.push(this.module.i32.const(memoryLocation));
+    }
+
+    private getMemoryLocationOfArray(name: string) {
+        const memoryLocation = this.localArrayPointers.get(name);
+
+        if (memoryLocation === undefined) {
+            throw new Error(`Memory location unknown for ${name}`);
+        }
+
+        return memoryLocation;
     }
 
     private getVariableIndex(name: string) {

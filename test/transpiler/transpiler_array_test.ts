@@ -221,5 +221,134 @@ describe('Transpiler', () => {
 
             expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
         });
+
+        it('should handle array declaration', () => {
+            const type = new Map([['func', []]]);
+            const content = 'function func() { var array = [1, 2, 3]; return 0; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            expect(wrapper.setFunctionName('func').call()).to.equal(0);
+        });
+
+        it('should handle array literal access', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const content = 'function func(index) { var array = [5, 9]; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0)).to.equal(5);
+            expect(wrapper.call(1)).to.equal(9);
+        });
+
+        it('should handle array literal manipulation', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
+            const content = 'function func(index, value) {' +
+                'var array = [23, 46, 7]; array[index] = value; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 11)).to.equal(11);
+            expect(wrapper.call(1, 50)).to.equal(50);
+            expect(wrapper.call(2, 93)).to.equal(93);
+        });
+
+        it('should handle array literal length', () => {
+            const type = new Map([['func', []]]);
+            const content = 'function func() { var array = [1, 2, 3]; return array.length; }';
+            const wrapper = transpiler.transpile(content, type);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(3);
+        });
+
+        it('should handle multiple array literals', () => {
+            const type = new Map([['func', []]]);
+            const content = 'function func() {' +
+                'var array = [40, 42, 24]; var array2 = [10, 11, 12]; return array2[0]; }';
+            const wrapper = transpiler.transpile(content, type);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(10);
+        });
+
+        it('should handle array literals with array parameters', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32_ARRAY]]]);
+            const content = 'function func(arr) { var array = [arr[3], 11, 12]; arr[0] = 1; return array[0]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            const array = [13, 14, 15, 16];
+            wrapper.setFunctionName('func').setOutParameters(array);
+
+            expect(wrapper.call(array)).to.equal(16);
+            expect(array).to.eql([1, 14, 15, 16]);
+        });
+
+        it('should handle array literals with variables', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
+            const content = 'function func(index, a) { var b = 15; var array = [a, b]; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 14)).to.equal(14);
+            expect(wrapper.call(1, 16)).to.equal(15);
+        });
+
+        it('should handle array literals assignment', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
+            const content = 'function func(index) { var array; array = [248, 192]; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0)).to.equal(248);
+            expect(wrapper.call(1)).to.equal(192);
+        });
+
+        it('should handle empty array literals', () => {
+            const type = new Map([['func', []]]);
+            const content = 'function func() { var array = []; return 0; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func').call();
+        });
+
+        it('should handle array literals with calculation as element', () => {
+            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
+            const content = 'function func(index, value) { var array = [1 + value, 2 + value]; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0, 5)).to.equal(6);
+            expect(wrapper.call(1, 6)).to.equal(8);
+        });
+
+        it('should handle array literals with method call as element', () => {
+            const type = new Map();
+            type.set('func', [WebAssemblyType.INT_32]);
+            type.set('elementCall', [WebAssemblyType.INT_32]);
+            const content = 'function elementCall(parameter) { return parameter + 1; }' +
+                'function func(index) { var array = [elementCall(1), elementCall(2)]; return array[index]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(0)).to.equal(2);
+            expect(wrapper.call(1)).to.equal(3);
+        });
+
+        it('should handle array literals with multiple methods and same array variable name', () => {
+            const type = new Map();
+            type.set('func', []);
+            type.set('func2', []);
+            const content = 'function func2() { var array = [3, 4]; return 0; }' +
+                'function func() { var array = [1, 2]; func2(); return array[0]; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(1);
+        });
     });
 });

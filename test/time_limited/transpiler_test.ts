@@ -91,7 +91,7 @@ describe('Transpiler', function() {
             types.set('quickSort', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
             types.set('quickSortFill', [WebAssemblyType.INT_32_ARRAY]);
             types.set('quickSortIsSorted', [WebAssemblyType.INT_32_ARRAY]);
-            types.set('quickSortWhile', [WebAssemblyType.INT_32]);
+            types.set('quickSortWhile', [WebAssemblyType.INT_32_ARRAY]);
 
             const content = quickSortSwap.toString() + quickSortPartition.toString() + quickSort.toString() +
                 quickSortFill.toString() + quickSortIsSorted.toString() + quickSortWhile.toString();

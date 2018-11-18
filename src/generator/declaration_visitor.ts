@@ -1,15 +1,15 @@
 import {FunctionDeclaration, isIdentifier, LVal, VariableDeclarator} from '@babel/types';
 import Visitor from '../visitor';
 
-type Mapping = Map<string, number>;
+type VariableMapping = Map<string, number>;
 
 class DeclarationVisitor extends Visitor {
 
     private index: number = 0;
-    private parameters: Mapping = new Map();
-    private variables: Mapping = new Map();
+    private parameters: VariableMapping = new Map();
+    private variables: VariableMapping = new Map();
 
-    public run(tree: FunctionDeclaration): [Mapping, Mapping] {
+    public run(tree: FunctionDeclaration): [VariableMapping, VariableMapping] {
         tree.params.forEach((node) => this.registerDeclaration(node, this.parameters));
 
         this.visit(tree.body);
@@ -21,7 +21,7 @@ class DeclarationVisitor extends Visitor {
         this.registerDeclaration(node.id, this.variables);
     }
 
-    private registerDeclaration(val: LVal, map: Mapping) {
+    private registerDeclaration(val: LVal, map: VariableMapping) {
         if (isIdentifier(val)) {
             if (!map.has(val.name)) {
                 map.set(val.name, this.index++);
@@ -33,4 +33,4 @@ class DeclarationVisitor extends Visitor {
 
 }
 
-export {Mapping, DeclarationVisitor};
+export {VariableMapping, DeclarationVisitor};

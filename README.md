@@ -32,11 +32,11 @@ wrapper.setFunctionName('add').call(21, 21);
   A signature contains the parameter types in the same order as they appear in the content string.
 
 ## WebAssemblyType
-* INT_32 <br />
+* **INT_32** <br />
   The WebAssembly int32 type.
-* INT_32_ARRAY <br />
+* **INT_32_ARRAY** <br />
   An array of `INT_32` elements.
-* BOOLEAN <br />
+* **BOOLEAN** <br />
   The boolean type.
 
 ## CallWrapper

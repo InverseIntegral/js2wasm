@@ -53,7 +53,7 @@ class CallWrapper {
         if (!parameters.every((parameter, index) => {
             return isOfType(parameter, currentSignature[index]);
         })) {
-            throw new Error('At least one parameter did not match its signature type');
+            throw new Error(`At least one parameter of ${this.functionName} did not match its signature type`);
         }
 
         let fixedParameters = parameters;

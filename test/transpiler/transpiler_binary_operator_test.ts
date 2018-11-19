@@ -35,6 +35,16 @@ describe('Transpiler', () => {
             expect(wrapper.call(-20, 20)).to.equal(-40);
         });
 
+        it('should handle addition and subtraction', () => {
+            const type = createFunctionWithIntParameters('addSub', 2);
+            const wrapper = transpiler.transpile('function addSub(a, b) { return a + b - a; }', type);
+            wrapper.setFunctionName('addSub');
+
+            expect(wrapper.call(1, 2)).to.equal(2);
+            expect(wrapper.call(100, 2)).to.equal(2);
+            expect(wrapper.call(-20, 20)).to.equal(20);
+        });
+
         it('should handle multiplication', () => {
             const type = createFunctionWithIntParameters('mul', 2);
             const wrapper = transpiler.transpile('function mul(a, b) { return a * b }', type);

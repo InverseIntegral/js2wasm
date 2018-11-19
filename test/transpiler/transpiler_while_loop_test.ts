@@ -12,13 +12,14 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should handle simple while', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0;' +
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
@@ -28,7 +29,6 @@ describe('Transpiler', () => {
         });
 
         it('should handle nested while', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0, x = 0;' +
                 'while (i < times) { ' +
@@ -36,7 +36,9 @@ describe('Transpiler', () => {
                 'x = 0; i++; }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(35);
@@ -46,7 +48,6 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple while', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0;' +
                 'while (i < times) { value += 1; i++; }' +
@@ -54,7 +55,9 @@ describe('Transpiler', () => {
                 'while (i < times) { value += 1; i++; }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(20);
@@ -64,13 +67,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle while in if', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0;' +
                 'if (value >= 0) { while (i < times) { value += 1; i++; } }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
@@ -80,13 +84,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle if in while', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0;' +
                 'while (i < times) { if (value >= 0) { value += 1; } i++; }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
@@ -96,7 +101,6 @@ describe('Transpiler', () => {
         });
 
         it('should handle else-if in while', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function loop(value, times) { ' +
                 'var i = 0;' +
                 'while (i < times) { ' +
@@ -106,7 +110,9 @@ describe('Transpiler', () => {
                 'i++; }' +
                 'return value; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(10, 5)).to.equal(15);
@@ -117,13 +123,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle while loop without braces', () => {
-            const type = new Map([['loop', [WebAssemblyType.INT_32]]]);
             const content = 'function loop(times) { ' +
                 'var i = 0;' +
                 'while (i < times) i++;' +
                 'return i; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('loop');
 
             expect(wrapper.call(5)).to.equal(5);

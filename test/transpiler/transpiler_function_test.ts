@@ -12,28 +12,28 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should not work on non-functions', () => {
-            expect(() => transpiler.transpile('1 + 2;', new Map())).to.throw();
+            expect(() => transpiler.transpile('1 + 2;')).to.throw();
         });
 
         it('should handle function calls', () => {
-            const types = new Map();
-            types.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
-            types.set('id', [WebAssemblyType.INT_32]);
-
             const content = 'function id(a) { return a; }' +
                 'function add(a, b) { return id(a) + id(b); }';
-            const wrapper = transpiler.transpile(content, types);
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('id', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('add').call(1, 2)).to.equal(3);
         });
 
         it('should handle recursive function calls', () => {
-            const type = new Map([['fibonacci', [WebAssemblyType.INT_32]]]);
             const content = 'function fibonacci(current) { ' +
                 'if (current <= 2) { return 1; } ' +
                 'return fibonacci(current - 2) + fibonacci(current - 1); } ';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('fibonacci', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('fibonacci');
 
             expect(wrapper.call(6)).to.equal(8);
@@ -41,16 +41,15 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple function calls', () => {
-            const types = new Map();
-            types.set('incr', [WebAssemblyType.INT_32]);
-            types.set('double', [WebAssemblyType.INT_32]);
-            types.set('complete', [WebAssemblyType.INT_32]);
-
             const content = 'function incr(current) { return current + 1; }' +
                 'function double(current) { return 2 * current; }' +
                 'function complete(current) {return double(incr(current)); } ';
 
-            const wrapper = transpiler.transpile(content, types);
+            const wrapper = transpiler
+                .setSignature('incr', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('double', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('complete', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('incr');
 
             expect(wrapper.call(3)).to.equal(4);
@@ -70,14 +69,13 @@ describe('Transpiler', () => {
         });
 
         it('should handle function calls without assignments', () => {
-            const types = new Map();
-            types.set('double', [WebAssemblyType.INT_32]);
-            types.set('complete', [WebAssemblyType.INT_32]);
-
             const content = 'function double(current) { return 2 * current; }' +
                 'function complete(current) { double(current); return double(current); } ';
 
-            const wrapper = transpiler.transpile(content, types);
+            const wrapper = transpiler
+                .setSignature('double', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('complete', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('complete');
 
             expect(wrapper.call(2)).to.equal(4);

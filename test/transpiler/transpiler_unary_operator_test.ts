@@ -13,8 +13,9 @@ describe('Transpiler', () => {
     describe('#transpile()', () => {
 
         it('should handle unary plus', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function func(a) { return +a + +40; }', type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function func(a) { return +a + +40; }');
             wrapper.setFunctionName('func');
 
             expect(wrapper.call(2)).to.equal(42);
@@ -23,7 +24,9 @@ describe('Transpiler', () => {
 
         it('should handle unary minus', () => {
             const type = new Map([['func', [WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function func(a) { return -a + -40; }', type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function func(a) { return -a + -40; }');
             wrapper.setFunctionName('func');
 
             expect(wrapper.call(2)).to.equal(-42);
@@ -31,15 +34,17 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple consecutive unary operators', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function func(a) { return a + -+-+-40; }', type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function func(a) { return a + -+-+-40; }');
 
             expect(wrapper.setFunctionName('func').call(2)).to.equal(-38);
         });
 
         it('should handle unary not', () => {
-            const type = new Map([['func', [WebAssemblyType.BOOLEAN]]]);
-            const wrapper = transpiler.transpile('function func(a) { return !a; }', type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile('function func(a) { return !a; }');
             wrapper.setFunctionName('func');
 
             expect(wrapper.call(true)).to.equal(0);
@@ -47,33 +52,37 @@ describe('Transpiler', () => {
         });
 
         it('should handle pre increment', () => {
-            const type = new Map([['preInc', [WebAssemblyType.INT_32]]]);
             const content = 'function preInc(a) { ++a; return a; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('preInc', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('preInc').call(10)).to.equal(11);
         });
 
         it('should handle post increment', () => {
-            const type = new Map([['postInc', [WebAssemblyType.INT_32]]]);
             const content = 'function postInc(a) { a++; return a; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('postInc', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('postInc').call(10)).to.equal(11);
         });
 
         it('should handle pre decrement', () => {
-            const type = new Map([['preDec', [WebAssemblyType.INT_32]]]);
             const content = 'function preDec(a) { --a; return a; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('preDec', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('preDec').call(10)).to.equal(9);
         });
 
         it('should handle post decrement', () => {
-            const type = new Map([['postDec', [WebAssemblyType.INT_32]]]);
             const content = 'function postDec(a) { a--; return a; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('postDec', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('postDec').call(10)).to.equal(9);
         });

@@ -2,6 +2,7 @@ import CallWrapper from '../call_wrapper';
 import {FunctionSignatures} from '../generator/generator';
 import Transpiler from '../transpiler';
 import {Measurement, MeasurementHooks} from './measurement_hooks';
+import {WebAssemblyType} from "../generator/wasm_type";
 
 interface Algorithm {
     // tslint:disable-next-line
@@ -72,7 +73,15 @@ class Benchmark {
         Benchmark.executeJS(func[0], args, expectedResult, warmupRounds);
         const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
-        const callWrapper = transpiler.transpile(func.join(''), signatures);
+        for (const name of signatures.keys()) {
+            const signature = signatures.get(name);
+
+            if (signature !== undefined) {
+                transpiler.setSignature(name, signature.returnType, ...(signature.parameterTypes));
+            }
+        }
+
+        const callWrapper = transpiler.transpile(func.join(''));
         callWrapper.setFunctionName(func[0].name);
         this.executeWasm(callWrapper, args, expectedResult, warmupRounds);
         const wasmTimes = this.executeWasm(callWrapper, args, expectedResult, measureRounds);

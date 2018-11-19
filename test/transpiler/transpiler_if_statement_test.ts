@@ -13,32 +13,36 @@ describe('Transpiler', () => {
     describe('#transpile()', () => {
 
         it('should handle if else statements', () => {
-            const type = new Map([['alwaysOne', []]]);
             const content = 'function alwaysOne() { if (false) { return 100; } else { return 1; } }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('alwaysOne', WebAssemblyType.INT_32)
+                .transpile(content);
             expect(wrapper.setFunctionName('alwaysOne').call()).to.equal(1);
         });
 
         it('should handle if statements without else part', () => {
-            const type = new Map([['alwaysOne', []]]);
             const content = 'function alwaysOne() { if (false) { return 100; } return 1; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('alwaysOne', WebAssemblyType.INT_32)
+                .transpile(content);
             expect(wrapper.setFunctionName('alwaysOne').call()).to.equal(1);
 
-            const type2 = new Map([['alwaysTwo', []]]);
             const content2 = 'function alwaysTwo() { if (true) { return 2; } return 1; }';
 
-            const wrapper2 = transpiler.transpile(content2, type2);
+            const wrapper2 = transpiler
+                .setSignature('alwaysTwo', WebAssemblyType.INT_32)
+                .transpile(content2);
             expect(wrapper2.setFunctionName('alwaysTwo').call()).to.equal(2);
         });
 
         it('should handle else if statements', () => {
-            const type = new Map([['elseIf', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]]]);
             const content = 'function elseIf(a, b) { if (a) { return 0; } else if (b) { return 1; } return 2; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('elseIf', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile(content);
             wrapper.setFunctionName('elseIf');
 
             expect(wrapper.call(true, false)).to.equal(0);
@@ -48,15 +52,16 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple else if statements', () => {
-            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN];
-            const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b, c) { ' +
                 'if (a) { return 0; } ' +
                 'else if (b) { return 1; } ' +
                 'else if (c) { return 2; } ' +
                 'else { return 3; } }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('elseIf', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN,
+                    WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile(content);
             wrapper.setFunctionName('elseIf');
 
             expect(wrapper.call(true, true, true)).to.equal(0);
@@ -70,14 +75,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle logical operators in if statement', () => {
-            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN];
-            const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b) {' +
                 'if (a && b) { return 0; }' +
                 'else if (a || b) { return 1; }' +
                 'else { return 2; } }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('elseIf', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile(content);
             wrapper.setFunctionName('elseIf');
 
             expect(wrapper.call(true, true)).to.equal(0);
@@ -86,14 +91,15 @@ describe('Transpiler', () => {
             expect(wrapper.call(false, false)).to.equal(2);
         });
         it('should handle if with multiple statements', () => {
-            const signature = [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32];
-            const type = new Map([['elseIf', signature]]);
             const content = 'function elseIf(a, b, value) { ' +
                 'if (a) { value += 1; return value; } ' +
                 'else if (b) { value += 2; return value; } ' +
                 'else { value += 3; return value; } }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('elseIf', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN,
+                    WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('elseIf');
 
             expect(wrapper.call(true, false, 1)).to.equal(2);
@@ -102,10 +108,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle if statements without braces', () => {
-            const type = new Map([['ifWithout', [WebAssemblyType.BOOLEAN]]]);
             const content = 'function ifWithout(a) { if (a) return 10; else return 20; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('ifWithout', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN)
+                .transpile(content);
             wrapper.setFunctionName('ifWithout');
 
             expect(wrapper.call(true)).to.equal(10);
@@ -113,10 +120,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle else if statements without braces', () => {
-            const type = new Map([['ifWithout', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]]]);
             const content = 'function ifWithout(a, b) { if (a) return 10; else if(b) return 20; else return 30; }';
 
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('ifWithout', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile(content);
             wrapper.setFunctionName('ifWithout');
 
             expect(wrapper.call(true, false)).to.equal(10);

@@ -7,7 +7,12 @@ import {MemoryAccessVisitor} from './memory_access_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 // @ts-ignore
-type FunctionSignatures = Map<string, WebAssemblyType[]>;
+type FunctionSignatures = Map<string, FunctionSignature>;
+
+interface FunctionSignature {
+    returnType: WebAssemblyType;
+    parameterTypes: WebAssemblyType[];
+}
 
 class Generator {
 
@@ -54,14 +59,14 @@ class Generator {
         }
 
         const actualLength = tree.params.length;
-        const expectedLength = functionSignature.length;
+        const expectedLength = functionSignature.parameterTypes.length;
 
         if (actualLength !== expectedLength) {
             throw new Error('The provided type signature has '
                 + expectedLength + ' parameters and the function has ' + actualLength + ' parameters');
         }
 
-        const parameterTypes = functionSignature.map(toBinaryenType);
+        const parameterTypes = functionSignature.parameterTypes.map(toBinaryenType);
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
         const localArrayPointers = arrayLiteralVisitor.run(tree);

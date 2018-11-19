@@ -42,7 +42,7 @@ class CallWrapper {
         this.hooks.beforeImport();
 
         const currentSignature = this.getCurrentSignature();
-        const expectedLength = currentSignature.length;
+        const expectedLength = currentSignature.parameterTypes.length;
         const actualLength = parameters.length;
 
         if (actualLength !== expectedLength) {
@@ -51,7 +51,7 @@ class CallWrapper {
         }
 
         if (!parameters.every((parameter, index) => {
-            return isOfType(parameter, currentSignature[index]);
+            return isOfType(parameter, currentSignature.parameterTypes[index]);
         })) {
             throw new Error(`At least one parameter of ${this.functionName} did not match its signature type`);
         }

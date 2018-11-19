@@ -12,14 +12,16 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should handle array access', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function array(arr) { return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function array(arr) { return arr[0]; }');
             expect(wrapper.setFunctionName('array').call([1, 2, 3])).to.equal(1);
         });
 
         it('should handle array access using variable', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function array(arr, i) { return arr[i]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
+                .transpile('function array(arr, i) { return arr[i]; }');
             wrapper.setFunctionName('array');
 
             expect(wrapper.call([11, 12, 13], 0)).to.equal(11);
@@ -28,26 +30,31 @@ describe('Transpiler', () => {
         });
 
         it('should handle array access using expression', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function array(arr) { return arr[1 + 2]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function array(arr) { return arr[1 + 2]; }');
             expect(wrapper.setFunctionName('array').call([101, 102, 103, 104, 105])).to.equal(104);
         });
 
         it('should handle multiple arrays', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function array(arr, arr2) { return arr2[2]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function array(arr, arr2) { return arr2[2]; }');
             expect(wrapper.setFunctionName('array').call([111, 112], [114, 115, 116])).to.equal(116);
         });
 
         it('should handle array size', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function array(arr) { return arr[-1]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function array(arr) { return arr[-1]; }');
             expect(wrapper.setFunctionName('array').call([1, 2, 4, 8])).to.equal(4);
         });
 
         it('should handle indexoutofbounds', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32]]]);
-            const wrapper = transpiler.transpile('function array(arr, i) { return arr[i]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
+                .transpile('function array(arr, i) { return arr[i]; }');
             wrapper.setFunctionName('array');
 
             expect(wrapper.call([1, 2], 2)).to.equal(0);
@@ -55,8 +62,9 @@ describe('Transpiler', () => {
         });
 
         it('should not modify array', () => {
-            const type = new Map([['array', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function array(arr) { return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function array(arr) { return arr[0]; }');
 
             const array = [100, 200, 300];
             wrapper.setFunctionName('array').call(array);
@@ -64,8 +72,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle length property', () => {
-            const type = new Map([['length', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function length(arr) { return arr.length; }', type);
+            const wrapper = transpiler
+                .setSignature('length', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function length(arr) { return arr.length; }');
             wrapper.setFunctionName('length');
 
             expect(wrapper.call([0, 1, 2])).to.equal(3);
@@ -74,13 +83,15 @@ describe('Transpiler', () => {
         });
 
         it('shouldn\'t handle other properties', () => {
-            const type = new Map([['something', [WebAssemblyType.INT_32_ARRAY]]]);
-            expect(() => transpiler.transpile('function something(arr) { return arr.something; }', type)).to.throw();
+            expect(() => transpiler
+                .setSignature('something', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function something(arr) { return arr.something; }')).to.throw();
         });
 
         it('should handle writes to array elements', () => {
-            const type = new Map([['setFirst', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function setFirst(arr) { arr[0] = 42; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('setFirst', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function setFirst(arr) { arr[0] = 42; return arr[0]; }');
             wrapper.setFunctionName('setFirst');
 
             expect(wrapper.call([0, 1, 2])).to.equal(42);
@@ -88,8 +99,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle shorthand assignment to array elements', () => {
-            const type = new Map([['setFirst', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function setFirst(arr) { arr[0] += 42; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('setFirst', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function setFirst(arr) { arr[0] += 42; return arr[0]; }');
             wrapper.setFunctionName('setFirst');
 
             expect(wrapper.call([5, 6, 7])).to.equal(47);
@@ -97,8 +109,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle pre increment on array', () => {
-            const type = new Map([['preIncrement', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function preIncrement(arr) { ++arr[0]; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('preIncrement', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function preIncrement(arr) { ++arr[0]; return arr[0]; }');
             wrapper.setFunctionName('preIncrement');
 
             expect(wrapper.call([5, 6, 7])).to.equal(6);
@@ -106,8 +119,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle post increment on array', () => {
-            const type = new Map([['postIncrement', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function postIncrement(arr) { arr[0]++; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('postIncrement', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function postIncrement(arr) { arr[0]++; return arr[0]; }');
             wrapper.setFunctionName('postIncrement');
 
             expect(wrapper.call([15, 16, 17])).to.equal(16);
@@ -115,8 +129,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle pre decrement on array', () => {
-            const type = new Map([['preDecrement', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function preDecrement(arr) { --arr[0]; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('preDecrement', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function preDecrement(arr) { --arr[0]; return arr[0]; }');
             wrapper.setFunctionName('preDecrement');
 
             expect(wrapper.call([5, 6, 7])).to.equal(4);
@@ -124,8 +139,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle post decrement on array', () => {
-            const type = new Map([['postDecrement', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function postDecrement(arr) { arr[0]--; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('postDecrement', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function postDecrement(arr) { arr[0]--; return arr[0]; }');
             wrapper.setFunctionName('postDecrement');
 
             expect(wrapper.call([15, 16, 17])).to.equal(14);
@@ -133,8 +149,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle array export', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY]]]);
-            const wrapper = transpiler.transpile('function arrayExport(arr) { arr[0] = 5; return arr[0]; }', type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function arrayExport(arr) { arr[0] = 5; return arr[0]; }');
             wrapper.setFunctionName('arrayExport');
 
             const array1 = [0];
@@ -147,9 +164,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle array export with non exportable values', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32]]]);
             const content = 'function arrayExport(arr, value) { arr[0] = value; return arr[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('arrayExport');
 
             const array = [0];
@@ -158,9 +177,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle multiple array exports', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY]]]);
             const content = 'function arrayExport(arr1, arr2) { arr1[0] = 21; arr2[1] = 22; return arr1[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             const array1 = [11, 12];
             const array2 = [13, 14, 15, 16];
@@ -174,9 +195,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle partial array export', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY]]]);
             const content = 'function arrayExport(arr1, arr2) { arr1[0] = 41; arr2[0] = 42; return arr2[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             const array1 = [31, 32];
             const array2 = [33];
@@ -191,9 +214,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle different out and call parameter order in array export', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY]]]);
             const content = 'function arrayExport(arr1, arr2) { arr1[0] = 61; arr2[0] = 62; return arr1[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             const array1 = [51];
             const array2 = [52, 53];
@@ -207,33 +232,37 @@ describe('Transpiler', () => {
         });
 
         it('should handle out parameter with no call parameters', () => {
-            const type = new Map([['arrayExport', []]]);
             const content = 'function arrayExport() { return 0; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call()).to.throw();
         });
 
         it('should handle nonexistent out parameter in array export', () => {
-            const type = new Map([['arrayExport', [WebAssemblyType.INT_32_ARRAY]]]);
             const content = 'function arrayExport(arr) { return arr[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
         });
 
         it('should handle array declaration', () => {
-            const type = new Map([['func', []]]);
             const content = 'function func() { var array = [1, 2, 3]; return 0; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .transpile(content);
 
             expect(wrapper.setFunctionName('func').call()).to.equal(0);
         });
 
         it('should handle array literal access', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
             const content = 'function func(index) { var array = [5, 9]; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('func');
 
             expect(wrapper.call(0)).to.equal(5);
@@ -241,10 +270,11 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literal manipulation', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function func(index, value) {' +
                 'var array = [23, 46, 7]; array[index] = value; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('func');
 
             expect(wrapper.call(0, 11)).to.equal(11);
@@ -253,28 +283,31 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literal length', () => {
-            const type = new Map([['func', []]]);
             const content = 'function func() { var array = [1, 2, 3]; return array.length; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('func');
 
             expect(wrapper.call()).to.equal(3);
         });
 
         it('should handle multiple array literals', () => {
-            const type = new Map([['func', []]]);
             const content = 'function func() {' +
                 'var array = [40, 42, 24]; var array2 = [10, 11, 12]; return array2[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .transpile(content);
             wrapper.setFunctionName('func');
 
             expect(wrapper.call()).to.equal(10);
         });
 
         it('should handle array literals with array parameters', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32_ARRAY]]]);
             const content = 'function func(arr) { var array = [arr[3], 11, 12]; arr[0] = 1; return array[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             const array = [13, 14, 15, 16];
             wrapper.setFunctionName('func').setOutParameters(array);
@@ -284,9 +317,10 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals with variables', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function func(index, a) { var b = 15; var array = [a, b]; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 
@@ -295,9 +329,10 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals assignment', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
             const content = 'function func(index) { var array; array = [248, 192]; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 
@@ -306,17 +341,19 @@ describe('Transpiler', () => {
         });
 
         it('should handle empty array literals', () => {
-            const type = new Map([['func', []]]);
             const content = 'function func() { var array = []; return 0; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func').call();
         });
 
         it('should handle array literals with calculation as element', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]]]);
             const content = 'function func(index, value) { var array = [1 + value, 2 + value]; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 
@@ -325,12 +362,12 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals with method call as element', () => {
-            const type = new Map();
-            type.set('func', [WebAssemblyType.INT_32]);
-            type.set('elementCall', [WebAssemblyType.INT_32]);
             const content = 'function elementCall(parameter) { return parameter + 1; }' +
                 'function func(index) { var array = [elementCall(1), elementCall(2)]; return array[index]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('elementCall', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 
@@ -339,12 +376,12 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals with multiple methods and same array variable name', () => {
-            const type = new Map();
-            type.set('func', []);
-            type.set('func2', []);
             const content = 'function func2() { var array = [3, 4]; return 0; }' +
                 'function func() { var array = [1, 2]; func2(); return array[0]; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .setSignature('func2', WebAssemblyType.INT_32)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 
@@ -352,16 +389,16 @@ describe('Transpiler', () => {
         });
 
         it('should handle array literals correct element evaluation order', () => {
-            const type = new Map();
-            type.set('func', []);
-            type.set('orderTest', [WebAssemblyType.INT_32_ARRAY]);
-            type.set('change', [WebAssemblyType.INT_32_ARRAY]);
             const content = 'function change(array) { array[0] = 2; return 0; }' +
                 'function orderTest(array) { if (array[0] == 1) { return 0; } return 1; }' +
                 'function func() { var testArray = [1, 2];' +
                     'var array = [orderTest(testArray), change(testArray)];' +
                     'return array[0] == 0; }';
-            const wrapper = transpiler.transpile(content, type);
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.INT_32)
+                .setSignature('orderTest', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('change', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
 
             wrapper.setFunctionName('func');
 

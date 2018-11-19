@@ -29,8 +29,8 @@ const fibonacciFunc = {
     expectedResult: 165580141,
     func: [fibonacciWhile, fibonacci],
     signatures: new Map([
-        ['fibonacci', [WebAssemblyType.INT_32]],
-        ['fibonacciWhile', [WebAssemblyType.INT_32]],
+        ['fibonacci', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['fibonacciWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -39,8 +39,10 @@ const gcdFunc = {
     expectedResult: 6,
     func: [gcdWhile, gcd],
     signatures: new Map([
-        ['gcd', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
-        ['gcdWhile', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
+        ['gcd', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
+            returnType: WebAssemblyType.INT_32 }],
+        ['gcdWhile', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
+            returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -49,9 +51,9 @@ const sumArrayFunc = {
     expectedResult: 2147385345,
     func: [sumArrayFor, sumArrayFill, sumArray],
     signatures: new Map([
-        ['sumArray', [WebAssemblyType.INT_32_ARRAY]],
-        ['sumArrayFill', [WebAssemblyType.INT_32_ARRAY]],
-        ['sumArrayFor', [WebAssemblyType.INT_32_ARRAY]],
+        ['sumArray', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayFor', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -60,8 +62,8 @@ const sumIntegersFunc = {
     expectedResult: 2147385345,
     func: [sumIntegersWhile, sumIntegers],
     signatures: new Map([
-        ['sumIntegers', []],
-        ['sumIntegersWhile', []],
+        ['sumIntegers', {  parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
+        ['sumIntegersWhile', {  parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -70,8 +72,8 @@ const isPrimeFunc = {
     expectedResult: true,
     func: [isPrimeWhile, isPrime],
     signatures: new Map([
-        ['isPrime', [WebAssemblyType.INT_32]],
-        ['isPrimeWhile', [WebAssemblyType.INT_32]],
+        ['isPrime', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['isPrimeWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -80,8 +82,10 @@ const newtonsMethodFunc = {
     expectedResult: 24,
     func: [newtonsMethodWhile, newtonsMethod],
     signatures: new Map([
-        ['newtonsMethod', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
-        ['newtonsMethodWhile', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
+        ['newtonsMethod', {  parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
+            returnType: WebAssemblyType.INT_32 }],
+        ['newtonsMethodWhile', {  parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
+            returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -90,22 +94,23 @@ const mergeSortFunc = {
     expectedResult: true,
     func: [mergeSortWhile, mergeSortCopyArray, mergeSortFill, mergeSortIsSorted, mergeSortMerge, mergeSort],
     signatures: new Map([
-        ['mergeSortCopyArray', [WebAssemblyType.INT_32_ARRAY,
+        ['mergeSortCopyArray', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
-            WebAssemblyType.INT_32]],
-        ['mergeSort', [WebAssemblyType.INT_32_ARRAY,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSort', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
-            WebAssemblyType.INT_32]],
-        ['mergeSortMerge', [WebAssemblyType.INT_32_ARRAY,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortMerge', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
             WebAssemblyType.INT_32,
-            WebAssemblyType.INT_32]],
-        ['mergeSortIsSorted', [WebAssemblyType.INT_32_ARRAY]],
-        ['mergeSortFill', [WebAssemblyType.INT_32_ARRAY]],
-        ['mergeSortWhile', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY]],
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortWhile', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY],
+            returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -114,14 +119,17 @@ const quicksortFunc = {
     expectedResult: true,
     func: [quickSortWhile, quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortSwap],
     signatures: new Map([
-        ['quickSortSwap', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
-        ['quickSortPartition', [WebAssemblyType.INT_32_ARRAY,
+        ['quickSortSwap', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY,
+                WebAssemblyType.INT_32,
+                WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortPartition', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
-            WebAssemblyType.INT_32]],
-        ['quickSort', [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32]],
-        ['quickSortFill', [WebAssemblyType.INT_32_ARRAY]],
-        ['quickSortIsSorted', [WebAssemblyType.INT_32_ARRAY]],
-        ['quickSortWhile', [WebAssemblyType.INT_32]],
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSort', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32],
+            returnType: WebAssemblyType.INT_32 }],
+        ['quickSortFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 

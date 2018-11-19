@@ -189,7 +189,9 @@ abstract class Visitor {
     }
 
     protected visitArrayExpression(node: ArrayExpression) {
-        for (const element of node.elements) {
+        for (let i = node.elements.length - 1; i >= 0; i--) {
+            const element = node.elements[i];
+
             if (element !== null) {
                 this.visit(element);
             }

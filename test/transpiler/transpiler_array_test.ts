@@ -350,5 +350,22 @@ describe('Transpiler', () => {
 
             expect(wrapper.call()).to.equal(1);
         });
+
+        it('should handle array literals correct element evaluation order', () => {
+            const type = new Map();
+            type.set('func', []);
+            type.set('orderTest', [WebAssemblyType.INT_32_ARRAY]);
+            type.set('change', [WebAssemblyType.INT_32_ARRAY]);
+            const content = 'function change(array) { array[0] = 2; return 0; }' +
+                'function orderTest(array) { if (array[0] == 1) { return 0; } return 1; }' +
+                'function func() { var testArray = [1, 2];' +
+                    'var array = [orderTest(testArray), change(testArray)];' +
+                    'return array[0] == 0; }';
+            const wrapper = transpiler.transpile(content, type);
+
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(1);
+        });
     });
 });

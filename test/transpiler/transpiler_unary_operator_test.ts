@@ -43,7 +43,7 @@ describe('Transpiler', () => {
 
         it('should handle unary not', () => {
             const wrapper = transpiler
-                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN)
+                .setSignature('func', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .transpile('function func(a) { return !a; }');
             wrapper.setFunctionName('func');
 

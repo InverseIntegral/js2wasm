@@ -142,7 +142,7 @@ describe('Transpiler', () => {
 
         it('should handle equality', () => {
             const wrapper = transpiler
-                .setSignature('eq', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('eq', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function eq(a, b) { return a == b }');
             wrapper.setFunctionName('eq');
 
@@ -152,7 +152,7 @@ describe('Transpiler', () => {
 
         it('should handle inequality', () => {
             const wrapper = transpiler
-                .setSignature('neq', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('neq', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function neq(a, b) { return a != b }');
             wrapper.setFunctionName('neq');
 
@@ -162,7 +162,7 @@ describe('Transpiler', () => {
 
         it('should handle less than', () => {
             const wrapper = transpiler
-                .setSignature('lt', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('lt', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function lt(a, b) { return a < b }');
             wrapper.setFunctionName('lt');
 
@@ -175,7 +175,7 @@ describe('Transpiler', () => {
 
         it('should handle less than or equal to', () => {
             const wrapper = transpiler
-                .setSignature('le', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('le', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function le(a, b) { return a <= b }');
             wrapper.setFunctionName('le');
 
@@ -188,7 +188,7 @@ describe('Transpiler', () => {
 
         it('should handle greater than', () => {
             const wrapper = transpiler
-                .setSignature('gt', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('gt', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function gt(a, b) { return a > b }');
             wrapper.setFunctionName('gt');
 
@@ -201,7 +201,7 @@ describe('Transpiler', () => {
 
         it('should handle greater than or equal to', () => {
             const wrapper = transpiler
-                .setSignature('ge', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('ge', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function ge(a, b) { return a >= b }');
             wrapper.setFunctionName('ge');
 
@@ -222,7 +222,7 @@ describe('Transpiler', () => {
         it('should handle logical and', () => {
             const content = 'function and(a, b) { return a && b; }';
             const wrapper = transpiler
-                .setSignature('and', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .setSignature('and', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .transpile(content);
             wrapper.setFunctionName('and');
 
@@ -235,7 +235,7 @@ describe('Transpiler', () => {
         it('should handle logical or', () => {
             const content = 'function or(a, b) { return a || b; }';
             const wrapper = transpiler
-                .setSignature('or', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .setSignature('or', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .transpile(content);
             wrapper.setFunctionName('or');
 
@@ -248,7 +248,7 @@ describe('Transpiler', () => {
         it('should handle multiple logical operators', () => {
             const content = 'function logic(a, b, c) { return a || b && c; }';
             const wrapper = transpiler
-                .setSignature('logic', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN,
+                .setSignature('logic', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN,
                     WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .transpile(content);
             wrapper.setFunctionName('logic');

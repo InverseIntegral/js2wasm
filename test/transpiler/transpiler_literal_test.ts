@@ -20,7 +20,7 @@ describe('Transpiler', () => {
 
         it('should return correct boolean value', () => {
             const wrapper = transpiler
-                .setSignature('id', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN)
+                .setSignature('id', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .transpile('function id(a) { return a; }');
             wrapper.setFunctionName('id');
 
@@ -30,12 +30,12 @@ describe('Transpiler', () => {
 
         it('should handle boolean literals', () => {
             const wrapper = transpiler
-                .setSignature('alwaysTrue', WebAssemblyType.INT_32)
+                .setSignature('alwaysTrue', WebAssemblyType.BOOLEAN)
                 .transpile('function alwaysTrue() { return true; }');
             expect(wrapper.setFunctionName('alwaysTrue').call()).to.equal(1);
 
             const wrapper2 = transpiler
-                .setSignature('alwaysFalse', WebAssemblyType.INT_32)
+                .setSignature('alwaysFalse', WebAssemblyType.BOOLEAN)
                 .transpile('function alwaysFalse() { return false; }');
             expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(0);
         });

@@ -37,7 +37,7 @@ describe('Transpiler', () => {
         it('should check if the parameter types match the signature', () => {
             const wrapper = transpiler
                 .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('and', WebAssemblyType.INT_32, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .setSignature('and', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
                 .setSignature('length', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .transpile('function add(a, b) { return a + b; }' +
                     'function and(a, b) { return a && b; }' +

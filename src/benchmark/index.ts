@@ -72,8 +72,8 @@ const isPrimeFunc = {
     expectedResult: true,
     func: [isPrimeWhile, isPrime],
     signatures: new Map([
-        ['isPrime', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
-        ['isPrimeWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['isPrime', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
+        ['isPrimeWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
 
@@ -107,10 +107,10 @@ const mergeSortFunc = {
             WebAssemblyType.INT_32,
             WebAssemblyType.INT_32,
             WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
-        ['mergeSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
         ['mergeSortFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
         ['mergeSortWhile', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY],
-            returnType: WebAssemblyType.INT_32 }],
+            returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
 
@@ -128,8 +128,8 @@ const quicksortFunc = {
         ['quickSort', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32],
             returnType: WebAssemblyType.INT_32 }],
         ['quickSortFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
-        ['quickSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
-        ['quickSortWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
+        ['quickSortWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
 

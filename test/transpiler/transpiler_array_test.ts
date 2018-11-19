@@ -395,7 +395,7 @@ describe('Transpiler', () => {
                     'var array = [orderTest(testArray), change(testArray)];' +
                     'return array[0] == 0; }';
             const wrapper = transpiler
-                .setSignature('func', WebAssemblyType.INT_32)
+                .setSignature('func', WebAssemblyType.BOOLEAN)
                 .setSignature('orderTest', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('change', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);

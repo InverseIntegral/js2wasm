@@ -38,8 +38,8 @@ describe('Transpiler', function() {
     describe('#transpile()', () => {
         it('should run isPrime faster than 7 seconds', () => {
             const wrapper = transpiler
-                .setSignature('isPrime', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('isPrimeWhile', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('isPrime', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
+                .setSignature('isPrimeWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
                 .transpile(isPrime.toString() + isPrimeWhile.toString());
 
             expect(wrapper.setFunctionName('isPrimeWhile').call(46327)).to.equal(1);
@@ -89,8 +89,8 @@ describe('Transpiler', function() {
                 .setSignature('quickSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('quickSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortIsSorted', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortWhile', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
 
             expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(1);
@@ -108,9 +108,9 @@ describe('Transpiler', function() {
                 .setSignature('mergeSortMerge', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32,
                     WebAssemblyType.INT_32)
-                .setSignature('mergeSortIsSorted', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('mergeSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('mergeSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('mergeSortWhile', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];

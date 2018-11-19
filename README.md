@@ -8,7 +8,7 @@ Currently a direct installation using npm or yarn is not possible. If you want t
 clone the repository.
 
 # Usage
-In order to compile a function you have to supply its code as a string and its signature as a map to the `transpile` function.
+In order to compile a function you have to supply its code as a string and its function signatures as a map to the `transpile` function.
 The returned value is of the type `CallWrapper`.
 
 ```javascript

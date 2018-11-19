@@ -155,16 +155,16 @@ describe('Transpiler', () => {
 
         it('should handle for loop without condition', () => {
             const content = 'function loop(times) { ' +
-                'for (var i = 0;; i++) { return 0; }' +
-                'return -1; }';
+                'for (var i = 0;; i++) { return true; }' +
+                'return false; }';
             const wrapper = transpiler
-                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('loop', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
                 .transpile(content);
             wrapper.setFunctionName('loop');
 
-            expect(wrapper.call(5)).to.equal(0);
-            expect(wrapper.call(0)).to.equal(0);
-            expect(wrapper.call(-1)).to.equal(0);
+            expect(wrapper.call(5)).to.equal(1);
+            expect(wrapper.call(0)).to.equal(1);
+            expect(wrapper.call(-1)).to.equal(1);
         });
 
         it('should handle for loop with assignment as init', () => {

@@ -122,7 +122,6 @@ describe('Transpiler', () => {
 
             expect(wrapper.setFunctionName('variables').call()).to.equal(10);
 
-            const type2 = new Map([['variables', []]]);
             const content2 = 'function variables() { var x = 20; var x; return x; }';
             const wrapper2 = transpiler
                 .setSignature('variables', WebAssemblyType.INT_32)

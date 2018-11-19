@@ -25,11 +25,12 @@ wrapper.setFunctionName('add').call(21, 21);
   Creates a new transpiler with an empty hook class.
 * new Transpiler(hooks: `TranspilerHooks`): `void` <br />
   Creates a new transpiler with the specified hook instance.
-* Transpiler#**transpile**(content: `string`, signatures: `Map<string, WebAssemblyType[]>`): `CallWrapper` <br />
+* Transpiler#**setSignature**(name: `string`, returnType: `WebAssemblyType`, ...parameterTypes: `WebassemblyType[]`): `Transpiler` <br />
+  Creates a mapping from the function name to the return type and the parameter types.
+  The parameter types must be in the same order as they appear in the content string.
+* Transpiler#**transpile**(content: `string`): `CallWrapper` <br />
   Transpiles the specified content and checks the validity of the function signatures.
   The content can contain multiple functions.
-  The map contains mappings of function names to signatures.
-  A signature contains the parameter types in the same order as they appear in the content string.
 
 ## WebAssemblyType
 * **INT_32** <br />

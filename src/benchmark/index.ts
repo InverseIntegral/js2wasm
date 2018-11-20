@@ -129,7 +129,7 @@ const quicksortFunc = {
             returnType: WebAssemblyType.INT_32 }],
         ['quickSortFill', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
         ['quickSortIsSorted', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
-        ['quickSortWhile', {  parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
+        ['quickSortWhile', {  parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
 

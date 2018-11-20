@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 import Core from '../../src/example/core';
 import WasmInstance from '../../src/example/wasm_instance';
 

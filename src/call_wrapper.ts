@@ -5,36 +5,22 @@ import Module = WebAssembly.Module;
 
 class CallWrapper {
 
-    private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {
-        // A copy of the parameters array is needed, to not override the content of the original one
-        const fixedParameters = parameters.concat();
-        let index = 0;
-
-        for (let i = 0; i < fixedParameters.length; i++) {
-            if (fixedParameters[i] instanceof Array) {
-                const array = fixedParameters[i];
-                writeableMemory[index++] = array.length;
-                fixedParameters[i] = index * 4;
-
-                for (const element of array) {
-                    writeableMemory[index++] = element;
-                }
-            }
-        }
-
-        return fixedParameters;
-    }
-
     private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
+    private readonly arrayLiteralMemorySize: number;
     private readonly signatures: FunctionSignatures;
 
     private functionName: string;
     private outParameters: any[];
 
-    public constructor(wasmModule: Module, hooks: TranspilerHooks, signatures: FunctionSignatures) {
+    public constructor(wasmModule: Module,
+                       hooks: TranspilerHooks,
+                       arrayLiteralMemorySize: number,
+                       signatures: FunctionSignatures) {
+
         this.wasmModule = wasmModule;
         this.hooks = hooks;
+        this.arrayLiteralMemorySize = arrayLiteralMemorySize;
         this.signatures = signatures;
     }
 
@@ -75,13 +61,13 @@ class CallWrapper {
 
         const hasArrayParameters = parameters.some((parameter) => parameter instanceof Array);
 
-        if (hasArrayParameters) {
+        if (hasArrayParameters || this.arrayLiteralMemorySize !== 0) {
             const memoryDescriptor = { initial: this.calculateInitialMemorySize(parameters) };
 
             const memory = new WebAssembly.Memory(memoryDescriptor);
             const writeableMemory = new Uint32Array(memory.buffer);
 
-            fixedParameters = CallWrapper.fillMemory(fixedParameters, writeableMemory);
+            fixedParameters = this.fillMemory(fixedParameters, writeableMemory);
             importObject = { transpilerImports: { memory } };
         }
 
@@ -110,6 +96,26 @@ class CallWrapper {
         return result;
     }
 
+    private fillMemory(parameters: any[], writeableMemory: Uint32Array) {
+        // A copy of the parameters array is needed, to not override the content of the original one
+        const fixedParameters = parameters.concat();
+        let index = this.arrayLiteralMemorySize;
+
+        for (let i = 0; i < fixedParameters.length; i++) {
+            if (fixedParameters[i] instanceof Array) {
+                const array = fixedParameters[i];
+                writeableMemory[index++] = array.length;
+                fixedParameters[i] = index * 4;
+
+                for (const element of array) {
+                    writeableMemory[index++] = element;
+                }
+            }
+        }
+
+        return fixedParameters;
+    }
+
     private readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
         for (const outParameter of this.outParameters) {
             const outParameterIndex = parameters.indexOf(outParameter);
@@ -134,7 +140,7 @@ class CallWrapper {
             .map((array) => array.length + 1)
             .reduce((accumulator, current) => accumulator + current, 0);
 
-        return Math.ceil((memoryElementCount * 4) / pageSize);
+        return Math.ceil(((memoryElementCount + this.arrayLiteralMemorySize) * 4) / pageSize);
     }
 
     private getCurrentSignature() {

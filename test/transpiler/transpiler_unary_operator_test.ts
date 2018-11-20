@@ -47,8 +47,8 @@ describe('Transpiler', () => {
                 .transpile('function func(a) { return !a; }');
             wrapper.setFunctionName('func');
 
-            expect(wrapper.call(true)).to.equal(0);
-            expect(wrapper.call(false)).to.equal(1);
+            expect(wrapper.call(true)).to.equal(false);
+            expect(wrapper.call(false)).to.equal(true);
         });
 
         it('should handle pre increment', () => {

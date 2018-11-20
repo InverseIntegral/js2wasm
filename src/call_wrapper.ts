@@ -1,5 +1,5 @@
 import {FunctionSignatures} from './generator/generator';
-import {isOfType} from './generator/wasm_type';
+import {isOfType, WebAssemblyType} from './generator/wasm_type';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
@@ -106,6 +106,20 @@ class CallWrapper {
         }
 
         this.hooks.afterExport();
+
+        return this.convertResult(result);
+    }
+
+    private convertResult(result: number) {
+        const signature = this.getCurrentSignature();
+
+        if (signature.returnType === WebAssemblyType.BOOLEAN) {
+            if (result !== 0 && result !== 1) {
+                throw new Error(`Return type of function ${this.functionName} was defined to be a boolean`);
+            }
+
+            return result !== 0;
+        }
 
         return result;
     }

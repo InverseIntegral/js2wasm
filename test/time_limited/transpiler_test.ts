@@ -42,7 +42,7 @@ describe('Transpiler', function() {
                 .setSignature('isPrimeWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
                 .transpile(isPrime.toString() + isPrimeWhile.toString());
 
-            expect(wrapper.setFunctionName('isPrimeWhile').call(46327)).to.equal(1);
+            expect(wrapper.setFunctionName('isPrimeWhile').call(46327)).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(7000);
         });
 
@@ -93,7 +93,7 @@ describe('Transpiler', function() {
                 .setSignature('quickSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(1);
+            expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(12000);
         });
 
@@ -115,7 +115,7 @@ describe('Transpiler', function() {
                 .transpile(content);
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(1);
+            expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(16000);
         });
     });

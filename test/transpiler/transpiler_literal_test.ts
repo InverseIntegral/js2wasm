@@ -24,20 +24,20 @@ describe('Transpiler', () => {
                 .transpile('function id(a) { return a; }');
             wrapper.setFunctionName('id');
 
-            expect(wrapper.call(true)).to.equal(1);
-            expect(wrapper.call(false)).to.equal(0);
+            expect(wrapper.call(true)).to.equal(true);
+            expect(wrapper.call(false)).to.equal(false);
         });
 
         it('should handle boolean literals', () => {
             const wrapper = transpiler
                 .setSignature('alwaysTrue', WebAssemblyType.BOOLEAN)
                 .transpile('function alwaysTrue() { return true; }');
-            expect(wrapper.setFunctionName('alwaysTrue').call()).to.equal(1);
+            expect(wrapper.setFunctionName('alwaysTrue').call()).to.equal(true);
 
             const wrapper2 = transpiler
                 .setSignature('alwaysFalse', WebAssemblyType.BOOLEAN)
                 .transpile('function alwaysFalse() { return false; }');
-            expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(0);
+            expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(false);
         });
     });
 });

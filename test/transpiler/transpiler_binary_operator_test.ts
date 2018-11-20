@@ -146,8 +146,8 @@ describe('Transpiler', () => {
                 .transpile('function eq(a, b) { return a == b }');
             wrapper.setFunctionName('eq');
 
-            expect(wrapper.call(3, 3)).to.equal(1);
-            expect(wrapper.call(3, 2)).to.equal(0);
+            expect(wrapper.call(3, 3)).to.equal(true);
+            expect(wrapper.call(3, 2)).to.equal(false);
         });
 
         it('should handle inequality', () => {
@@ -156,8 +156,8 @@ describe('Transpiler', () => {
                 .transpile('function neq(a, b) { return a != b }');
             wrapper.setFunctionName('neq');
 
-            expect(wrapper.call(3, 2)).to.equal(1);
-            expect(wrapper.call(3, 3)).to.equal(0);
+            expect(wrapper.call(3, 2)).to.equal(true);
+            expect(wrapper.call(3, 3)).to.equal(false);
         });
 
         it('should handle less than', () => {
@@ -166,11 +166,11 @@ describe('Transpiler', () => {
                 .transpile('function lt(a, b) { return a < b }');
             wrapper.setFunctionName('lt');
 
-            expect(wrapper.call(3, 2)).to.equal(0);
-            expect(wrapper.call(3, 3)).to.equal(0);
-            expect(wrapper.call(3, 4)).to.equal(1);
-            expect(wrapper.call(-3, -4)).to.equal(0);
-            expect(wrapper.call(-4, -3)).to.equal(1);
+            expect(wrapper.call(3, 2)).to.equal(false);
+            expect(wrapper.call(3, 3)).to.equal(false);
+            expect(wrapper.call(3, 4)).to.equal(true);
+            expect(wrapper.call(-3, -4)).to.equal(false);
+            expect(wrapper.call(-4, -3)).to.equal(true);
         });
 
         it('should handle less than or equal to', () => {
@@ -179,11 +179,11 @@ describe('Transpiler', () => {
                 .transpile('function le(a, b) { return a <= b }');
             wrapper.setFunctionName('le');
 
-            expect(wrapper.call(3, 2)).to.equal(0);
-            expect(wrapper.call(3, 3)).to.equal(1);
-            expect(wrapper.call(3, 4)).to.equal(1);
-            expect(wrapper.call(-3, -4)).to.equal(0);
-            expect(wrapper.call(-4, -3)).to.equal(1);
+            expect(wrapper.call(3, 2)).to.equal(false);
+            expect(wrapper.call(3, 3)).to.equal(true);
+            expect(wrapper.call(3, 4)).to.equal(true);
+            expect(wrapper.call(-3, -4)).to.equal(false);
+            expect(wrapper.call(-4, -3)).to.equal(true);
         });
 
         it('should handle greater than', () => {
@@ -192,11 +192,11 @@ describe('Transpiler', () => {
                 .transpile('function gt(a, b) { return a > b }');
             wrapper.setFunctionName('gt');
 
-            expect(wrapper.call(3, 2)).to.equal(1);
-            expect(wrapper.call(3, 3)).to.equal(0);
-            expect(wrapper.call(3, 4)).to.equal(0);
-            expect(wrapper.call(-3, -4)).to.equal(1);
-            expect(wrapper.call(-4, -3)).to.equal(0);
+            expect(wrapper.call(3, 2)).to.equal(true);
+            expect(wrapper.call(3, 3)).to.equal(false);
+            expect(wrapper.call(3, 4)).to.equal(false);
+            expect(wrapper.call(-3, -4)).to.equal(true);
+            expect(wrapper.call(-4, -3)).to.equal(false);
         });
 
         it('should handle greater than or equal to', () => {
@@ -205,11 +205,11 @@ describe('Transpiler', () => {
                 .transpile('function ge(a, b) { return a >= b }');
             wrapper.setFunctionName('ge');
 
-            expect(wrapper.call(3, 2)).to.equal(1);
-            expect(wrapper.call(3, 3)).to.equal(1);
-            expect(wrapper.call(3, 4)).to.equal(0);
-            expect(wrapper.call(-3, -4)).to.equal(1);
-            expect(wrapper.call(-4, -3)).to.equal(0);
+            expect(wrapper.call(3, 2)).to.equal(true);
+            expect(wrapper.call(3, 3)).to.equal(true);
+            expect(wrapper.call(3, 4)).to.equal(false);
+            expect(wrapper.call(-3, -4)).to.equal(true);
+            expect(wrapper.call(-4, -3)).to.equal(false);
         });
 
         it('should handle parenthesis', () => {
@@ -226,10 +226,10 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('and');
 
-            expect(wrapper.call(true, true)).to.equal(1);
-            expect(wrapper.call(true, false)).to.equal(0);
-            expect(wrapper.call(false, true)).to.equal(0);
-            expect(wrapper.call(false, false)).to.equal(0);
+            expect(wrapper.call(true, true)).to.equal(true);
+            expect(wrapper.call(true, false)).to.equal(false);
+            expect(wrapper.call(false, true)).to.equal(false);
+            expect(wrapper.call(false, false)).to.equal(false);
         });
 
         it('should handle logical or', () => {
@@ -239,10 +239,10 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('or');
 
-            expect(wrapper.call(true, true)).to.equal(1);
-            expect(wrapper.call(true, false)).to.equal(1);
-            expect(wrapper.call(false, true)).to.equal(1);
-            expect(wrapper.call(false, false)).to.equal(0);
+            expect(wrapper.call(true, true)).to.equal(true);
+            expect(wrapper.call(true, false)).to.equal(true);
+            expect(wrapper.call(false, true)).to.equal(true);
+            expect(wrapper.call(false, false)).to.equal(false);
         });
 
         it('should handle multiple logical operators', () => {
@@ -253,14 +253,14 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('logic');
 
-            expect(wrapper.call(true, true, true)).to.equal(1);
-            expect(wrapper.call(true, true, false)).to.equal(1);
-            expect(wrapper.call(true, false, true)).to.equal(1);
-            expect(wrapper.call(true, false, false)).to.equal(1);
-            expect(wrapper.call(false, true, true)).to.equal(1);
-            expect(wrapper.call(false, true, false)).to.equal(0);
-            expect(wrapper.call(false, false, true)).to.equal(0);
-            expect(wrapper.call(false, false, false)).to.equal(0);
+            expect(wrapper.call(true, true, true)).to.equal(true);
+            expect(wrapper.call(true, true, false)).to.equal(true);
+            expect(wrapper.call(true, false, true)).to.equal(true);
+            expect(wrapper.call(true, false, false)).to.equal(true);
+            expect(wrapper.call(false, true, true)).to.equal(true);
+            expect(wrapper.call(false, true, false)).to.equal(false);
+            expect(wrapper.call(false, false, true)).to.equal(false);
+            expect(wrapper.call(false, false, false)).to.equal(false);
         });
 
         it('should handle expression statements', () => {

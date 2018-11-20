@@ -1,5 +1,4 @@
 import {
-    ArrayExpression,
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
@@ -9,7 +8,6 @@ import {
     ForStatement,
     Identifier,
     IfStatement,
-    isArrayExpression,
     isAssignmentExpression,
     isBinaryExpression,
     isBlockStatement,

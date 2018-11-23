@@ -66,7 +66,7 @@ class Generator {
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
-        const variableTypes = new TypeInferenceVisitor().run(tree, signature, signatures);
+        const expressionTypes = new TypeInferenceVisitor().run(tree, signature, signatures);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);

@@ -1,6 +1,6 @@
 import CallWrapper from './call_wrapper';
-import {ArrayExpressionVisitor} from './generator/array_expression_visitor';
 import {FunctionSignatures, Generator} from './generator/generator';
+import {WebAssemblyType} from './generator/wasm_type';
 import NullTranspilerHooks from './null_transpiler_hooks';
 import Parser from './parser/parser';
 import TranspilerHooks from './transpiler_hooks';
@@ -9,27 +9,31 @@ import Module = WebAssembly.Module;
 class Transpiler {
 
     private readonly hooks: TranspilerHooks;
+    private readonly signatures: FunctionSignatures;
 
     private wasmModule: Module;
-    private arrayLiteralMemorySize = 0;
 
     public constructor(hooks: TranspilerHooks = new NullTranspilerHooks()) {
         this.hooks = hooks;
+        this.signatures = new Map();
     }
 
-    public transpile(content: string, signatures: FunctionSignatures) {
+    public setSignature(name: string, returnType: WebAssemblyType, ...parameterTypes: WebAssemblyType[]) {
+        this.signatures.set(name, { returnType, parameterTypes });
+        return this;
+    }
+
+    public transpile(content: string) {
         this.hooks.beforeCompilation();
-        this.compile(content, signatures);
+        this.compile(content);
         this.hooks.afterCompilation();
 
-        return new CallWrapper(this.wasmModule, this.hooks, this.arrayLiteralMemorySize, signatures);
+        return new CallWrapper(this.wasmModule, this.hooks, this.signatures);
     }
 
-    private compile(content: string, signatures: FunctionSignatures) {
+    private compile(content: string) {
         const file = Parser.parse(content);
-        const arrayLiteralVisitor = new ArrayExpressionVisitor();
-        const module = Generator.generate(file, arrayLiteralVisitor, signatures);
-        this.arrayLiteralMemorySize = arrayLiteralVisitor.arrayLiteralMemorySize;
+        const module = Generator.generate(file, this.signatures);
 
         module.optimize();
 

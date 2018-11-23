@@ -7,6 +7,7 @@ import {
     VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
+import {FunctionSignature} from './generator';
 import {WebAssemblyType} from './wasm_type';
 
 class TypeInferenceVisitor extends Visitor {
@@ -14,7 +15,7 @@ class TypeInferenceVisitor extends Visitor {
     private variableTypes = new Map<string, WebAssemblyType>();
     private returnType: WebAssemblyType;
 
-    public run(tree: FunctionDeclaration, signature: WebAssemblyType[]) {
+    public run(tree: FunctionDeclaration, signature: FunctionSignature) {
         this.initializeTypes(tree, signature);
 
         this.visit(tree.body);
@@ -114,13 +115,13 @@ class TypeInferenceVisitor extends Visitor {
         }
     }
 
-    private initializeTypes(tree: FunctionDeclaration, signature: WebAssemblyType[]) {
+    private initializeTypes(tree: FunctionDeclaration, signature: FunctionSignature) {
         tree.params.forEach((parameter, index) => {
             if (!isIdentifier(parameter)) {
                 throw new Error('Parameter is not of type identifier');
             }
 
-            this.variableTypes.set(parameter.name, signature[index]);
+            this.variableTypes.set(parameter.name, signature.parameterTypes[index]);
         });
     }
 }

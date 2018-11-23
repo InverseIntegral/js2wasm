@@ -72,7 +72,11 @@ class Benchmark {
         Benchmark.executeJS(func[0], args, expectedResult, warmupRounds);
         const jsTimes = Benchmark.executeJS(func[0], args, expectedResult, measureRounds);
 
-        const callWrapper = transpiler.transpile(func.join(''), signatures);
+        for (const entity of signatures.entries()) {
+            transpiler.setSignature(entity[0], entity[1].returnType, ...entity[1].parameterTypes);
+        }
+
+        const callWrapper = transpiler.transpile(func.join(''));
         callWrapper.setFunctionName(func[0].name);
         this.executeWasm(callWrapper, args, expectedResult, warmupRounds);
         const wasmTimes = this.executeWasm(callWrapper, args, expectedResult, measureRounds);

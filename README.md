@@ -8,11 +8,14 @@ Currently a direct installation using npm or yarn is not possible. If you want t
 clone the repository.
 
 # Usage
-In order to compile a function you have to supply it as a string to the `transpile` function.
-The returned value is of the type CallWrapper.
+In order to compile a function you have to supply its code as a string and its function signatures as a map to the `transpile` function.
+The returned value is of the type `CallWrapper`.
 
 ```javascript
-const wrapper = new Transpiler().transpile('function add(a, b) { return a + b; }');
+const signature = new Map();
+signature.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
+
+const wrapper = new Transpiler().transpile('function add(a, b) { return a + b; }', signature);
 wrapper.setFunctionName('add').call(21, 21);
 ```
 
@@ -22,8 +25,20 @@ wrapper.setFunctionName('add').call(21, 21);
   Creates a new transpiler with an empty hook class.
 * new Transpiler(hooks: `TranspilerHooks`): `void` <br />
   Creates a new transpiler with the specified hook instance.
+* Transpiler#**setSignature**(name: `string`, returnType: `WebAssemblyType`, ...parameterTypes: `WebassemblyType[]`): `Transpiler` <br />
+  Creates a mapping from the function name to the return type and the parameter types.
+  The parameter types must be in the same order as they appear in the content string.
 * Transpiler#**transpile**(content: `string`): `CallWrapper` <br />
-  Transpiles the specified content.
+  Transpiles the specified content and checks the validity of the function signatures.
+  The content can contain multiple functions.
+
+## WebAssemblyType
+* **INT_32** <br />
+  The WebAssembly int32 type.
+* **INT_32_ARRAY** <br />
+  An array of `INT_32` elements.
+* **BOOLEAN** <br />
+  The boolean type.
 
 ## CallWrapper
 * CallWrapper#**setFunctionName**(functionName: `string`): `CallWrapper` <br />

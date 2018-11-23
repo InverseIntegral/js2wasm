@@ -12,10 +12,9 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should check parameter amount', () => {
-            const signatures = new Map();
-            signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
-
-            const wrapper = transpiler.transpile('function add(a, b) { return a + b; }', signatures);
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function add(a, b) { return a + b; }');
             wrapper.setFunctionName('add');
 
             expect(() => wrapper.call(1, 2, 3)).to.throw();
@@ -27,21 +26,22 @@ describe('Transpiler', () => {
             const signatures = new Map();
             signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
 
-            const wrapper = transpiler.transpile('function add(a, b) { return a + b; }', signatures);
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function add(a, b) { return a + b; }');
 
             expect(() => wrapper.call(1, 2)).to.throw();
             expect(() => wrapper.call(3, 4)).to.throw();
         });
 
         it('should check if the parameter types match the signature', () => {
-            const signatures = new Map();
-            signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
-            signatures.set('and', [WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN]);
-            signatures.set('length', [WebAssemblyType.INT_32_ARRAY]);
-
-            const wrapper = transpiler.transpile('function add(a, b) { return a + b; }' +
-                'function and(a, b) { return a && b; }' +
-                'function length(array) { return array.length; }', signatures);
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('and', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .setSignature('length', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function add(a, b) { return a + b; }' +
+                    'function and(a, b) { return a && b; }' +
+                    'function length(array) { return array.length; }');
 
             wrapper.setFunctionName('add');
             expect(() => wrapper.call([], 2)).to.throw();
@@ -68,12 +68,11 @@ describe('Transpiler', () => {
         });
 
         it('should check if the parameters match the signature', () => {
-            const signatures = new Map();
-            signatures.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
+            transpiler.setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32);
 
-            expect(() => transpiler.transpile('function add(a, b, c) { return a + b; }', signatures)).to.throw();
-            expect(() => transpiler.transpile('function add(a) { return a + 10; }', signatures)).to.throw();
-            expect(() => transpiler.transpile('function add() { return 10; }', signatures)).to.throw();
+            expect(() => transpiler.transpile('function add(a, b, c) { return a + b; }')).to.throw();
+            expect(() => transpiler.transpile('function add(a) { return a + 10; }')).to.throw();
+            expect(() => transpiler.transpile('function add() { return 10; }')).to.throw();
         });
     });
 });

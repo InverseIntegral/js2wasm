@@ -12,14 +12,16 @@ describe('Transpiler', () => {
 
     describe('#transpile()', () => {
         it('should handle numeric literals', () => {
-            const type = new Map([['answer', []]]);
-            const wrapper = transpiler.transpile('function answer() { return 42; }', type);
+            const wrapper = transpiler
+                .setSignature('answer', WebAssemblyType.INT_32)
+                .transpile('function answer() { return 42; }');
             expect(wrapper.setFunctionName('answer').call()).to.equal(42);
         });
 
         it('should return correct boolean value', () => {
-            const type = new Map([['id', [WebAssemblyType.BOOLEAN]]]);
-            const wrapper = transpiler.transpile('function id(a) { return a; }', type);
+            const wrapper = transpiler
+                .setSignature('id', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile('function id(a) { return a; }');
             wrapper.setFunctionName('id');
 
             expect(wrapper.call(true)).to.equal(1);
@@ -27,12 +29,14 @@ describe('Transpiler', () => {
         });
 
         it('should handle boolean literals', () => {
-            const type = new Map([['alwaysTrue', []]]);
-            const wrapper = transpiler.transpile('function alwaysTrue() { return true; }', type);
+            const wrapper = transpiler
+                .setSignature('alwaysTrue', WebAssemblyType.BOOLEAN)
+                .transpile('function alwaysTrue() { return true; }');
             expect(wrapper.setFunctionName('alwaysTrue').call()).to.equal(1);
 
-            const type2 = new Map([['alwaysFalse', []]]);
-            const wrapper2 = transpiler.transpile('function alwaysFalse() { return false; }', type2);
+            const wrapper2 = transpiler
+                .setSignature('alwaysFalse', WebAssemblyType.BOOLEAN)
+                .transpile('function alwaysFalse() { return false; }');
             expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(0);
         });
     });

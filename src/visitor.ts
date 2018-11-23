@@ -1,5 +1,4 @@
 import {
-    ArrayExpression,
     AssignmentExpression,
     BinaryExpression,
     BlockStatement,
@@ -9,7 +8,6 @@ import {
     ForStatement,
     Identifier,
     IfStatement,
-    isArrayExpression,
     isAssignmentExpression,
     isBinaryExpression,
     isBlockStatement,
@@ -77,8 +75,6 @@ abstract class Visitor {
             this.visitForStatement(node);
         } else if (isCallExpression(node)) {
             this.visitCallExpression(node);
-        } else if (isArrayExpression(node)) {
-            this.visitArrayExpression(node);
         } else if (isMemberExpression(node)) {
             this.visitMemberExpression(node);
         } else {
@@ -186,14 +182,6 @@ abstract class Visitor {
     protected visitMemberExpression(node: MemberExpression) {
         this.visit(node.object);
         this.visit(node.property);
-    }
-
-    protected visitArrayExpression(node: ArrayExpression) {
-        for (const element of node.elements) {
-            if (element !== null) {
-                this.visit(element);
-            }
-        }
     }
 
 }

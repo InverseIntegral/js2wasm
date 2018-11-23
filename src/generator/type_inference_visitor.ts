@@ -97,7 +97,6 @@ class TypeInferenceVisitor extends Visitor {
 
                 return signature.returnType;
             }
-            // TODO: Build DAG of function calls and determine the inference order
         } else if (isMemberExpression(expression)) {
             if (expression.computed) {
                 return WebAssemblyType.INT_32_ARRAY;

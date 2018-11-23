@@ -83,4 +83,4 @@ class Generator {
 
 }
 
-export {Generator, FunctionSignatures};
+export {Generator, FunctionSignatures, FunctionSignature};

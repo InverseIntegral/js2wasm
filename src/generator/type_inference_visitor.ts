@@ -7,23 +7,25 @@ import {
     VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
-import {FunctionSignature} from './generator';
+import {FunctionSignature, FunctionSignatures} from './generator';
 import {WebAssemblyType} from './wasm_type';
 
 class TypeInferenceVisitor extends Visitor {
 
+    private signatures: FunctionSignatures;
     private variableTypes = new Map<string, WebAssemblyType>();
     private returnType: WebAssemblyType;
 
-    public run(tree: FunctionDeclaration, signature: FunctionSignature) {
+    public run(tree: FunctionDeclaration,
+               signature: FunctionSignature,
+               signatures: FunctionSignatures) {
+
+        this.signatures = signatures;
         this.initializeTypes(tree, signature);
 
         this.visit(tree.body);
 
-        return {
-            returnType: this.returnType,
-            variableTypes: this.variableTypes,
-        };
+        return this.variableTypes;
     }
 
     protected visitVariableDeclarator(node: VariableDeclarator): void {
@@ -103,6 +105,15 @@ class TypeInferenceVisitor extends Visitor {
                 return WebAssemblyType.INT_32;
             }
         } else if (isCallExpression(expression)) {
+            if (isIdentifier(expression.callee)) {
+                const signature = this.signatures.get(expression.callee.name);
+
+                if (signature === undefined) {
+                    throw new Error(`Couldn\'t find signature of function ${expression.callee.name}`);
+                }
+
+                return signature.returnType;
+            }
             // TODO: Build DAG of function calls and determine the inference order
         } else if (isMemberExpression(expression)) {
             if (expression.computed) {

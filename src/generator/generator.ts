@@ -48,25 +48,25 @@ class Generator {
         }
 
         const functionName = tree.id.name;
-        const functionSignature = signatures.get(functionName);
+        const signature = signatures.get(functionName);
 
-        if (functionSignature === undefined) {
+        if (signature === undefined) {
             throw new Error(`No type for function ${functionName} defined`);
         }
 
         const actualLength = tree.params.length;
-        const expectedLength = functionSignature.parameterTypes.length;
+        const expectedLength = signature.parameterTypes.length;
 
         if (actualLength !== expectedLength) {
             throw new Error('The provided type signature has '
                 + expectedLength + ' parameters and the function has ' + actualLength + ' parameters');
         }
 
-        const parameterTypes = functionSignature.parameterTypes.map(toBinaryenType);
+        const parameterTypes = signature.parameterTypes.map(toBinaryenType);
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
-        const variableTypes = new TypeInferenceVisitor().run(tree, functionSignature);
+        const variableTypes = new TypeInferenceVisitor().run(tree, signature, signatures);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);

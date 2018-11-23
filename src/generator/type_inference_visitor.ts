@@ -14,7 +14,6 @@ class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
     private variableTypes = new Map<string, WebAssemblyType>();
-    private returnType: WebAssemblyType;
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
@@ -63,22 +62,6 @@ class TypeInferenceVisitor extends Visitor {
                 this.variableTypes.set(node.left.name, type);
             }
         }
-    }
-
-    protected visitReturnStatement(node: ReturnStatement): void {
-        super.visitReturnStatement(node);
-
-        if (node.argument === null) {
-            throw new Error('Can\'t infer type of return without expression');
-        }
-
-        const type = this.getTypeOfExpression(node.argument);
-
-        if (type === undefined) {
-            throw new Error('Couldn\'t infer type of return statement');
-        }
-
-        this.returnType = type;
     }
 
     private getTypeOfExpression(expression: Expression) {

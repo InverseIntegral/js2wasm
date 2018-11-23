@@ -113,7 +113,8 @@ class CallWrapper {
     private convertResult(result: number, signature: FunctionSignature) {
         if (signature.returnType === WebAssemblyType.BOOLEAN) {
             if (result !== 0 && result !== 1) {
-                throw new Error(`Return type of function ${this.functionName} was defined to be a boolean`);
+                throw new Error(`The returned value of the function ${this.functionName}
+                    could not be converted to boolean`);
             }
 
             return result !== 0;

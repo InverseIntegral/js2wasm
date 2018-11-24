@@ -63,7 +63,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        this.expressions.push(this.getOperationType(node).const(node.value));
+        this.expressions.push(this.getOperationsInstance(node).const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -421,7 +421,7 @@ class GeneratorVisitor extends Visitor {
         return 'label_' + this.labelCounter++;
     }
 
-    private getOperationType(expression: BabelExpression) {
+    private getOperationsInstance(expression: BabelExpression) {
         const type = this.getExpressionType(expression);
 
         if (type === WebAssemblyType.FLOAT_64) {

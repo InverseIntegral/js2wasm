@@ -65,6 +65,15 @@ describe('Transpiler', () => {
             expect(wrapper.setFunctionName('variables').call(100)).to.equal(10);
         });
 
+        it('should handle boolean variable', () => {
+            const content = 'function variables() { var x = true; var y; y = false; return x || y; }';
+            const wrapper = transpiler
+                .setSignature('variables', WebAssemblyType.BOOLEAN)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('variables').call()).to.equal(true);
+        });
+
         it('should handle a single variable with direct assignment', () => {
             const wrapper = transpiler
                 .setSignature('variables', WebAssemblyType.INT_32)

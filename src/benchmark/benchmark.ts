@@ -14,19 +14,7 @@ interface Algorithm {
 class Benchmark {
 
     private static assert(result: any, expected: any) {
-        if (typeof result === 'number' && typeof expected === 'boolean') {
-            switch (result) {
-                case 0:
-                    Benchmark.assert(false, expected);
-                    break;
-                case 1:
-                    Benchmark.assert(true, expected);
-                    break;
-                default:
-                    console.error(`Assertion failed, expected=${expected}, actual=${result}`);
-                    break;
-            }
-        } else if (result !== expected) {
+        if (result !== expected) {
             console.error(`Assertion failed, expected=${expected}, actual=${result}`);
         }
     }

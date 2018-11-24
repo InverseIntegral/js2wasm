@@ -81,5 +81,19 @@ describe('Transpiler', () => {
             expect(wrapper.call(2)).to.equal(4);
             expect(wrapper.call(-2)).to.equal(-4);
         });
+
+        it('should handle function call with not matching return type conversion', () => {
+            const content = 'function func(value) { return value; }';
+
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
+                .transpile(content);
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call(1)).to.equal(true);
+            expect(wrapper.call(0)).to.equal(false);
+            expect(() => wrapper.call(2)).to.throw();
+            expect(() => wrapper.call(-1)).to.throw();
+        });
     });
 });

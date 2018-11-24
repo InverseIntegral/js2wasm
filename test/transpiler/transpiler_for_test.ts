@@ -162,9 +162,9 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('loop');
 
-            expect(wrapper.call(5)).to.equal(1);
-            expect(wrapper.call(0)).to.equal(1);
-            expect(wrapper.call(-1)).to.equal(1);
+            expect(wrapper.call(5)).to.equal(true);
+            expect(wrapper.call(0)).to.equal(true);
+            expect(wrapper.call(-1)).to.equal(true);
         });
 
         it('should handle for loop with assignment as init', () => {

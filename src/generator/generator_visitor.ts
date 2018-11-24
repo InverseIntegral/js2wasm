@@ -435,7 +435,7 @@ class GeneratorVisitor extends Visitor {
         const type = this.expressionTypes.get(expression);
 
         if (type === undefined) {
-            throw new Error('Expression type not defined');
+            throw new Error(`Expression type of ${expression.type} not defined`);
         }
 
         return type;

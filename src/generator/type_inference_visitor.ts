@@ -171,11 +171,12 @@ class TypeInferenceVisitor extends Visitor {
             const rightSideType = this.expressionTypes.get(node.right);
 
             if (rightSideType === undefined) {
-                throw new Error(`Unknown type for right side of
-                    assignment to ${(node.left.object as Identifier).name}`);
+                if (isIdentifier(node.left.object)) {
+                    throw new Error(`Unknown type for right side of assignment to ${node.left.object.name}`);
+                }
+            } else {
+                this.expressionTypes.set(node.left, rightSideType);
             }
-
-            this.expressionTypes.set(node.left, rightSideType);
         }
     }
 

@@ -84,19 +84,10 @@ class Generator {
     }
 
     private static getVariableTypes(variableMapping: VariableMapping, variableTypes: VariableTypes) {
-        const types = [];
-
-        for (const key of variableMapping.keys()) {
-            const webAssemblyType = variableTypes.get(key);
-
-            if (webAssemblyType === undefined) {
-                throw new Error(`Type could not be infered for variable ${key}`);
-            }
-
-            types.push(toBinaryenType(webAssemblyType));
-        }
-
-        return types;
+        return [...variableMapping.entries()]
+            .sort((first, second) => first[1] - second[1])
+            .map((entry) => variableTypes.get(entry[0]))
+            .map(toBinaryenType);
     }
 
 }

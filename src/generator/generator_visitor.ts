@@ -87,7 +87,8 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(operand);
                 break;
             case '-':
-                this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
+                const operationsInstance = this.getOperationsInstance(node);
+                this.expressions.push(operationsInstance.sub(operationsInstance.const(0), operand));
                 break;
             case '!':
                 this.expressions.push(this.module.i32.eqz(operand));

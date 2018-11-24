@@ -64,7 +64,7 @@ class TypeInferenceVisitor extends Visitor {
         if (operator === '!') {
             type = WebAssemblyType.BOOLEAN;
         } else if (['+', '-'].includes(operator)) {
-            type = WebAssemblyType.INT_32;
+            type = this.getTypeOfExpression(node.argument);
         } else {
             throw new Error(`Unknown operator ${operator}`);
         }
@@ -186,6 +186,16 @@ class TypeInferenceVisitor extends Visitor {
                 return value;
             }
         }
+    }
+
+    private getTypeOfExpression(expression: Expression) {
+        const type = this.expressionTypes.get(expression);
+
+        if (type === undefined) {
+            throw new Error(`The type of expression ${expression} could not be infered`);
+        }
+
+        return type;
     }
 
     private initializeParameterTypes(tree: FunctionDeclaration, signature: FunctionSignature) {

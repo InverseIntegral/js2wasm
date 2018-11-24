@@ -18,13 +18,13 @@ import {FunctionSignature, FunctionSignatures} from './generator';
 import {getNumberType, WebAssemblyType} from './wasm_type';
 
 type ExpressionTypes = Map<Expression, WebAssemblyType>;
-type VariableTypes = WebAssemblyType[];
+type VariableTypes = Map<string, WebAssemblyType>;
 
 class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
     private expressionTypes: ExpressionTypes = new Map();
-    private variableTypes: VariableTypes = [];
+    private variableTypes: VariableTypes = new Map();
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
@@ -149,7 +149,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.id, rightSideType);
-            this.variableTypes.push(rightSideType);
+            this.updateVariableTypes(node.id, rightSideType);
         }
     }
 
@@ -164,7 +164,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.left, rightSideType);
-            this.variableTypes.push(rightSideType);
+            this.updateVariableTypes(node.left, rightSideType);
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
 
@@ -196,6 +196,17 @@ class TypeInferenceVisitor extends Visitor {
 
             this.expressionTypes.set(parameter, signature.parameterTypes[index]);
         });
+    }
+
+    private updateVariableTypes(identifier: Identifier, rightSideType: WebAssemblyType) {
+        const currentValue = this.variableTypes.get(identifier.name);
+
+        if (currentValue !== undefined && currentValue !== rightSideType) {
+            throw new Error(`Tried to change the value type of ${identifier.name}
+                from ${currentValue} to ${rightSideType}`);
+        }
+
+        this.variableTypes.set(identifier.name, rightSideType);
     }
 }
 

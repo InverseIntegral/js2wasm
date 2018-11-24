@@ -3,7 +3,7 @@ import {Module} from 'binaryen';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
-import {TypeInferenceVisitor} from './type_inference_visitor';
+import {TypeInferenceVisitor, VariableTypes} from './type_inference_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 // @ts-ignore
@@ -74,13 +74,29 @@ class Generator {
         const body = generatorVisitor.run(tree);
 
         const functionType = module.addFunctionType(functionName, toBinaryenType(signature.returnType), parameterTypes);
-        module.addFunction(functionName, functionType, variableTypes.map(toBinaryenType), body);
+        module.addFunction(functionName, functionType, this.getVariableTypes(variableMapping, variableTypes), body);
         module.addFunctionExport(functionName, functionName);
     }
 
     private static mergeMappings(first: VariableMapping,
                                  second: VariableMapping): VariableMapping {
         return new Map([...first, ...second]);
+    }
+
+    private static getVariableTypes(variableMapping: VariableMapping, variableTypes: VariableTypes) {
+        const types = [];
+
+        for (const key of variableMapping.keys()) {
+            const webAssemblyType = variableTypes.get(key);
+
+            if (webAssemblyType === undefined) {
+                throw new Error(`Type could not be infered for variable ${key}`);
+            }
+
+            types.push(toBinaryenType(webAssemblyType));
+        }
+
+        return types;
     }
 
 }

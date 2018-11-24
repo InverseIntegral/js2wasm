@@ -22,7 +22,7 @@ class TypeInferenceVisitor extends Visitor {
                signatures: FunctionSignatures) {
 
         this.signatures = signatures;
-        this.initializeTypes(tree, signature);
+        this.initializeParameterTypes(tree, signature);
 
         this.visit(tree.body);
 
@@ -164,7 +164,7 @@ class TypeInferenceVisitor extends Visitor {
         }
     }
 
-    private initializeTypes(tree: FunctionDeclaration, signature: FunctionSignature) {
+    private initializeParameterTypes(tree: FunctionDeclaration, signature: FunctionSignature) {
         tree.params.forEach((parameter, index) => {
             if (!isIdentifier(parameter)) {
                 throw new Error('Parameter is not of type identifier');

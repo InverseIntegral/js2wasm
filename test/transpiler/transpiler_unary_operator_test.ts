@@ -23,7 +23,6 @@ describe('Transpiler', () => {
         });
 
         it('should handle unary minus', () => {
-            const type = new Map([['func', [WebAssemblyType.INT_32]]]);
             const wrapper = transpiler
                 .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .transpile('function func(a) { return -a + -40; }');

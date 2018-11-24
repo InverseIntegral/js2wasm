@@ -199,14 +199,15 @@ class TypeInferenceVisitor extends Visitor {
     }
 
     private updateVariableTypes(identifier: Identifier, rightSideType: WebAssemblyType) {
-        const currentValue = this.variableTypes.get(identifier.name);
+        const variableName = identifier.name;
+        const currentValue = this.variableTypes.get(variableName);
 
         if (currentValue !== undefined && currentValue !== rightSideType) {
-            throw new Error(`Tried to change the value type of ${identifier.name}
+            throw new Error(`Tried to change the value type of ${variableName}
                 from ${currentValue} to ${rightSideType}`);
         }
 
-        this.variableTypes.set(identifier.name, rightSideType);
+        this.variableTypes.set(variableName, rightSideType);
     }
 }
 

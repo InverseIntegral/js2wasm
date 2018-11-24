@@ -63,7 +63,8 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        this.expressions.push(this.getOperationsInstance(node).const(node.value));
+        const type = this.getExpressionType(node);
+        this.expressions.push(this.getOperationsInstance(type).const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -87,7 +88,8 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(operand);
                 break;
             case '-':
-                const operationsInstance = this.getOperationsInstance(node);
+                const type = this.getExpressionType(node);
+                const operationsInstance = this.getOperationsInstance(type);
                 this.expressions.push(operationsInstance.sub(operationsInstance.const(0), operand));
                 break;
             case '!':
@@ -167,12 +169,15 @@ class GeneratorVisitor extends Visitor {
         const currentValue = this.popExpression();
         let updatedValue;
 
+        const type = this.getExpressionType(node);
+        const operationsInstance = this.getOperationsInstance(type);
+
         switch (node.operator) {
             case '++':
-                updatedValue = this.module.i32.add(currentValue, this.module.i32.const(1));
+                updatedValue = operationsInstance.add(currentValue, operationsInstance.const(1));
                 break;
             case '--':
-                updatedValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
+                updatedValue = operationsInstance.sub(currentValue, operationsInstance.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -422,9 +427,7 @@ class GeneratorVisitor extends Visitor {
         return 'label_' + this.labelCounter++;
     }
 
-    private getOperationsInstance(expression: BabelExpression) {
-        const type = this.getExpressionType(expression);
-
+    private getOperationsInstance(type: WebAssemblyType) {
         if (type === WebAssemblyType.FLOAT_64) {
             return this.module.f64;
         } else {

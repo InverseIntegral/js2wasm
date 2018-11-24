@@ -72,5 +72,41 @@ describe('Transpiler', () => {
             expect(wrapper.call(2.12)).to.equal(-2.12);
             expect(wrapper.call(-9.49)).to.equal(9.49);
         });
+
+        it('should handle double pre increment', () => {
+            const content = 'function preInc(a) { ++a; return a; }';
+            const wrapper = transpiler
+                .setSignature('preInc', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('preInc').call(12.34)).to.equal(13.34);
+        });
+
+        it('should handle double post increment', () => {
+            const content = 'function postInc(a) { a++; return a; }';
+            const wrapper = transpiler
+                .setSignature('postInc', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('postInc').call(4.92)).to.equal(5.92);
+        });
+
+        it('should handle double pre decrement', () => {
+            const content = 'function preDec(a) { --a; return a; }';
+            const wrapper = transpiler
+                .setSignature('preDec', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('preDec').call(93.89)).to.equal(92.89);
+        });
+
+        it('should handle double post decrement', () => {
+            const content = 'function postDec(a) { a--; return a; }';
+            const wrapper = transpiler
+                .setSignature('postDec', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('postDec').call(28.19)).to.equal(27.19);
+        });
     });
 });

@@ -10,7 +10,7 @@ import {
     LogicalExpression,
     MemberExpression,
     NumericLiteral,
-    UnaryExpression,
+    UnaryExpression, UpdateExpression,
     VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
@@ -70,6 +70,11 @@ class TypeInferenceVisitor extends Visitor {
         }
 
         this.expressionTypes.set(node, type);
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        super.visitUpdateExpression(node);
+        this.expressionTypes.set(node, this.getTypeOfExpression(node.argument));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {

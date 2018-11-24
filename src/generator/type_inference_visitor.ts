@@ -16,17 +16,18 @@ class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
     private expressionTypes = new Map<Expression, WebAssemblyType>();
+    private variableTypes: WebAssemblyType[] = [];
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
-               signatures: FunctionSignatures) {
+               signatures: FunctionSignatures): [Map<Expression, WebAssemblyType>, WebAssemblyType[]] {
 
         this.signatures = signatures;
         this.initializeParameterTypes(tree, signature);
 
         this.visit(tree.body);
 
-        return this.expressionTypes;
+        return [this.expressionTypes, this.variableTypes];
     }
 
     protected visitBinaryExpression(node: BinaryExpression): void {
@@ -139,6 +140,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.id, rightSideType);
+            this.variableTypes.push(rightSideType);
         }
     }
 
@@ -153,6 +155,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.left, rightSideType);
+            this.variableTypes.push(rightSideType);
         }
     }
 

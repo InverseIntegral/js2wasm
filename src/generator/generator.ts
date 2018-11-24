@@ -1,5 +1,5 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
-import {i32, Module} from 'binaryen';
+import {Module} from 'binaryen';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
@@ -66,16 +66,15 @@ class Generator {
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
-        const expressionTypes = new TypeInferenceVisitor().run(tree, signature, signatures);
+        const [expressionTypes, variableTypes] = new TypeInferenceVisitor().run(tree, signature, signatures);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
-        const variables = new Array(variableMapping.size).fill(i32);
 
         const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes);
         const body = generatorVisitor.run(tree);
 
         const functionType = module.addFunctionType(functionName, toBinaryenType(signature.returnType), parameterTypes);
-        module.addFunction(functionName, functionType, variables, body);
+        module.addFunction(functionName, functionType, variableTypes.map(toBinaryenType), body);
         module.addFunctionExport(functionName, functionName);
     }
 

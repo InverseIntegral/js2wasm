@@ -28,7 +28,6 @@ import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
-import {throws} from 'assert';
 
 class GeneratorVisitor extends Visitor {
 
@@ -424,15 +423,10 @@ class GeneratorVisitor extends Visitor {
     private getOperationType(expression: BabelExpression) {
         const type = this.getExpressionType(expression);
 
-        switch (type) {
-            case WebAssemblyType.INT_32:
-                return this.module.i32;
-            case WebAssemblyType.FLOAT_64:
-                return this.module.f64;
-            case WebAssemblyType.BOOLEAN:
-                return this.module.i32;
-            default:
-                return this.module.i32;
+        if (type === WebAssemblyType.FLOAT_64) {
+            return this.module.f64;
+        } else {
+            return this.module.i32;
         }
     }
 
@@ -440,7 +434,7 @@ class GeneratorVisitor extends Visitor {
         const type = this.expressionTypes.get(expression);
 
         if (type === undefined) {
-            throw new Error();
+            throw new Error('Expression type not defined');
         }
 
         return type;

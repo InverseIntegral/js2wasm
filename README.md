@@ -12,10 +12,10 @@ In order to compile a function you have to supply its code as a string and its f
 The returned value is of the type `CallWrapper`.
 
 ```javascript
-const signature = new Map();
-signature.set('add', [WebAssemblyType.INT_32, WebAssemblyType.INT_32]);
-
-const wrapper = new Transpiler().transpile('function add(a, b) { return a + b; }', signature);
+const wrapper = new Transpiler()
+    .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+    .transpile('function add(a, b) { return a + b; }');
+    
 wrapper.setFunctionName('add').call(21, 21);
 ```
 

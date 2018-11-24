@@ -1,12 +1,17 @@
 import {
     AssignmentExpression,
-    BinaryExpression, BooleanLiteral, CallExpression,
+    BinaryExpression,
+    BooleanLiteral,
+    CallExpression,
     Expression,
     FunctionDeclaration,
     Identifier,
-    isIdentifier,
-    LogicalExpression, MemberExpression,
-    NumericLiteral, UnaryExpression, VariableDeclarator,
+    isIdentifier, isMemberExpression,
+    LogicalExpression,
+    MemberExpression,
+    NumericLiteral,
+    UnaryExpression,
+    VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
@@ -157,6 +162,17 @@ class TypeInferenceVisitor extends Visitor {
 
             this.expressionTypes.set(node.left, rightSideType);
             this.variableTypes.push(rightSideType);
+        } else if (isMemberExpression(node.left)) {
+            super.visit(node.left);
+
+            const rightSideType = this.expressionTypes.get(node.right);
+
+            if (rightSideType === undefined) {
+                throw new Error(`Unknown type for right side of
+                    assignment to ${(node.left.object as Identifier).name}`);
+            }
+
+            this.expressionTypes.set(node.left, rightSideType);
         }
     }
 

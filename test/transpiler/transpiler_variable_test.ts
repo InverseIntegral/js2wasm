@@ -138,5 +138,14 @@ describe('Transpiler', () => {
 
             expect(wrapper2.setFunctionName('variables').call()).to.equal(20);
         });
+
+        it('should handle expressions in assignments', () => {
+            const content = 'function variables() { var x = 20 * 10; return x; }';
+            const wrapper = transpiler
+                .setSignature('variables', WebAssemblyType.INT_32)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('variables').call()).to.equal(200);
+        });
     });
 });

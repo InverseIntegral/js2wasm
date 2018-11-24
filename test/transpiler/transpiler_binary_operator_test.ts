@@ -33,6 +33,17 @@ describe('Transpiler', () => {
             expect(wrapper.call(-20, 20)).to.equal(-40);
         });
 
+        it('should handle addition and subtraction', () => {
+            const wrapper = transpiler
+                .setSignature('addSub', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile('function addSub(a, b) { return a + b - a; }');
+            wrapper.setFunctionName('addSub');
+
+            expect(wrapper.call(1, 2)).to.equal(2);
+            expect(wrapper.call(100, 2)).to.equal(2);
+            expect(wrapper.call(-20, 20)).to.equal(20);
+        });
+
         it('should handle multiplication', () => {
             const wrapper = transpiler
                 .setSignature('mul', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)

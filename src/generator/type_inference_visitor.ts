@@ -15,7 +15,7 @@ import {
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
-import {getWebAssemblyType, WebAssemblyType} from './wasm_type';
+import {getNumberType, WebAssemblyType} from './wasm_type';
 
 class TypeInferenceVisitor extends Visitor {
 
@@ -72,7 +72,7 @@ class TypeInferenceVisitor extends Visitor {
     protected visitNumericLiteral(node: NumericLiteral) {
         super.visitNumericLiteral(node);
 
-        this.expressionTypes.set(node, getWebAssemblyType(node.value));
+        this.expressionTypes.set(node, getNumberType(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {

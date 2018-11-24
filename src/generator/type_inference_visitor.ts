@@ -17,15 +17,18 @@ import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
 import {getNumberType, WebAssemblyType} from './wasm_type';
 
+type ExpressionTypes = Map<Expression, WebAssemblyType>;
+type VariableTypes = WebAssemblyType[];
+
 class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
-    private expressionTypes = new Map<Expression, WebAssemblyType>();
-    private variableTypes: WebAssemblyType[] = [];
+    private expressionTypes: ExpressionTypes = new Map();
+    private variableTypes: VariableTypes = [];
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
-               signatures: FunctionSignatures): [Map<Expression, WebAssemblyType>, WebAssemblyType[]] {
+               signatures: FunctionSignatures): [ExpressionTypes, VariableTypes] {
 
         this.signatures = signatures;
         this.initializeParameterTypes(tree, signature);
@@ -195,4 +198,4 @@ class TypeInferenceVisitor extends Visitor {
     }
 }
 
-export {TypeInferenceVisitor};
+export {TypeInferenceVisitor, ExpressionTypes, VariableTypes};

@@ -27,13 +27,14 @@ import {
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
+import {ExpressionTypes} from './type_inference_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
-    private readonly variableMapping: Map<string, number>;
-    private readonly expressionTypes: Map<BabelExpression, WebAssemblyType>;
+    private readonly variableMapping: VariableMapping;
+    private readonly expressionTypes: ExpressionTypes;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
@@ -42,7 +43,7 @@ class GeneratorVisitor extends Visitor {
 
     constructor(module: Module,
                 variableMapping: VariableMapping,
-                expressionType: Map<BabelExpression, WebAssemblyType>) {
+                expressionType: ExpressionTypes) {
 
         super();
         this.module = module;

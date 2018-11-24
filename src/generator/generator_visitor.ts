@@ -27,7 +27,8 @@ import {
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
-import {WebAssemblyType} from './wasm_type';
+import {toBinaryenType, WebAssemblyType} from './wasm_type';
+import {throws} from 'assert';
 
 class GeneratorVisitor extends Visitor {
 
@@ -58,7 +59,7 @@ class GeneratorVisitor extends Visitor {
     protected visitIdentifier(node: Identifier) {
         const index = this.getVariableIndex(node.name);
 
-        this.expressions.push(this.module.getLocal(index, i32));
+        this.expressions.push(this.module.getLocal(index, toBinaryenType(this.getExpressionType(node))));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
@@ -421,7 +422,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     private getOperationType(expression: BabelExpression) {
-        const type = this.expressionTypes.get(expression);
+        const type = this.getExpressionType(expression);
 
         switch (type) {
             case WebAssemblyType.INT_32:
@@ -435,6 +436,15 @@ class GeneratorVisitor extends Visitor {
         }
     }
 
+    private getExpressionType(expression: BabelExpression) {
+        const type = this.expressionTypes.get(expression);
+
+        if (type === undefined) {
+            throw new Error();
+        }
+
+        return type;
+    }
 }
 
 export default GeneratorVisitor;

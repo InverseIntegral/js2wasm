@@ -4,6 +4,7 @@ import {
     BlockStatement,
     BooleanLiteral,
     CallExpression,
+    Expression as BabelExpression,
     ExpressionStatement,
     ForStatement,
     FunctionDeclaration,
@@ -26,21 +27,27 @@ import {
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
+import {WebAssemblyType} from './wasm_type';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
     private readonly variableMapping: Map<string, number>;
+    private readonly expressionTypes: Map<BabelExpression, WebAssemblyType>;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
 
     private labelCounter: number = 0;
 
-    constructor(module: Module, variableMapping: VariableMapping) {
+    constructor(module: Module,
+                variableMapping: VariableMapping,
+                expressionType: Map<BabelExpression, WebAssemblyType>) {
+
         super();
         this.module = module;
         this.variableMapping = variableMapping;
+        this.expressionTypes = expressionType;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -55,7 +62,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        this.expressions.push(this.module.i32.const(node.value));
+        this.expressions.push(this.getOperationType(node).const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -411,6 +418,21 @@ class GeneratorVisitor extends Visitor {
 
     private generateLabel() {
         return 'label_' + this.labelCounter++;
+    }
+
+    private getOperationType(expression: BabelExpression) {
+        const type = this.expressionTypes.get(expression);
+
+        switch (type) {
+            case WebAssemblyType.INT_32:
+                return this.module.i32;
+            case WebAssemblyType.FLOAT_64:
+                return this.module.f64;
+            case WebAssemblyType.BOOLEAN:
+                return this.module.i32;
+            default:
+                return this.module.i32;
+        }
     }
 
 }

@@ -71,10 +71,10 @@ class Generator {
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
         const variables = new Array(variableMapping.size).fill(i32);
 
-        const generatorVisitor = new GeneratorVisitor(module, totalMapping);
+        const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes);
         const body = generatorVisitor.run(tree);
 
-        const functionType = module.addFunctionType(functionName, i32, parameterTypes);
+        const functionType = module.addFunctionType(functionName, toBinaryenType(signature.returnType), parameterTypes);
         module.addFunction(functionName, functionType, variables, body);
         module.addFunctionExport(functionName, functionName);
     }

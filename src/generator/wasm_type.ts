@@ -24,6 +24,20 @@ function toBinaryenType(type: WebAssemblyType) {
     }
 }
 
+function getWebAssemblyType(value: any) {
+    if (isInteger(value)) {
+        return WebAssemblyType.INT_32;
+    } else if (isDouble(value)) {
+        return WebAssemblyType.FLOAT_64;
+    } else if (value === true || value === false) {
+        return WebAssemblyType.BOOLEAN;
+    } else if (value instanceof Array) {
+        return WebAssemblyType.INT_32_ARRAY;
+    } else {
+        throw new Error(`The type of value ${value} is not supported`);
+    }
+}
+
 function isOfType(toCheck: any, type: WebAssemblyType) {
     switch (type) {
         case WebAssemblyType.INT_32:
@@ -60,4 +74,4 @@ function isArray(value: any, type: WebAssemblyType) {
     }
 }
 
-export {WebAssemblyType, toBinaryenType, isOfType};
+export {WebAssemblyType, toBinaryenType, getWebAssemblyType, isOfType};

@@ -119,6 +119,7 @@ class TypeInferenceVisitor extends Visitor {
         let type;
 
         if (node.computed) {
+            super.visit(node.property);
             type = WebAssemblyType.INT_32_ARRAY;
         } else if (isIdentifier(node.property) && node.property.name === 'length') {
             type = WebAssemblyType.INT_32;

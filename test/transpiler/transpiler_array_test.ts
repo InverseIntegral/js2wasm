@@ -204,9 +204,9 @@ describe('Transpiler', () => {
 
         it('should handle modulo with array value', () => {
             const wrapper = transpiler
-                .setSignature('div', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .transpile('function div(arr) { var x = 30; var y; y = x % arr[0]; return y; }');
-            wrapper.setFunctionName('div');
+                .setSignature('mod', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function mod(arr) { var x = 30; var y; y = x % arr[0]; return y; }');
+            wrapper.setFunctionName('mod');
 
             expect(wrapper.call([15, 16])).to.equal(0);
         });

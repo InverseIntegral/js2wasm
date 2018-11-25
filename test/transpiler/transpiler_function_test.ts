@@ -95,5 +95,10 @@ describe('Transpiler', () => {
             expect(() => wrapper.call(2)).to.throw();
             expect(() => wrapper.call(-1)).to.throw();
         });
+
+        it('should handle different types for one variable', () => {
+            expect(() => transpiler.setSignature('double', WebAssemblyType.FLOAT_64)
+                .transpile('function double() { var value = 213; value = 5.3113; return value; } ')).to.throw();
+        });
     });
 });

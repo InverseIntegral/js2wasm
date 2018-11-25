@@ -4,6 +4,7 @@ import {
     BlockStatement,
     BooleanLiteral,
     CallExpression,
+    Expression as BabelExpression,
     ExpressionStatement,
     ForStatement,
     FunctionDeclaration,
@@ -26,21 +27,28 @@ import {
 import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
+import {ExpressionTypes} from './type_inference_visitor';
+import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 class GeneratorVisitor extends Visitor {
 
     private readonly module: Module;
-    private readonly variableMapping: Map<string, number>;
+    private readonly variableMapping: VariableMapping;
+    private readonly expressionTypes: ExpressionTypes;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
 
     private labelCounter: number = 0;
 
-    constructor(module: Module, variableMapping: VariableMapping) {
+    constructor(module: Module,
+                variableMapping: VariableMapping,
+                expressionType: ExpressionTypes) {
+
         super();
         this.module = module;
         this.variableMapping = variableMapping;
+        this.expressionTypes = expressionType;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -51,11 +59,11 @@ class GeneratorVisitor extends Visitor {
     protected visitIdentifier(node: Identifier) {
         const index = this.getVariableIndex(node.name);
 
-        this.expressions.push(this.module.getLocal(index, i32));
+        this.expressions.push(this.module.getLocal(index, toBinaryenType(this.getExpressionType(node))));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        this.expressions.push(this.module.i32.const(node.value));
+        this.expressions.push(this.getOperationsInstance(node).const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -413,6 +421,25 @@ class GeneratorVisitor extends Visitor {
         return 'label_' + this.labelCounter++;
     }
 
+    private getOperationsInstance(expression: BabelExpression) {
+        const type = this.getExpressionType(expression);
+
+        if (type === WebAssemblyType.FLOAT_64) {
+            return this.module.f64;
+        } else {
+            return this.module.i32;
+        }
+    }
+
+    private getExpressionType(expression: BabelExpression) {
+        const type = this.expressionTypes.get(expression);
+
+        if (type === undefined) {
+            throw new Error(`Expression type of ${expression.type} not defined`);
+        }
+
+        return type;
+    }
 }
 
 export default GeneratorVisitor;

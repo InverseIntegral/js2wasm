@@ -1,32 +1,41 @@
 import {
     AssignmentExpression,
-    BinaryExpression, BooleanLiteral, CallExpression,
+    BinaryExpression,
+    BooleanLiteral,
+    CallExpression,
     Expression,
     FunctionDeclaration,
     Identifier,
-    isIdentifier,
-    LogicalExpression, MemberExpression,
-    NumericLiteral, UnaryExpression, VariableDeclarator,
+    isIdentifier, isMemberExpression,
+    LogicalExpression,
+    MemberExpression,
+    NumericLiteral,
+    UnaryExpression,
+    VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
-import {WebAssemblyType} from './wasm_type';
+import {getNumberType, WebAssemblyType} from './wasm_type';
+
+type ExpressionTypes = Map<Expression, WebAssemblyType>;
+type VariableTypes = Map<string, WebAssemblyType>;
 
 class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
-    private expressionTypes = new Map<Expression, WebAssemblyType>();
+    private expressionTypes: ExpressionTypes = new Map();
+    private variableTypes: VariableTypes = new Map();
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
-               signatures: FunctionSignatures) {
+               signatures: FunctionSignatures): [ExpressionTypes, VariableTypes] {
 
         this.signatures = signatures;
         this.initializeParameterTypes(tree, signature);
 
         this.visit(tree.body);
 
-        return this.expressionTypes;
+        return [this.expressionTypes, this.variableTypes];
     }
 
     protected visitBinaryExpression(node: BinaryExpression): void {
@@ -66,7 +75,7 @@ class TypeInferenceVisitor extends Visitor {
     protected visitNumericLiteral(node: NumericLiteral) {
         super.visitNumericLiteral(node);
 
-        this.expressionTypes.set(node, WebAssemblyType.INT_32);
+        this.expressionTypes.set(node, getNumberType(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -118,7 +127,8 @@ class TypeInferenceVisitor extends Visitor {
         let type;
 
         if (node.computed) {
-            type = WebAssemblyType.INT_32_ARRAY;
+            super.visit(node.property);
+            type = WebAssemblyType.INT_32;
         } else if (isIdentifier(node.property) && node.property.name === 'length') {
             type = WebAssemblyType.INT_32;
         } else {
@@ -139,6 +149,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.id, rightSideType);
+            this.updateVariableType(node.id, rightSideType);
         }
     }
 
@@ -153,6 +164,19 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.left, rightSideType);
+            this.updateVariableType(node.left, rightSideType);
+        } else if (isMemberExpression(node.left)) {
+            super.visit(node.left);
+
+            const rightSideType = this.expressionTypes.get(node.right);
+
+            if (rightSideType === undefined) {
+                if (isIdentifier(node.left.object)) {
+                    throw new Error(`Unknown type for right side of assignment to ${node.left.object.name}`);
+                }
+            } else {
+                this.expressionTypes.set(node.left, rightSideType);
+            }
         }
     }
 
@@ -173,6 +197,26 @@ class TypeInferenceVisitor extends Visitor {
             this.expressionTypes.set(parameter, signature.parameterTypes[index]);
         });
     }
+
+    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
+        const variableName = identifier.name;
+
+        if (this.variableTypes.has(variableName)) {
+            const currentValue = this.variableTypes.get(variableName);
+
+            if (currentValue !== rightSideType) {
+                if (currentValue === undefined) {
+                    throw new Error(`Tried to change the value type of ${variableName}
+                    from undefined to ${WebAssemblyType[rightSideType]}`);
+                } else {
+                    throw new Error(`Tried to change the value type of ${variableName}
+                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[rightSideType]}`);
+                }
+            }
+        } else {
+            this.variableTypes.set(variableName, rightSideType);
+        }
+    }
 }
 
-export {TypeInferenceVisitor};
+export {TypeInferenceVisitor, ExpressionTypes, VariableTypes};

@@ -1,9 +1,9 @@
 import {File, FunctionDeclaration, isFunctionDeclaration} from '@babel/types';
-import {i32, Module} from 'binaryen';
+import {Module} from 'binaryen';
 import {DeclarationVisitor, VariableMapping} from './declaration_visitor';
 import GeneratorVisitor from './generator_visitor';
 import {MemoryAccessVisitor} from './memory_access_visitor';
-import {TypeInferenceVisitor} from './type_inference_visitor';
+import {TypeInferenceVisitor, VariableTypes} from './type_inference_visitor';
 import {toBinaryenType, WebAssemblyType} from './wasm_type';
 
 // @ts-ignore
@@ -66,22 +66,28 @@ class Generator {
 
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
-        const expressionTypes = new TypeInferenceVisitor().run(tree, signature, signatures);
+        const [expressionTypes, variableTypes] = new TypeInferenceVisitor().run(tree, signature, signatures);
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
-        const variables = new Array(variableMapping.size).fill(i32);
 
-        const generatorVisitor = new GeneratorVisitor(module, totalMapping);
+        const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes);
         const body = generatorVisitor.run(tree);
 
-        const functionType = module.addFunctionType(functionName, i32, parameterTypes);
-        module.addFunction(functionName, functionType, variables, body);
+        const functionType = module.addFunctionType(functionName, toBinaryenType(signature.returnType), parameterTypes);
+        module.addFunction(functionName, functionType, this.getVariableTypes(variableMapping, variableTypes), body);
         module.addFunctionExport(functionName, functionName);
     }
 
     private static mergeMappings(first: VariableMapping,
                                  second: VariableMapping): VariableMapping {
         return new Map([...first, ...second]);
+    }
+
+    private static getVariableTypes(variableMapping: VariableMapping, variableTypes: VariableTypes) {
+        return [...variableMapping.entries()]
+            .sort((first, second) => first[1] - second[1])
+            .map((entry) => variableTypes.get(entry[0]))
+            .map(toBinaryenType);
     }
 
 }

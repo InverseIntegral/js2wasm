@@ -66,7 +66,7 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should run sum array faster than 6 seconds', () => {
+        it('should run sum array faster than 6.25 seconds', () => {
             const content = sumArray.toString() + sumArrayFill.toString() + sumArrayFor.toString();
             const wrapper = transpiler
                 .setSignature('sumArray', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
@@ -75,7 +75,7 @@ describe('Transpiler', function() {
                 .transpile(content);
 
             expect(wrapper.setFunctionName('sumArrayFor').call(new Array(65535))).to.equal(2147385345);
-            expect(hooks.getCompleteTime()).to.be.lessThan(6000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(6250);
         });
 
         it('should run quicksort faster than 6 seconds', () => {
@@ -97,7 +97,7 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(6000);
         });
 
-        it('should run mergesort faster than 8 seconds', () => {
+        it('should run mergesort faster than 8.75 seconds', () => {
             const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
                 mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
             const wrapper = transpiler
@@ -116,7 +116,7 @@ describe('Transpiler', function() {
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
             expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(true);
-            expect(hooks.getCompleteTime()).to.be.lessThan(8000);
+            expect(hooks.getCompleteTime()).to.be.lessThan(8750);
         });
     });
 });

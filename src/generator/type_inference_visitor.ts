@@ -208,9 +208,9 @@ class TypeInferenceVisitor extends Visitor {
                 throw new Error(`Tried to change the value type of ${variableName}
                 from ${currentValue} to ${rightSideType}`);
             }
+        } else {
+            this.variableTypes.set(variableName, rightSideType);
         }
-
-        this.variableTypes.set(variableName, rightSideType);
     }
 }
 

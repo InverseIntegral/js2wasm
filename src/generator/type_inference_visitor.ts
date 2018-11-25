@@ -6,16 +6,18 @@ import {
     Expression,
     FunctionDeclaration,
     Identifier,
-    isIdentifier, isMemberExpression,
+    isIdentifier,
+    isMemberExpression,
     LogicalExpression,
     MemberExpression,
     NumericLiteral,
-    UnaryExpression, UpdateExpression,
+    UnaryExpression,
+    UpdateExpression,
     VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
-import {getNumberType, WebAssemblyType} from './wasm_type';
+import {getCommonNumberType, getNumberType, WebAssemblyType} from './wasm_type';
 
 type ExpressionTypes = Map<Expression, WebAssemblyType>;
 type VariableTypes = Map<string, WebAssemblyType>;
@@ -45,7 +47,9 @@ class TypeInferenceVisitor extends Visitor {
         let type;
 
         if (['+', '-', '/', '%', '*'].includes(operator)) {
-            type = WebAssemblyType.INT_32;
+            const leftType = this.getTypeOfExpression(node.left);
+            const rightType = this.getTypeOfExpression(node.right);
+            type = getCommonNumberType(leftType, rightType);
         } else if (['<', '<=', '==', '!=', '>=', '>'].includes(operator)) {
             type = WebAssemblyType.BOOLEAN;
         } else {
@@ -133,7 +137,7 @@ class TypeInferenceVisitor extends Visitor {
 
         if (node.computed) {
             super.visit(node.property);
-            type = WebAssemblyType.INT_32_ARRAY;
+            type = WebAssemblyType.INT_32;
         } else if (isIdentifier(node.property) && node.property.name === 'length') {
             type = WebAssemblyType.INT_32;
         } else {

@@ -28,7 +28,7 @@ import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
-import {toBinaryenType, WebAssemblyType} from './wasm_type';
+import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
 
 class GeneratorVisitor extends Visitor {
 
@@ -103,42 +103,86 @@ class GeneratorVisitor extends Visitor {
     protected visitBinaryExpression(node: BinaryExpression) {
         super.visitBinaryExpression(node);
 
-        const right = this.popExpression();
-        const left = this.popExpression();
+        let right = this.popExpression();
+        let left = this.popExpression();
+
+        const rightType = this.getExpressionType(node.right);
+        const leftType = this.getExpressionType(node.left);
+        const commonNumberType = getCommonNumberType(leftType, rightType);
+
+        if (leftType !== commonNumberType) {
+            left = this.module.f64.convert_s.i32(left);
+        }
+
+        if (rightType !== commonNumberType) {
+            right = this.module.f64.convert_s.i32(right);
+        }
+
+        const operationsInstance = this.getOperationsInstance(commonNumberType);
 
         switch (node.operator) {
             case '+':
-                this.expressions.push(this.module.i32.add(left, right));
+                this.expressions.push(operationsInstance.add(left, right));
                 break;
             case '-':
-                this.expressions.push(this.module.i32.sub(left, right));
+                this.expressions.push(operationsInstance.sub(left, right));
                 break;
             case '*':
-                this.expressions.push(this.module.i32.mul(left, right));
+                this.expressions.push(operationsInstance.mul(left, right));
                 break;
             case '/':
-                this.expressions.push(this.module.i32.div_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.div_s(left, right));
+                } else {
+                    this.expressions.push(this.module.f64.div(left, right));
+                }
+
                 break;
             case '%':
-                this.expressions.push(this.module.i32.rem_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.rem_s(left, right));
+                } else {
+                    throw new Error('Modulo is not allowed with float values');
+                }
+
                 break;
             case '==':
-                this.expressions.push(this.module.i32.eq(left, right));
+                this.expressions.push(operationsInstance.eq(left, right));
                 break;
             case '!=':
-                this.expressions.push(this.module.i32.ne(left, right));
+                this.expressions.push(operationsInstance.ne(left, right));
                 break;
             case '<':
-                this.expressions.push(this.module.i32.lt_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.lt_s(left, right));
+                } else {
+                    this.expressions.push(this.module.f64.lt(left, right));
+                }
+
                 break;
             case '<=':
-                this.expressions.push(this.module.i32.le_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.le_s(left, right));
+                } else {
+                    this.expressions.push(this.module.f64.le(left, right));
+                }
+
                 break;
             case '>':
-                this.expressions.push(this.module.i32.gt_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.gt_s(left, right));
+                } else {
+                    this.expressions.push(this.module.f64.gt(left, right));
+                }
+
                 break;
             case '>=':
-                this.expressions.push(this.module.i32.ge_s(left, right));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.ge_s(left, right));
+                } else {
+                    this.expressions.push(this.module.f64.ge(left, right));
+                }
+
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);

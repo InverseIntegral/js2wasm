@@ -87,6 +87,7 @@ class Generator {
         return [...variableMapping.entries()]
             .sort((first, second) => first[1] - second[1])
             .map((entry) => variableTypes.get(entry[0]))
+            .filter((type) => type !== undefined)
             .map(toBinaryenType);
     }
 

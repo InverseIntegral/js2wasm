@@ -158,7 +158,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.id, rightSideType);
-            this.updateVariableTypes(node.id, rightSideType);
+            this.updateVariableType(node.id, rightSideType);
         }
     }
 
@@ -173,7 +173,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.left, rightSideType);
-            this.updateVariableTypes(node.left, rightSideType);
+            this.updateVariableType(node.left, rightSideType);
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
 
@@ -217,19 +217,24 @@ class TypeInferenceVisitor extends Visitor {
         });
     }
 
-    private updateVariableTypes(identifier: Identifier, rightSideType: WebAssemblyType) {
+    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
         const variableName = identifier.name;
 
         if (this.variableTypes.has(variableName)) {
             const currentValue = this.variableTypes.get(variableName);
 
             if (currentValue !== rightSideType) {
-                throw new Error(`Tried to change the value type of ${variableName}
-                from ${currentValue} to ${rightSideType}`);
+                if (currentValue === undefined) {
+                    throw new Error(`Tried to change the value type of ${variableName}
+                    from undefined to ${WebAssemblyType[rightSideType]}`);
+                } else {
+                    throw new Error(`Tried to change the value type of ${variableName}
+                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[rightSideType]}`);
+                }
             }
+        } else {
+            this.variableTypes.set(variableName, rightSideType);
         }
-
-        this.variableTypes.set(variableName, rightSideType);
     }
 }
 

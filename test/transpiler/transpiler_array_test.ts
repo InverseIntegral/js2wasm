@@ -148,6 +148,69 @@ describe('Transpiler', () => {
             expect(wrapper.call([14])).to.equal(13);
         });
 
+        it('should handle assign array value', () => {
+            const wrapper = transpiler
+                .setSignature('assign', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function assign(arr) { var x = 2; x = arr[0]; return x; }');
+            wrapper.setFunctionName('assign');
+
+            expect(wrapper.call([15, 16])).to.equal(15);
+        });
+
+        it('should handle shorthand assign array value', () => {
+            const wrapper = transpiler
+                .setSignature('shorthandAssign', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function shorthandAssign(arr) { var x = 2; x += arr[0]; return x; }');
+            wrapper.setFunctionName('shorthandAssign');
+
+            expect(wrapper.call([15, 16])).to.equal(17);
+        });
+
+        it('should handle addition with array value', () => {
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function add(arr) { var x = 2; var y; y = x + arr[0]; return y; }');
+            wrapper.setFunctionName('add');
+
+            expect(wrapper.call([15, 16])).to.equal(17);
+        });
+
+        it('should handle subtraction with array value', () => {
+            const wrapper = transpiler
+                .setSignature('sub', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function sub(arr) { var x = 2; var y; y = x - arr[0]; return y; }');
+            wrapper.setFunctionName('sub');
+
+            expect(wrapper.call([15, 16])).to.equal(-13);
+        });
+
+        it('should handle multiplication with array value', () => {
+            const wrapper = transpiler
+                .setSignature('mul', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function mul(arr) { var x = 2; var y; y = x * arr[0]; return y; }');
+            wrapper.setFunctionName('mul');
+
+            expect(wrapper.call([15, 16])).to.equal(30);
+        });
+
+        it('should handle division with array value', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function div(arr) { var x = 2; var y; y = x / arr[0]; return y; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call([15, 16])).to.equal(0);
+        });
+
+        it('should handle modulo with array value', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function div(arr) { var x = 30; var y; y = x % arr[0]; return y; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call([15, 16])).to.equal(0);
+        });
+
         it('should handle array export', () => {
             const wrapper = transpiler
                 .setSignature('arrayExport', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)

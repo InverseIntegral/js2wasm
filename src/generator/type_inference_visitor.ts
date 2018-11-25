@@ -149,7 +149,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.id, rightSideType);
-            this.updateVariableTypes(node.id, rightSideType);
+            this.updateVariableType(node.id, rightSideType);
         }
     }
 
@@ -164,7 +164,7 @@ class TypeInferenceVisitor extends Visitor {
             }
 
             this.expressionTypes.set(node.left, rightSideType);
-            this.updateVariableTypes(node.left, rightSideType);
+            this.updateVariableType(node.left, rightSideType);
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
 
@@ -198,7 +198,7 @@ class TypeInferenceVisitor extends Visitor {
         });
     }
 
-    private updateVariableTypes(identifier: Identifier, rightSideType: WebAssemblyType) {
+    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
         const variableName = identifier.name;
 
         if (this.variableTypes.has(variableName)) {

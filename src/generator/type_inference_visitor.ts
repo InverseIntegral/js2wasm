@@ -102,13 +102,7 @@ class TypeInferenceVisitor extends Visitor {
     protected visitIdentifier(node: Identifier) {
         super.visitIdentifier(node);
 
-        const identifierType = this.getTypeOfIdentifier(node);
-
-        if (identifierType === undefined) {
-            throw new Error(`Unknown type for identifier ${node.name}`);
-        }
-
-        this.expressionTypes.set(node, identifierType);
+        this.expressionTypes.set(node, this.getTypeOfIdentifier(node));
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -151,12 +145,7 @@ class TypeInferenceVisitor extends Visitor {
         super.visitVariableDeclarator(node);
 
         if (node.init !== null && isIdentifier(node.id)) {
-            const rightSideType = this.expressionTypes.get(node.init);
-
-            if (rightSideType === undefined) {
-                throw new Error(`Unknown type for right side of assignment to ${node.id.name}`);
-            }
-
+            const rightSideType = this.getTypeOfExpression(node.init);
             this.expressionTypes.set(node.id, rightSideType);
             this.updateVariableType(node.id, rightSideType);
         }
@@ -166,10 +155,10 @@ class TypeInferenceVisitor extends Visitor {
         super.visit(node.right);
 
         if (isIdentifier(node.left)) {
-            const rightSideType = this.expressionTypes.get(node.right);
+            let rightSideType = this.getTypeOfExpression(node.right);
 
-            if (rightSideType === undefined) {
-                throw new Error(`Unknown type for right side of assignment to ${node.left.name}`);
+            if (node.operator !== '=') {
+                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(node.left), rightSideType);
             }
 
             this.expressionTypes.set(node.left, rightSideType);
@@ -177,15 +166,8 @@ class TypeInferenceVisitor extends Visitor {
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
 
-            const rightSideType = this.expressionTypes.get(node.right);
-
-            if (rightSideType === undefined) {
-                if (isIdentifier(node.left.object)) {
-                    throw new Error(`Unknown type for right side of assignment to ${node.left.object.name}`);
-                }
-            } else {
-                this.expressionTypes.set(node.left, rightSideType);
-            }
+            const rightSideType = this.getTypeOfExpression(node.right);
+            this.expressionTypes.set(node.left, rightSideType);
         }
     }
 
@@ -195,13 +177,15 @@ class TypeInferenceVisitor extends Visitor {
                 return value;
             }
         }
+
+        throw new Error(`Unknown type for identifier ${identifier.name}`);
     }
 
     private getTypeOfExpression(expression: Expression) {
         const type = this.expressionTypes.get(expression);
 
         if (type === undefined) {
-            throw new Error(`The type of expression ${expression} could not be infered`);
+            throw new Error(`The type of expression ${expression.type} could not be infered`);
         }
 
         return type;

@@ -116,7 +116,7 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('add');
 
             expect(wrapper.call(1.13, 2.41)).to.closeTo(3.54, 0.001);
-            expect(wrapper.call(-100.53, 2.1)).to.equal(-98.43);
+            expect(wrapper.call(-100.53, 2.1)).to.closeTo(-98.43, 0.001);
         });
 
         it('should handle double-int combination addition', () => {
@@ -676,6 +676,154 @@ describe('Transpiler', () => {
             expect(wrapper.call(123.72, 0.88)).to.closeTo(124.6, 0.001);
             expect(wrapper.call(0.71, 0.2)).to.closeTo(0.91, 0.001);
             expect(wrapper.call(-20.48, -5.38)).to.closeTo(-25.86, 0.001);
+        });
+
+        it('should handle double shorthand addition', () => {
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function add(a) { var x = 1.13; x += a; return x; }');
+            wrapper.setFunctionName('add');
+
+            expect(wrapper.call(2.41)).to.closeTo(3.54, 0.001);
+            expect(wrapper.call(-2.1)).to.closeTo(-0.97, 0.001);
+        });
+
+        it('should handle double-int combination shorthand addition', () => {
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
+                .transpile('function add(a) { var x = 1.13; x += a; return x; }');
+            wrapper.setFunctionName('add');
+
+            expect(wrapper.call(5)).to.closeTo(6.13, 0.001);
+            expect(wrapper.call(-100)).to.closeTo(-98.87, 0.001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function add(a) { var x = 3; a += x; return a; }');
+            wrapper2.setFunctionName('add');
+
+            expect(wrapper2.call(14.1)).to.closeTo(17.1, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-20.4, 0.001);
+        });
+
+        it('should handle double shorthand addition with array', () => {
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function add(a) { var x = 1.13; x += a[0]; return x; }');
+            wrapper.setFunctionName('add');
+
+            expect(wrapper.call([1, 2])).to.closeTo(2.13, 0.001);
+        });
+
+        it('should handle double shorthand subtraction', () => {
+            const wrapper = transpiler
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function sub(a) { var x = 1.13; x -= a; return x; }');
+            wrapper.setFunctionName('sub');
+
+            expect(wrapper.call(1.41)).to.closeTo(-0.28, 0.001);
+            expect(wrapper.call(-20.14)).to.closeTo(21.27, 0.001);
+        });
+
+        it('should handle double-int combination shorthand subtraction', () => {
+            const wrapper = transpiler
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
+                .transpile('function sub(a) { var x = 1.13; x -= a; return x; }');
+            wrapper.setFunctionName('sub');
+
+            expect(wrapper.call(5)).to.closeTo(-3.87, 0.001);
+            expect(wrapper.call(-100)).to.closeTo(101.13, 0.001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function sub(a) { var x = 3; a -= x; return a; }');
+            wrapper2.setFunctionName('sub');
+
+            expect(wrapper2.call(5.31)).to.closeTo(2.31, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-26.4, 0.001);
+        });
+
+        it('should handle double shorthand subtraction with array', () => {
+            const wrapper = transpiler
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function sub(a) { var x = 1.13; x -= a[0]; return x; }');
+            wrapper.setFunctionName('sub');
+
+            expect(wrapper.call([1, 2])).to.closeTo(0.13, 0.001);
+        });
+
+        it('should handle double shorthand multiplication', () => {
+            const wrapper = transpiler
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function mul(a) { var x = 1.13; x *= a; return x; }');
+            wrapper.setFunctionName('mul');
+
+            expect(wrapper.call(3.45)).to.closeTo(3.8985, 0.00001);
+            expect(wrapper.call(-10.48)).to.closeTo(-11.8424, 0.00001);
+        });
+
+        it('should handle double-int combination shorthand multiplication', () => {
+            const wrapper = transpiler
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
+                .transpile('function mul(a) { var x = 1.13; x *= a; return x; }');
+            wrapper.setFunctionName('mul');
+
+            expect(wrapper.call(5)).to.closeTo(5.65, 0.001);
+            expect(wrapper.call(-100)).to.closeTo(-113, 0.001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function mul(a) { var x = 3; a *= x; return a; }');
+            wrapper2.setFunctionName('mul');
+
+            expect(wrapper2.call(5.31)).to.closeTo(15.93, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-70.2, 0.001);
+        });
+
+        it('should handle double shorthand multiplication with array', () => {
+            const wrapper = transpiler
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function mul(a) { var x = 1.13; x *= a[0]; return x; }');
+            wrapper.setFunctionName('mul');
+
+            expect(wrapper.call([2, 3])).to.closeTo(2.26, 0.001);
+        });
+
+        it('should handle double shorthand division', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function div(a) { var x = 1.13; x /= a; return x; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call(1.67)).to.closeTo(0.6766467065868263, 0.000000000000001);
+            expect(wrapper.call(-5.15)).to.closeTo(-0.2194174757281553, 0.000000000000001);
+        });
+
+        it('should handle double-int combination shorthand division', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
+                .transpile('function div(a) { var x = 1.13; x /= a; return x; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call(5)).to.closeTo(0.226, 0.0001);
+            expect(wrapper.call(-100)).to.closeTo(-0.0113, 0.00001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function div(a) { var x = 3; a /= x; return a; }');
+            wrapper2.setFunctionName('div');
+
+            expect(wrapper2.call(5.31)).to.closeTo(1.77, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-7.8, 0.001);
+        });
+
+        it('should handle double shorthand division with array', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function div(a) { var x = 1.13; x /= a[0]; return x; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call([2, 3])).to.closeTo(0.565, 0.0001);
         });
     });
 });

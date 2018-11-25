@@ -371,21 +371,44 @@ class GeneratorVisitor extends Visitor {
 
     private handleShorthandAssignment(node: AssignmentExpression) {
         this.visit(node.left);
-        const currentValue = this.popExpression();
-        const assignedValue = this.popExpression();
+        let currentValue = this.popExpression();
+        let assignedValue = this.popExpression();
+
+        if (!isIdentifier(node.left) && !isMemberExpression(node.left)) {
+            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
+        }
+
+        const rightType = this.getExpressionType(node.right);
+        const leftType = this.getExpressionType(node.left);
+        const commonNumberType = getCommonNumberType(leftType, rightType);
+
+        if (leftType !== commonNumberType) {
+            currentValue = this.module.f64.convert_s.i32(currentValue);
+        }
+
+        if (rightType !== commonNumberType) {
+            assignedValue = this.module.f64.convert_s.i32(assignedValue);
+        }
+
+        const operationsInstance = this.getOperationsInstance(commonNumberType);
 
         switch (node.operator) {
             case '+=':
-                this.expressions.push(this.module.i32.add(currentValue, assignedValue));
+                this.expressions.push(operationsInstance.add(currentValue, assignedValue));
                 break;
             case '-=':
-                this.expressions.push(this.module.i32.sub(currentValue, assignedValue));
+                this.expressions.push(operationsInstance.sub(currentValue, assignedValue));
                 break;
             case '*=':
-                this.expressions.push(this.module.i32.mul(currentValue, assignedValue));
+                this.expressions.push(operationsInstance.mul(currentValue, assignedValue));
                 break;
             case '/=':
-                this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
+                if (commonNumberType === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
+                } else {
+                    this.expressions.push(this.module.f64.div(currentValue, assignedValue));
+                }
+
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);

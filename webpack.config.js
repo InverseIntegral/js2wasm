@@ -1,7 +1,8 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'development',
+    mode: 'development', // Otherwise the benchmark cases get optimized
+    devtool: false, // removes eval from bundle
     module: {
         rules: [
             {
@@ -12,7 +13,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: [ '.tsx', '.ts', '.js' ]
+        extensions: [ '.ts', '.js' ]
     },
     entry: {
         benchmark: './src/benchmark/index.ts',
@@ -22,5 +23,7 @@ module.exports = {
         filename: '[name]/bundle.js',
         path: path.resolve(__dirname, 'dist')
     },
-    target: 'node' // because of require in binaryen
+    node: {
+        fs: 'empty' // binaryen requires fs
+    }
 };

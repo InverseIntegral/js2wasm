@@ -34,8 +34,8 @@ function getNumberType(value: number) {
     }
 }
 
-function getCommonNumberType(leftType: WebAssemblyType, rightType: WebAssemblyType) {
-    if (leftType === WebAssemblyType.FLOAT_64 || rightType === WebAssemblyType.FLOAT_64) {
+function getCommonNumberType(first: WebAssemblyType, second: WebAssemblyType) {
+    if (first === WebAssemblyType.FLOAT_64 || second === WebAssemblyType.FLOAT_64) {
         return WebAssemblyType.FLOAT_64;
     } else {
         return WebAssemblyType.INT_32;

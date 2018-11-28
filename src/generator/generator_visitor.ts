@@ -24,7 +24,7 @@ import {
     VariableDeclarator,
     WhileStatement,
 } from '@babel/types';
-import {Expression, i32, Module, Statement} from 'binaryen';
+import {Expression, F64Operations, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
@@ -110,13 +110,8 @@ class GeneratorVisitor extends Visitor {
         const leftType = this.getExpressionType(node.left);
         const commonNumberType = getCommonNumberType(leftType, rightType);
 
-        if (leftType !== commonNumberType) {
-            left = this.module.f64.convert_s.i32(left);
-        }
-
-        if (rightType !== commonNumberType) {
-            right = this.module.f64.convert_s.i32(right);
-        }
+        left = this.convertType(left, leftType, commonNumberType);
+        right = this.convertType(right, rightType, commonNumberType);
 
         const operationsInstance = this.getOperationsInstance(commonNumberType);
 
@@ -382,13 +377,8 @@ class GeneratorVisitor extends Visitor {
         const leftType = this.getExpressionType(node.left);
         const commonNumberType = getCommonNumberType(leftType, rightType);
 
-        if (leftType !== commonNumberType) {
-            currentValue = this.module.f64.convert_s.i32(currentValue);
-        }
-
-        if (rightType !== commonNumberType) {
-            assignedValue = this.module.f64.convert_s.i32(assignedValue);
-        }
+        currentValue = this.convertType(currentValue, leftType, commonNumberType);
+        assignedValue = this.convertType(assignedValue, rightType, commonNumberType);
 
         const operationsInstance = this.getOperationsInstance(commonNumberType);
 
@@ -510,6 +500,20 @@ class GeneratorVisitor extends Visitor {
         }
 
         return type;
+    }
+
+    private convertType(left: Expression, from: WebAssemblyType, to: WebAssemblyType) {
+        if (from !== to) {
+            const operationsInstance = this.getOperationsInstance(to) as F64Operations;
+
+            if (from === WebAssemblyType.INT_32) {
+                return operationsInstance.convert_s.i32(left);
+            } else {
+                throw new Error('Unsupported conversion performed');
+            }
+        }
+
+        return left;
     }
 }
 

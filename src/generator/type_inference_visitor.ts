@@ -159,10 +159,12 @@ class TypeInferenceVisitor extends Visitor {
 
             if (node.operator !== '=') {
                 rightSideType = getCommonNumberType(this.getTypeOfIdentifier(node.left), rightSideType);
+                this.typeUnchangedCheck(node.left.name, rightSideType);
+            } else {
+                this.updateVariableType(node.left, rightSideType);
             }
 
             this.expressionTypes.set(node.left, rightSideType);
-            this.updateVariableType(node.left, rightSideType);
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
 
@@ -201,22 +203,27 @@ class TypeInferenceVisitor extends Visitor {
         });
     }
 
-    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
-        const variableName = identifier.name;
-
+    private typeUnchangedCheck(variableName: string, type: WebAssemblyType) {
         if (this.variableTypes.has(variableName)) {
             const currentValue = this.variableTypes.get(variableName);
 
-            if (currentValue !== rightSideType) {
+            if (currentValue !== type) {
                 if (currentValue === undefined) {
                     throw new Error(`Tried to change the value type of ${variableName}
-                    from undefined to ${WebAssemblyType[rightSideType]}`);
+                    from undefined to ${WebAssemblyType[type]}`);
                 } else {
                     throw new Error(`Tried to change the value type of ${variableName}
-                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[rightSideType]}`);
+                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
                 }
             }
-        } else {
+        }
+    }
+
+    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
+        const variableName = identifier.name;
+        this.typeUnchangedCheck(variableName, rightSideType);
+
+        if (!this.variableTypes.has(variableName)) {
             this.variableTypes.set(variableName, rightSideType);
         }
     }

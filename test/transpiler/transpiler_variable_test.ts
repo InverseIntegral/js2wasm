@@ -56,10 +56,16 @@ describe('Transpiler', () => {
             expect(wrapper.call(-5)).to.equal(-2);
         });
 
-        it('should handle shorthand assignment with not declared variable', () => {
+        it('should handle shorthand assignment to not declared variable', () => {
             expect(() => transpiler
                 .setSignature('shorthandAssignment', WebAssemblyType.INT_32)
                 .transpile('function shorthandAssignment() { a += 10; return a; }')).to.throw();
+        });
+
+        it('should handle assignment to not declared variable', () => {
+            expect(() => transpiler
+                .setSignature('shorthandAssignment', WebAssemblyType.INT_32)
+                .transpile('function shorthandAssignment() { a = 10; return a; }')).to.throw();
         });
 
         it('should handle a single variable', () => {

@@ -502,18 +502,18 @@ class GeneratorVisitor extends Visitor {
         return type;
     }
 
-    private convertType(left: Expression, from: WebAssemblyType, to: WebAssemblyType) {
+    private convertType(expression: Expression, from: WebAssemblyType, to: WebAssemblyType) {
         if (from !== to) {
             const operationsInstance = this.getOperationsInstance(to) as F64Operations;
 
             if (from === WebAssemblyType.INT_32) {
-                return operationsInstance.convert_s.i32(left);
+                return operationsInstance.convert_s.i32(expression);
             } else {
                 throw new Error('Unsupported conversion performed');
             }
         }
 
-        return left;
+        return expression;
     }
 }
 

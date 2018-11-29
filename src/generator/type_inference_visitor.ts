@@ -219,12 +219,12 @@ class TypeInferenceVisitor extends Visitor {
         }
     }
 
-    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
+    private updateVariableType(identifier: Identifier, type: WebAssemblyType) {
         const variableName = identifier.name;
-        this.typeUnchangedCheck(variableName, rightSideType);
+        this.typeUnchangedCheck(variableName, type);
 
         if (!this.variableTypes.has(variableName)) {
-            this.variableTypes.set(variableName, rightSideType);
+            this.variableTypes.set(variableName, type);
         }
     }
 }

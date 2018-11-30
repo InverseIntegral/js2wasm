@@ -8,7 +8,7 @@ import {
     Identifier,
     isIdentifier,
     isMemberExpression,
-    LogicalExpression,
+    LogicalExpression, LVal,
     MemberExpression,
     NumericLiteral,
     UnaryExpression,
@@ -49,6 +49,7 @@ class TypeInferenceVisitor extends Visitor {
         if (['+', '-', '/', '%', '*'].includes(operator)) {
             const leftType = this.getTypeOfExpression(node.left);
             const rightType = this.getTypeOfExpression(node.right);
+
             type = getCommonNumberType(leftType, rightType);
         } else if (['<', '<=', '==', '!=', '>=', '>'].includes(operator)) {
             type = WebAssemblyType.BOOLEAN;
@@ -156,22 +157,30 @@ class TypeInferenceVisitor extends Visitor {
         super.visit(node.right);
 
         if (isIdentifier(node.left)) {
-            let rightSideType = this.getTypeOfExpression(node.right);
-
-            if (node.operator !== '=') {
-                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(node.left), rightSideType);
-                this.checkIfTypeIsUnchanged(node.left, rightSideType);
-            } else {
-                this.updateVariableType(node.left, rightSideType);
-            }
-
-            this.expressionTypes.set(node.left, rightSideType);
+            this.assignToIdentifier(node.left, node.right, node.operator);
         } else if (isMemberExpression(node.left)) {
-            super.visit(node.left);
-
-            const rightSideType = this.getTypeOfExpression(node.right);
-            this.expressionTypes.set(node.left, rightSideType);
+            this.assignToArray(node.left, node.right);
         }
+    }
+
+    private assignToArray(memberExpression: MemberExpression, expression: Expression) {
+        super.visit(memberExpression);
+
+        const rightSideType = this.getTypeOfExpression(expression);
+        this.expressionTypes.set(memberExpression, rightSideType);
+    }
+
+    private assignToIdentifier(identifier: Identifier, expression: Expression, operator: string) {
+        let rightSideType = this.getTypeOfExpression(expression);
+
+        if (operator !== '=') {
+            rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
+            this.checkIfTypeIsUnchanged(identifier, rightSideType);
+        } else {
+            this.updateVariableType(identifier, rightSideType);
+        }
+
+        this.expressionTypes.set(identifier, rightSideType);
     }
 
     private getTypeOfIdentifier(identifier: Identifier) {

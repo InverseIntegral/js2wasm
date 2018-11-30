@@ -138,6 +138,24 @@ describe('Transpiler', () => {
             expect(wrapper.call(-100.53, 2.1)).to.closeTo(-98.43, 0.001);
         });
 
+        it('should handle double addition parameter and literal', () => {
+            const wrapper = transpiler
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function add(a) { return a + 3.48; }');
+            wrapper.setFunctionName('add');
+
+            expect(wrapper.call(6.81)).to.closeTo(10.29, 0.001);
+            expect(wrapper.call(11.76)).to.closeTo(15.24, 0.001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function add(a) { return 5.79 + a; }');
+            wrapper2.setFunctionName('add');
+
+            expect(wrapper2.call(9.22)).to.closeTo(15.01, 0.001);
+            expect(wrapper2.call(4.63)).to.closeTo(10.42, 0.001);
+        });
+
         it('should handle double-int combination addition', () => {
             const content = 'function add(a, b) { return a + b; }';
             const wrapper = transpiler
@@ -187,6 +205,24 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.41, 2.14)).to.closeTo(-0.73, 0.001);
             expect(wrapper.call(-20.145, 20.145)).to.closeTo(-40.29, 0.001);
+        });
+
+        it('should handle double subtraction parameter and literal', () => {
+            const wrapper = transpiler
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function sub(a) { return a - 3.48; }');
+            wrapper.setFunctionName('sub');
+
+            expect(wrapper.call(6.81)).to.closeTo(3.33, 0.001);
+            expect(wrapper.call(11.76)).to.closeTo(8.28, 0.001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function sub(a) { return 5.79 - a; }');
+            wrapper2.setFunctionName('sub');
+
+            expect(wrapper2.call(9.22)).to.closeTo(-3.43, 0.001);
+            expect(wrapper2.call(4.63)).to.closeTo(1.16, 0.001);
         });
 
         it('should handle double-int combination subtraction', () => {
@@ -241,6 +277,24 @@ describe('Transpiler', () => {
             expect(wrapper.call(5.29, 0.0)).to.closeTo(0.0, 0.01);
         });
 
+        it('should handle double multiplication parameter and literal', () => {
+            const wrapper = transpiler
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function mul(a) { return a * 3.48; }');
+            wrapper.setFunctionName('mul');
+
+            expect(wrapper.call(6.81)).to.closeTo(23.6988, 0.00001);
+            expect(wrapper.call(11.76)).to.closeTo(40.9248, 0.0001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function mul(a) { return 5.79 * a; }');
+            wrapper2.setFunctionName('mul');
+
+            expect(wrapper2.call(9.22)).to.closeTo(53.3838, 0.00001);
+            expect(wrapper2.call(4.63)).to.closeTo(26.8077, 0.00001);
+        });
+
         it('should handle double-int combination multiplication', () => {
             const content = 'function mul(a, b) { return a * b; }';
             const wrapper = transpiler
@@ -290,6 +344,24 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.67, 0.58)).to.closeTo(2.879310344827586, 0.000000000000001);
             expect(wrapper.call(-5.15, 2.1)).to.closeTo(-2.452380952380952, 0.000000000000001);
+        });
+
+        it('should handle double division parameter and literal', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function div(a) { return a / 3.48; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call(6.81)).to.closeTo(1.956896551724138, 0.000000000000001);
+            expect(wrapper.call(11.76)).to.closeTo(3.379310344827586, 0.000000000000001);
+
+            const wrapper2 = new Transpiler()
+                .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function div(a) { return 5.79 / a; }');
+            wrapper2.setFunctionName('div');
+
+            expect(wrapper2.call(9.22)).to.closeTo(0.6279826464208243, 0.000000000000001);
+            expect(wrapper2.call(4.63)).to.closeTo(1.250539956803456, 0.000000000000001);
         });
 
         it('should handle double-int combination division', () => {

@@ -30,7 +30,7 @@ import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
 import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
 
-type OperationFunction = (e1: Expression, e2: Expression) => Expression;
+type BinaryExpressionFunction = (e1: Expression, e2: Expression) => Expression;
 
 class GeneratorVisitor extends Visitor {
 
@@ -360,8 +360,8 @@ class GeneratorVisitor extends Visitor {
     }
 
     private executeBinaryOperation(node: BinaryExpression | AssignmentExpression,
-                                   i32operation: OperationFunction,
-                                   f64operation: OperationFunction) {
+                                   i32operation: BinaryExpressionFunction,
+                                   f64operation: BinaryExpressionFunction) {
 
         let right = this.popExpression();
         let left = this.popExpression();

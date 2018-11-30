@@ -61,7 +61,7 @@ describe('Transpiler', () => {
                 .transpile('function double(a) { return +a; }');
             wrapper.setFunctionName('double');
 
-            expect(wrapper.call(31.412)).to.closeTo(31.412, 0.001);
+            expect(wrapper.call(31.412)).to.closeTo(31.412, 0.0001);
             expect(wrapper.call(-231.4129)).to.closeTo(-231.4129, 0.00001);
             expect(wrapper.call(0.0)).to.closeTo(0.0, 0.01);
         });
@@ -145,10 +145,10 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('add');
 
-            expect(wrapper.call(5, 14.9)).to.closeTo(19.9, 0.001);
+            expect(wrapper.call(5, 14.9)).to.closeTo(19.9, 0.01);
             expect(wrapper.call(-100, 12.59)).to.closeTo(-87.41, 0.001);
             expect(wrapper.call(20, -13.01)).to.closeTo(6.99, 0.001);
-            expect(wrapper.call(-9, -2.4)).to.closeTo(-11.4, 0.001);
+            expect(wrapper.call(-9, -2.4)).to.closeTo(-11.4, 0.01);
 
             const wrapper2 = new Transpiler()
                 .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
@@ -156,9 +156,9 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('add');
 
             expect(wrapper2.call(5.31, 4)).to.closeTo(9.31, 0.001);
-            expect(wrapper2.call(14.1, -3)).to.closeTo(11.1, 0.001);
-            expect(wrapper2.call(-23.4, 35)).to.closeTo(11.6, 0.001);
-            expect(wrapper2.call(-9.5, -2)).to.closeTo(-11.5, 0.001);
+            expect(wrapper2.call(14.1, -3)).to.closeTo(11.1, 0.01);
+            expect(wrapper2.call(-23.4, 35)).to.closeTo(11.6, 0.01);
+            expect(wrapper2.call(-9.5, -2)).to.closeTo(-11.5, 0.01);
         });
 
         it('should handle double addition with array', () => {
@@ -196,10 +196,10 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('sub');
 
-            expect(wrapper.call(5, 14.9)).to.closeTo(-9.9, 0.001);
+            expect(wrapper.call(5, 14.9)).to.closeTo(-9.9, 0.01);
             expect(wrapper.call(-100, 12.59)).to.closeTo(-112.59, 0.001);
             expect(wrapper.call(20, -13.01)).to.closeTo(33.01, 0.001);
-            expect(wrapper.call(-9, -2.4)).to.closeTo(-6.6, 0.001);
+            expect(wrapper.call(-9, -2.4)).to.closeTo(-6.6, 0.01);
 
             const wrapper2 = new Transpiler()
                 .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
@@ -207,9 +207,9 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('sub');
 
             expect(wrapper2.call(5.31, 4)).to.closeTo(1.31, 0.001);
-            expect(wrapper2.call(14.1, -3)).to.closeTo(17.1, 0.001);
-            expect(wrapper2.call(-23.4, 35)).to.closeTo(-58.4, 0.001);
-            expect(wrapper2.call(-9.5, -2)).to.closeTo(-7.5, 0.001);
+            expect(wrapper2.call(14.1, -3)).to.closeTo(17.1, 0.01);
+            expect(wrapper2.call(-23.4, 35)).to.closeTo(-58.4, 0.01);
+            expect(wrapper2.call(-9.5, -2)).to.closeTo(-7.5, 0.01);
         });
 
         it('should handle double subtraction with array', () => {
@@ -248,10 +248,10 @@ describe('Transpiler', () => {
                 .transpile(content);
             wrapper.setFunctionName('mul');
 
-            expect(wrapper.call(5, 14.9)).to.closeTo(74.5, 0.001);
+            expect(wrapper.call(5, 14.9)).to.closeTo(74.5, 0.01);
             expect(wrapper.call(-100, 12.59)).to.closeTo(-1259, 0.001);
-            expect(wrapper.call(20, -13.01)).to.closeTo(-260.2, 0.001);
-            expect(wrapper.call(-9, -2.4)).to.closeTo(21.6, 0.001);
+            expect(wrapper.call(20, -13.01)).to.closeTo(-260.2, 0.01);
+            expect(wrapper.call(-9, -2.4)).to.closeTo(21.6, 0.01);
 
             const wrapper2 = new Transpiler()
                 .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
@@ -259,9 +259,9 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('mul');
 
             expect(wrapper2.call(5.31, 4)).to.closeTo(21.24, 0.001);
-            expect(wrapper2.call(14.1, -3)).to.closeTo(-42.3, 0.001);
-            expect(wrapper2.call(-23.4, 35)).to.closeTo(-819, 0.001);
-            expect(wrapper2.call(-9.5, -2)).to.closeTo(19, 0.001);
+            expect(wrapper2.call(14.1, -3)).to.closeTo(-42.3, 0.01);
+            expect(wrapper2.call(-23.4, 35)).to.closeTo(-819, 0.1);
+            expect(wrapper2.call(-9.5, -2)).to.closeTo(19, 0.1);
         });
 
         it('should handle double multiplication with array', () => {
@@ -302,7 +302,7 @@ describe('Transpiler', () => {
             expect(wrapper.call(5, 14.9)).to.closeTo(0.3355704697986577, 0.000000000000001);
             expect(wrapper.call(-100, 12.59)).to.closeTo(-7.942811755361398, 0.000000000000001);
             expect(wrapper.call(20, -13.01)).to.closeTo(-1.53727901614143, 0.000000000000001);
-            expect(wrapper.call(-9, -2.4)).to.closeTo(3.75, 0.0001);
+            expect(wrapper.call(-9, -2.4)).to.closeTo(3.75, 0.001);
 
             const wrapper2 = new Transpiler()
                 .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
@@ -310,9 +310,9 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('div');
 
             expect(wrapper2.call(5.31, 4)).to.closeTo(1.3275, 0.000001);
-            expect(wrapper2.call(14.1, -3)).to.closeTo(-4.7, 0.001);
+            expect(wrapper2.call(14.1, -3)).to.closeTo(-4.7, 0.01);
             expect(wrapper2.call(-23.4, 35)).to.closeTo(-0.6685714285714286, 0.000000000000001);
-            expect(wrapper2.call(-9.5, -2)).to.closeTo(4.75, 0.000000000000001);
+            expect(wrapper2.call(-9.5, -2)).to.closeTo(4.75, 0.001);
         });
 
         it('should handle double division with array', () => {
@@ -701,7 +701,7 @@ describe('Transpiler', () => {
             expect(wrapper.call(1.41, 2.15)).to.closeTo(3.56, 0.001);
             expect(wrapper.call(10.3, 2.15)).to.closeTo(12.45, 0.001);
             expect(wrapper.call(0.15, 123.76)).to.closeTo(123.91, 0.001);
-            expect(wrapper.call(123.72, 0.88)).to.closeTo(124.6, 0.001);
+            expect(wrapper.call(123.72, 0.88)).to.closeTo(124.6, 0.01);
             expect(wrapper.call(0.71, 0.2)).to.closeTo(0.91, 0.001);
             expect(wrapper.call(-20.48, -5.38)).to.closeTo(-25.86, 0.001);
         });
@@ -730,8 +730,8 @@ describe('Transpiler', () => {
                 .transpile('function add(a) { var x = 3; a += x; return a; }');
             wrapper2.setFunctionName('add');
 
-            expect(wrapper2.call(14.1)).to.closeTo(17.1, 0.001);
-            expect(wrapper2.call(-23.4)).to.closeTo(-20.4, 0.001);
+            expect(wrapper2.call(14.1)).to.closeTo(17.1, 0.01);
+            expect(wrapper2.call(-23.4)).to.closeTo(-20.4, 0.01);
         });
 
         it('should handle double shorthand addition with array', () => {
@@ -768,7 +768,7 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('sub');
 
             expect(wrapper2.call(5.31)).to.closeTo(2.31, 0.001);
-            expect(wrapper2.call(-23.4)).to.closeTo(-26.4, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-26.4, 0.01);
         });
 
         it('should handle double shorthand subtraction with array', () => {
@@ -797,7 +797,7 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('mul');
 
             expect(wrapper.call(5)).to.closeTo(5.65, 0.001);
-            expect(wrapper.call(-100)).to.closeTo(-113, 0.001);
+            expect(wrapper.call(-100)).to.closeTo(-113, 0.1);
 
             const wrapper2 = new Transpiler()
                 .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
@@ -805,7 +805,7 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('mul');
 
             expect(wrapper2.call(5.31)).to.closeTo(15.93, 0.001);
-            expect(wrapper2.call(-23.4)).to.closeTo(-70.2, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-70.2, 0.01);
         });
 
         it('should handle double shorthand multiplication with array', () => {
@@ -842,7 +842,7 @@ describe('Transpiler', () => {
             wrapper2.setFunctionName('div');
 
             expect(wrapper2.call(5.31)).to.closeTo(1.77, 0.001);
-            expect(wrapper2.call(-23.4)).to.closeTo(-7.8, 0.001);
+            expect(wrapper2.call(-23.4)).to.closeTo(-7.8, 0.01);
         });
 
         it('should handle double shorthand division with array', () => {

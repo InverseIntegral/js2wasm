@@ -934,5 +934,57 @@ describe('Transpiler', () => {
 
             expect(wrapper.call([2, 3])).to.closeTo(0.565, 0.0001);
         });
+
+        it('should handle double in if', () => {
+            const content = 'function branch(a) { if (a == 29.02) { return true; } else { return false; } }';
+
+            const wrapper = transpiler
+                .setSignature('branch', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('branch');
+
+            expect(wrapper.call(29.02)).to.equal(true);
+            expect(wrapper.call(4.89)).to.equal(false);
+        });
+
+        it('should handle double in else if', () => {
+            const content = 'function branch(a) {' +
+                'if (a == 7.42) { return 0; }' +
+                'else if (a == 4.15) { return 1; }' +
+                'else { return 2; } }';
+
+            const wrapper = transpiler
+                .setSignature('branch', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('branch');
+
+            expect(wrapper.call(7.42)).to.equal(0);
+            expect(wrapper.call(4.15)).to.equal(1);
+            expect(wrapper.call(9.77)).to.equal(2);
+        });
+
+        it('should handle double in while loop', () => {
+            const content = 'function loop(a) { var times = 0, i = 0; while (i < a) { i++; times++; } return times; }';
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call(3.53)).to.equal(4);
+            expect(wrapper.call(-2.13)).to.equal(0);
+        });
+
+        it('should handle double in for loop', () => {
+            const content = 'function loop() { var times = 0, i = 0;' +
+                'for (var a = 4.21; i < a; i++) { times++; }' +
+                'return times; }';
+
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32)
+                .transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call()).to.equal(5);
+        });
     });
 });

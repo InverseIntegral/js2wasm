@@ -337,54 +337,41 @@ class GeneratorVisitor extends Visitor {
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {
+        const right = this.popExpression();
         this.visit(node.left);
-        let currentValue = this.popExpression();
-        let assignedValue = this.popExpression();
-
-        if (!isIdentifier(node.left) && !isMemberExpression(node.left)) {
-            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
-        }
-
-        const rightType = this.getExpressionType(node.right);
-        const leftType = this.getExpressionType(node.left);
-        const commonNumberType = getCommonNumberType(leftType, rightType);
-
-        currentValue = this.convertType(currentValue, leftType, commonNumberType);
-        assignedValue = this.convertType(assignedValue, rightType, commonNumberType);
-
-        const instance = this.getOperationsInstance(commonNumberType);
+        this.expressions.push(right);
 
         switch (node.operator) {
             case '+=':
-                this.expressions.push(instance.add(currentValue, assignedValue));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-=':
-                this.expressions.push(instance.sub(currentValue, assignedValue));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*=':
-                this.expressions.push(instance.mul(currentValue, assignedValue));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/=':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
-                } else {
-                    this.expressions.push(this.module.f64.div(currentValue, assignedValue));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }
     }
 
-    private executeBinaryOperation(node: BinaryExpression,
+    private executeBinaryOperation(node: BinaryExpression | AssignmentExpression,
                                    i32operation: OperationFunction,
                                    f64operation: OperationFunction) {
 
         let right = this.popExpression();
         let left = this.popExpression();
 
+        if (isAssignmentExpression(node) && !isIdentifier(node.left) && !isMemberExpression(node.left)) {
+            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
+        }
+
         const rightType = this.getExpressionType(node.right);
+        // @ts-ignore the analyser doesn't recognise the check
         const leftType = this.getExpressionType(node.left);
         const commonNumberType = getCommonNumberType(leftType, rightType);
 

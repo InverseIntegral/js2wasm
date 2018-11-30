@@ -504,10 +504,8 @@ class GeneratorVisitor extends Visitor {
 
     private convertType(expression: Expression, from: WebAssemblyType, to: WebAssemblyType) {
         if (from !== to) {
-            const instance = this.getOperationsInstance(to) as F64Operations;
-
-            if (from === WebAssemblyType.INT_32) {
-                return instance.convert_s.i32(expression);
+            if (from === WebAssemblyType.INT_32 && to === WebAssemblyType.FLOAT_64) {
+                return this.module.f64.convert_s.i32(expression);
             } else {
                 throw new Error('Unsupported conversion performed');
             }

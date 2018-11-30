@@ -62,8 +62,6 @@ class Generator {
                 + expectedLength + ' parameters and the function has ' + actualLength + ' parameters');
         }
 
-        const parameterTypes = signature.parameterTypes.map(toBinaryenType);
-
         const [parameterMapping, variableMapping] = new DeclarationVisitor().run(tree);
 
         const [expressionTypes, variableTypes] = new TypeInferenceVisitor().run(tree, signature, signatures);
@@ -73,7 +71,11 @@ class Generator {
         const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes);
         const body = generatorVisitor.run(tree);
 
-        const functionType = module.addFunctionType(functionName, toBinaryenType(signature.returnType), parameterTypes);
+        const {parameterTypes, returnType} = signature;
+        const binaryenReturnType = toBinaryenType(returnType);
+        const binaryenParameterTypes = parameterTypes.map(toBinaryenType);
+
+        const functionType = module.addFunctionType(functionName, binaryenReturnType, binaryenParameterTypes);
         module.addFunction(functionName, functionType, this.getVariableTypes(variableMapping, variableTypes), body);
         module.addFunctionExport(functionName, functionName);
     }

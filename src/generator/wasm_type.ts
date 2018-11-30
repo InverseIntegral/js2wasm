@@ -5,6 +5,7 @@ enum WebAssemblyType {
     INT_32,
     INT_32_ARRAY,
     FLOAT_64,
+    FLOAT_64_ARRAY,
     BOOLEAN,
 
 }
@@ -17,6 +18,8 @@ function toBinaryenType(type: WebAssemblyType) {
             return i32;
         case WebAssemblyType.FLOAT_64:
             return f64;
+        case WebAssemblyType.FLOAT_64_ARRAY:
+            return i32;
         case WebAssemblyType.BOOLEAN:
             return i32;
         default:
@@ -42,6 +45,8 @@ function isOfType(toCheck: any, type: WebAssemblyType) {
             return isArray(toCheck, WebAssemblyType.INT_32);
         case WebAssemblyType.FLOAT_64:
             return isDouble(toCheck);
+        case WebAssemblyType.FLOAT_64_ARRAY:
+            return isArray(toCheck, WebAssemblyType.FLOAT_64);
         case WebAssemblyType.BOOLEAN:
             return toCheck === true || toCheck === false;
         default:
@@ -64,6 +69,8 @@ function isArray(value: any, type: WebAssemblyType) {
         switch (type) {
             case WebAssemblyType.INT_32:
                 return value.every(isInteger);
+            case WebAssemblyType.FLOAT_64:
+                return value.every(isDouble);
             default:
                 throw new Error(`Unknown array element type ${WebAssemblyType[type]}`);
         }

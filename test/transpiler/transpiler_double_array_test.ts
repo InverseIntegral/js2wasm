@@ -14,83 +14,83 @@ describe('Transpiler', () => {
 
         it('should handle array access', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[0]; }');
-            expect(wrapper.setFunctionName('array').call([1, 2, 3])).to.equal(1);
+            expect(wrapper.setFunctionName('array').call([1.5, 2.0, 3.0])).to.equal(1.5);
         });
 
         it('should handle array access using variable', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
+                .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32)
                 .transpile('function array(arr, i) { return arr[i]; }');
             wrapper.setFunctionName('array');
 
-            expect(wrapper.call([11, 12, 13], 0)).to.equal(11);
-            expect(wrapper.call([14, 15, 16], 1)).to.equal(15);
-            expect(wrapper.call([17, 18, 19], 2)).to.equal(19);
+            expect(wrapper.call([11.1, 12.4, 13.7], 0)).to.equal(11.1);
+            expect(wrapper.call([14.2, 15.5, 16.8], 1)).to.equal(15.5);
+            expect(wrapper.call([17.3, 18.6, 19.9], 2)).to.equal(19.9);
         });
 
         it('should handle array access using expression', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[1 + 2]; }');
-            expect(wrapper.setFunctionName('array').call([101, 102, 103, 104, 105])).to.equal(104);
+            expect(wrapper.setFunctionName('array').call([101.9, 102.8, 103.7, 104.6, 105.5])).to.equal(104.6);
         });
 
         it('should handle multiple arrays', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32,
-                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('array', WebAssemblyType.FLOAT_64,
+                    WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr, arr2) { return arr2[2]; }');
-            expect(wrapper.setFunctionName('array').call([111, 112], [114, 115, 116])).to.equal(116);
+            expect(wrapper.setFunctionName('array').call([111.11, 112.12], [114.14, 115.15, 116.15])).to.equal(116.15);
         });
 
         it('should handle out of bounds access', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
+                .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32)
                 .transpile('function array(arr, i) { return arr[i]; }');
             wrapper.setFunctionName('array');
 
-            expect(() => wrapper.call([1, 2], 20000)).to.throw();
-            expect(() => wrapper.call([1, 2], -2)).to.throw();
+            expect(() => wrapper.call([1.55, 2.55], 20000)).to.throw();
+            expect(() => wrapper.call([1.6, 2.6], -2)).to.throw();
         });
 
         it('should not modify array', () => {
             const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[0]; }');
 
-            const array = [100, 200, 300];
+            const array = [10.01, 20.01, 30.01];
             wrapper.setFunctionName('array').call(array);
 
-            expect(array).to.eql([100, 200, 300]);
+            expect(array).to.eql([10.01, 20.01, 30.01]);
         });
 
         it('should handle length property', () => {
             const wrapper = transpiler
-                .setSignature('length', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('length', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function length(arr) { return arr.length; }');
             wrapper.setFunctionName('length');
 
-            expect(wrapper.call([0, 1, 2])).to.equal(3);
+            expect(wrapper.call([0.0, 1.111, 23.3])).to.equal(3);
             expect(wrapper.call([])).to.equal(0);
-            expect(wrapper.call([1])).to.equal(1);
+            expect(wrapper.call([1.909])).to.equal(1);
         });
 
         it('shouldn\'t handle other properties', () => {
             expect(() => transpiler
-                .setSignature('something', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('something', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function something(arr) { return arr.something; }')).to.throw();
         });
 
         it('should handle writes to array elements', () => {
             const wrapper = transpiler
-                .setSignature('setFirst', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .transpile('function setFirst(arr) { arr[0] = 42; return arr[0]; }');
+                .setSignature('setFirst', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile('function setFirst(arr) { arr[0] = 42.2; return arr[0]; }');
             wrapper.setFunctionName('setFirst');
 
-            expect(wrapper.call([0, 1, 2])).to.equal(42);
-            expect(wrapper.call([1])).to.equal(42);
+            expect(wrapper.call([0.1, 1.1, 2.1])).to.equal(42.2);
+            expect(wrapper.call([1.5])).to.equal(42.2);
         });
 
         it('should handle shorthand assignment to array elements', () => {

@@ -381,23 +381,51 @@ class GeneratorVisitor extends Visitor {
     private getArrayElement(node: MemberExpression) {
         super.visitMemberExpression(node);
 
-        // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-        return this.module.i32.load(0, 4, this.getPointer());
+        const type = this.getExpressionType(node);
+
+        switch (type) {
+            case WebAssemblyType.INT_32:
+                return this.module.i32.load(0, 4, this.getPointer(4));
+            case WebAssemblyType.FLOAT_64:
+                return this.module.f64.load(0, 8, this.getPointer(8));
+            default:
+                throw new Error(`Unknown type of member expression: ${type}`);
+        }
     }
 
     private getArrayLength(node: MemberExpression) {
         this.visit(node.object);
 
-        const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
-        return this.module.i32.load(0, 4, address);
+        const type = this.getExpressionType(node.object);
+
+        switch (type) {
+            case WebAssemblyType.INT_32_ARRAY:
+                const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
+                return this.module.i32.load(0, 4, address);
+            case WebAssemblyType.FLOAT_64_ARRAY:
+                const address2 = this.module.i32.sub(this.popExpression(), this.module.i32.const(8));
+                return this.module.i32.load(0, 4, address2);
+            default:
+                throw new Error(`Can\'t access length property of unknown type: ${type}`);
+        }
     }
 
     private setArrayElement(memberExpression: MemberExpression, value: Expression): Statement {
         this.visit(memberExpression.object);
         this.visit(memberExpression.property);
 
-        // @ts-ignore because store() returns an expression
-        return this.module.i32.store(0, 4, this.getPointer(), value);
+        const type = this.getExpressionType(memberExpression.object);
+
+        switch (type) {
+            case WebAssemblyType.INT_32_ARRAY:
+                // @ts-ignore
+                return this.module.i32.store(0, 4, this.getPointer(4), value);
+            case WebAssemblyType.FLOAT_64_ARRAY:
+                // @ts-ignore
+                return this.module.f64.store(0, 8, this.getPointer(8), value);
+            default:
+                throw new Error(`Can\'t write to array with type: ${type}`);
+        }
     }
 
     private getVariableIndex(name: string) {
@@ -410,11 +438,11 @@ class GeneratorVisitor extends Visitor {
         return index;
     }
 
-    private getPointer() {
+    private getPointer(factor: number) {
         const index = this.popExpression();
         const basePointer = this.popExpression();
 
-        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(4)));
+        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(factor)));
     }
 
     private generateLabel() {

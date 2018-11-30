@@ -6,7 +6,8 @@ import {
     Expression,
     FunctionDeclaration,
     Identifier,
-    isIdentifier, isMemberExpression,
+    isIdentifier,
+    isMemberExpression,
     LogicalExpression,
     MemberExpression,
     NumericLiteral,
@@ -128,7 +129,19 @@ class TypeInferenceVisitor extends Visitor {
 
         if (node.computed) {
             super.visit(node.property);
-            type = WebAssemblyType.INT_32;
+
+            const arrayType = this.getTypeOfExpression(node.object);
+
+            switch (arrayType) {
+                case WebAssemblyType.INT_32_ARRAY:
+                    type = WebAssemblyType.INT_32;
+                    break;
+                case WebAssemblyType.FLOAT_64_ARRAY:
+                    type = WebAssemblyType.FLOAT_64;
+                    break;
+                default:
+                    throw new Error(`Unknown array type ${arrayType}`);
+            }
         } else if (isIdentifier(node.property) && node.property.name === 'length') {
             type = WebAssemblyType.INT_32;
         } else {
@@ -216,6 +229,16 @@ class TypeInferenceVisitor extends Visitor {
         } else {
             this.variableTypes.set(variableName, rightSideType);
         }
+    }
+
+    private getTypeOfExpression(expression: Expression) {
+        const type = this.expressionTypes.get(expression);
+
+        if (type === undefined) {
+            throw new Error(`The type of expression ${expression.type} could not be infered`);
+        }
+
+        return type;
     }
 }
 

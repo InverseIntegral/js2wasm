@@ -27,6 +27,17 @@ describe('Transpiler', () => {
             expect(wrapper.setFunctionName('double').call(3.14)).to.closeTo(3.14, 0.001);
         });
 
+        it('should handle double parameter with integer values', () => {
+            const wrapper = transpiler
+                .setSignature('double', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function double(value) { return value; } ');
+
+            expect(wrapper.setFunctionName('double').call(9)).to.closeTo(9, 0.1);
+            expect(wrapper.setFunctionName('double').call(-5)).to.closeTo(-5, 0.1);
+            expect(wrapper.setFunctionName('double').call(0)).to.closeTo(0, 0.1);
+            expect(wrapper.setFunctionName('double').call(-0)).to.closeTo(0, 0.1);
+        });
+
         it('should handle double variable declaration with direct assignment', () => {
             const wrapper = transpiler
                 .setSignature('double', WebAssemblyType.FLOAT_64)

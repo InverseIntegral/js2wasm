@@ -24,11 +24,13 @@ import {
     VariableDeclarator,
     WhileStatement,
 } from '@babel/types';
-import {Expression, F64Operations, i32, Module, Statement} from 'binaryen';
+import {Expression, i32, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
 import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
+
+type OperationFunction = (e1: Expression, e2: Expression) => Expression;
 
 class GeneratorVisitor extends Visitor {
 
@@ -104,37 +106,27 @@ class GeneratorVisitor extends Visitor {
     protected visitBinaryExpression(node: BinaryExpression) {
         super.visitBinaryExpression(node);
 
-        let right = this.popExpression();
-        let left = this.popExpression();
-
-        const rightType = this.getExpressionType(node.right);
-        const leftType = this.getExpressionType(node.left);
-        const commonNumberType = getCommonNumberType(leftType, rightType);
-
-        left = this.convertType(left, leftType, commonNumberType);
-        right = this.convertType(right, rightType, commonNumberType);
-
-        const instance = this.getOperationsInstance(commonNumberType);
-
         switch (node.operator) {
             case '+':
-                this.expressions.push(instance.add(left, right));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-':
-                this.expressions.push(instance.sub(left, right));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*':
-                this.expressions.push(instance.mul(left, right));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.div_s(left, right));
-                } else {
-                    this.expressions.push(this.module.f64.div(left, right));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             case '%':
+                const right = this.popExpression();
+                const left = this.popExpression();
+
+                const rightType = this.getExpressionType(node.right);
+                const leftType = this.getExpressionType(node.left);
+                const commonNumberType = getCommonNumberType(leftType, rightType);
+
                 if (commonNumberType === WebAssemblyType.INT_32) {
                     this.expressions.push(this.module.i32.rem_s(left, right));
                 } else {
@@ -143,42 +135,22 @@ class GeneratorVisitor extends Visitor {
 
                 break;
             case '==':
-                this.expressions.push(instance.eq(left, right));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.eq, this.module.f64.eq));
                 break;
             case '!=':
-                this.expressions.push(instance.ne(left, right));
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.ne, this.module.f64.ne));
                 break;
             case '<':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.lt_s(left, right));
-                } else {
-                    this.expressions.push(this.module.f64.lt(left, right));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.lt_s, this.module.f64.lt));
                 break;
             case '<=':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.le_s(left, right));
-                } else {
-                    this.expressions.push(this.module.f64.le(left, right));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.le_s, this.module.f64.le));
                 break;
             case '>':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.gt_s(left, right));
-                } else {
-                    this.expressions.push(this.module.f64.gt(left, right));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.gt_s, this.module.f64.gt));
                 break;
             case '>=':
-                if (commonNumberType === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.ge_s(left, right));
-                } else {
-                    this.expressions.push(this.module.f64.ge(left, right));
-                }
-
+                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.ge_s, this.module.f64.ge));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -402,6 +374,27 @@ class GeneratorVisitor extends Visitor {
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
+    private executeBinaryOperation(node: BinaryExpression,
+                                   i32operation: OperationFunction,
+                                   f64operation: OperationFunction) {
+
+        let right = this.popExpression();
+        let left = this.popExpression();
+
+        const rightType = this.getExpressionType(node.right);
+        const leftType = this.getExpressionType(node.left);
+        const commonNumberType = getCommonNumberType(leftType, rightType);
+
+        left = this.convertType(left, leftType, commonNumberType);
+        right = this.convertType(right, rightType, commonNumberType);
+
+        if (commonNumberType === WebAssemblyType.INT_32) {
+            return i32operation(left, right);
+        } else {
+            return f64operation(left, right);
         }
     }
 

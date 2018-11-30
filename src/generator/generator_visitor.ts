@@ -393,8 +393,10 @@ class GeneratorVisitor extends Visitor {
 
         if (commonNumberType === WebAssemblyType.INT_32) {
             return i32operation(left, right);
-        } else {
+        } else if (commonNumberType === WebAssemblyType.FLOAT_64) {
             return f64operation(left, right);
+        } else {
+            throw new Error(`Operation ${node.operator} not supported on type ${WebAssemblyType[commonNumberType]}`);
         }
     }
 

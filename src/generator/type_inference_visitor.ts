@@ -146,6 +146,7 @@ class TypeInferenceVisitor extends Visitor {
 
         if (node.init !== null && isIdentifier(node.id)) {
             const rightSideType = this.getTypeOfExpression(node.init);
+
             this.expressionTypes.set(node.id, rightSideType);
             this.updateVariableType(node.id, rightSideType);
         }
@@ -159,7 +160,7 @@ class TypeInferenceVisitor extends Visitor {
 
             if (node.operator !== '=') {
                 rightSideType = getCommonNumberType(this.getTypeOfIdentifier(node.left), rightSideType);
-                this.typeUnchangedCheck(node.left.name, rightSideType);
+                this.checkIfTypeIsUnchanged(node.left, rightSideType);
             } else {
                 this.updateVariableType(node.left, rightSideType);
             }
@@ -203,16 +204,18 @@ class TypeInferenceVisitor extends Visitor {
         });
     }
 
-    private typeUnchangedCheck(variableName: string, type: WebAssemblyType) {
-        if (this.variableTypes.has(variableName)) {
-            const currentValue = this.variableTypes.get(variableName);
+    private checkIfTypeIsUnchanged(identifier: Identifier, type: WebAssemblyType) {
+        const name = identifier.name;
+
+        if (this.variableTypes.has(name)) {
+            const currentValue = this.variableTypes.get(name);
 
             if (currentValue !== type) {
                 if (currentValue === undefined) {
-                    throw new Error(`Tried to change the value type of ${variableName}
+                    throw new Error(`Tried to change the value type of ${name}
                     from undefined to ${WebAssemblyType[type]}`);
                 } else {
-                    throw new Error(`Tried to change the value type of ${variableName}
+                    throw new Error(`Tried to change the value type of ${name}
                     from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
                 }
             }
@@ -220,11 +223,12 @@ class TypeInferenceVisitor extends Visitor {
     }
 
     private updateVariableType(identifier: Identifier, type: WebAssemblyType) {
-        const variableName = identifier.name;
-        this.typeUnchangedCheck(variableName, type);
+        this.checkIfTypeIsUnchanged(identifier, type);
 
-        if (!this.variableTypes.has(variableName)) {
-            this.variableTypes.set(variableName, type);
+        const name = identifier.name;
+
+        if (!this.variableTypes.has(name)) {
+            this.variableTypes.set(name, type);
         }
     }
 }

@@ -63,8 +63,9 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        const type = this.getExpressionType(node);
-        this.expressions.push(this.getOperationsInstance(type).const(node.value));
+        const instance = this.getOperationsInstance(this.getExpressionType(node));
+
+        this.expressions.push(instance.const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -88,8 +89,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(operand);
                 break;
             case '-':
-                const type = this.getExpressionType(node);
-                const instance = this.getOperationsInstance(type);
+                const instance = this.getOperationsInstance(this.getExpressionType(node));
 
                 this.expressions.push(instance.sub(instance.const(0), operand));
                 break;
@@ -209,8 +209,7 @@ class GeneratorVisitor extends Visitor {
         const currentValue = this.popExpression();
         let updatedValue;
 
-        const type = this.getExpressionType(node);
-        const instance = this.getOperationsInstance(type);
+        const instance = this.getOperationsInstance(this.getExpressionType(node));
 
         switch (node.operator) {
             case '++':

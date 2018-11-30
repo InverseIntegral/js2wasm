@@ -468,6 +468,15 @@ describe('Transpiler', () => {
             expect(wrapper2.call([1, 2], 2.1)).to.equal(false);
         });
 
+        it('should handle double calculation equality', () => {
+            const wrapper = transpiler
+                .setSignature('func', WebAssemblyType.BOOLEAN)
+                .transpile('function func() { return 0.1 + 0.1 + 0.1 == 0.3; }');
+            wrapper.setFunctionName('func');
+
+            expect(wrapper.call()).to.equal(false);
+        });
+
         it('should handle double inequality', () => {
             const wrapper = transpiler
                 .setSignature('neq', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)

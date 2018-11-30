@@ -89,8 +89,9 @@ class GeneratorVisitor extends Visitor {
                 break;
             case '-':
                 const type = this.getExpressionType(node);
-                const operationsInstance = this.getOperationsInstance(type);
-                this.expressions.push(operationsInstance.sub(operationsInstance.const(0), operand));
+                const instance = this.getOperationsInstance(type);
+
+                this.expressions.push(instance.sub(instance.const(0), operand));
                 break;
             case '!':
                 this.expressions.push(this.module.i32.eqz(operand));
@@ -113,17 +114,17 @@ class GeneratorVisitor extends Visitor {
         left = this.convertType(left, leftType, commonNumberType);
         right = this.convertType(right, rightType, commonNumberType);
 
-        const operationsInstance = this.getOperationsInstance(commonNumberType);
+        const instance = this.getOperationsInstance(commonNumberType);
 
         switch (node.operator) {
             case '+':
-                this.expressions.push(operationsInstance.add(left, right));
+                this.expressions.push(instance.add(left, right));
                 break;
             case '-':
-                this.expressions.push(operationsInstance.sub(left, right));
+                this.expressions.push(instance.sub(left, right));
                 break;
             case '*':
-                this.expressions.push(operationsInstance.mul(left, right));
+                this.expressions.push(instance.mul(left, right));
                 break;
             case '/':
                 if (commonNumberType === WebAssemblyType.INT_32) {
@@ -142,10 +143,10 @@ class GeneratorVisitor extends Visitor {
 
                 break;
             case '==':
-                this.expressions.push(operationsInstance.eq(left, right));
+                this.expressions.push(instance.eq(left, right));
                 break;
             case '!=':
-                this.expressions.push(operationsInstance.ne(left, right));
+                this.expressions.push(instance.ne(left, right));
                 break;
             case '<':
                 if (commonNumberType === WebAssemblyType.INT_32) {
@@ -209,14 +210,14 @@ class GeneratorVisitor extends Visitor {
         let updatedValue;
 
         const type = this.getExpressionType(node);
-        const operationsInstance = this.getOperationsInstance(type);
+        const instance = this.getOperationsInstance(type);
 
         switch (node.operator) {
             case '++':
-                updatedValue = operationsInstance.add(currentValue, operationsInstance.const(1));
+                updatedValue = instance.add(currentValue, instance.const(1));
                 break;
             case '--':
-                updatedValue = operationsInstance.sub(currentValue, operationsInstance.const(1));
+                updatedValue = instance.sub(currentValue, instance.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -380,17 +381,17 @@ class GeneratorVisitor extends Visitor {
         currentValue = this.convertType(currentValue, leftType, commonNumberType);
         assignedValue = this.convertType(assignedValue, rightType, commonNumberType);
 
-        const operationsInstance = this.getOperationsInstance(commonNumberType);
+        const instance = this.getOperationsInstance(commonNumberType);
 
         switch (node.operator) {
             case '+=':
-                this.expressions.push(operationsInstance.add(currentValue, assignedValue));
+                this.expressions.push(instance.add(currentValue, assignedValue));
                 break;
             case '-=':
-                this.expressions.push(operationsInstance.sub(currentValue, assignedValue));
+                this.expressions.push(instance.sub(currentValue, assignedValue));
                 break;
             case '*=':
-                this.expressions.push(operationsInstance.mul(currentValue, assignedValue));
+                this.expressions.push(instance.mul(currentValue, assignedValue));
                 break;
             case '/=':
                 if (commonNumberType === WebAssemblyType.INT_32) {
@@ -504,10 +505,10 @@ class GeneratorVisitor extends Visitor {
 
     private convertType(expression: Expression, from: WebAssemblyType, to: WebAssemblyType) {
         if (from !== to) {
-            const operationsInstance = this.getOperationsInstance(to) as F64Operations;
+            const instance = this.getOperationsInstance(to) as F64Operations;
 
             if (from === WebAssemblyType.INT_32) {
-                return operationsInstance.convert_s.i32(expression);
+                return instance.convert_s.i32(expression);
             } else {
                 throw new Error('Unsupported conversion performed');
             }

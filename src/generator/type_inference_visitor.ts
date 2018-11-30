@@ -26,7 +26,7 @@ class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
     private expressionTypes: ExpressionTypes = new Map();
-    private variableTypes: VariableTypes = new Map();
+    private identifierTypes: VariableTypes = new Map();
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
@@ -37,7 +37,7 @@ class TypeInferenceVisitor extends Visitor {
 
         this.visit(tree.body);
 
-        return [this.expressionTypes, this.variableTypes];
+        return [this.expressionTypes, this.identifierTypes];
     }
 
     protected visitBinaryExpression(node: BinaryExpression): void {
@@ -149,7 +149,7 @@ class TypeInferenceVisitor extends Visitor {
             const rightSideType = this.getTypeOfExpression(node.init);
 
             this.expressionTypes.set(node.id, rightSideType);
-            this.updateVariableType(node.id, rightSideType);
+            this.updateIdentifierType(node.id, rightSideType);
         }
     }
 
@@ -177,7 +177,7 @@ class TypeInferenceVisitor extends Visitor {
             rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
             this.checkIfTypeIsUnchanged(identifier, rightSideType);
         } else {
-            this.updateVariableType(identifier, rightSideType);
+            this.updateIdentifierType(identifier, rightSideType);
         }
 
         this.expressionTypes.set(identifier, rightSideType);
@@ -216,8 +216,8 @@ class TypeInferenceVisitor extends Visitor {
     private checkIfTypeIsUnchanged(identifier: Identifier, type: WebAssemblyType) {
         const name = identifier.name;
 
-        if (this.variableTypes.has(name)) {
-            const currentValue = this.variableTypes.get(name);
+        if (this.identifierTypes.has(name)) {
+            const currentValue = this.identifierTypes.get(name);
 
             if (currentValue !== type) {
                 if (currentValue === undefined) {
@@ -231,13 +231,13 @@ class TypeInferenceVisitor extends Visitor {
         }
     }
 
-    private updateVariableType(identifier: Identifier, type: WebAssemblyType) {
+    private updateIdentifierType(identifier: Identifier, type: WebAssemblyType) {
         this.checkIfTypeIsUnchanged(identifier, type);
 
         const name = identifier.name;
 
-        if (!this.variableTypes.has(name)) {
-            this.variableTypes.set(name, type);
+        if (!this.identifierTypes.has(name)) {
+            this.identifierTypes.set(name, type);
         }
     }
 }

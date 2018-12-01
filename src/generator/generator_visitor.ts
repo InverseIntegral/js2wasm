@@ -123,9 +123,8 @@ class GeneratorVisitor extends Visitor {
 
                 const rightType = this.getExpressionType(node.right);
                 const leftType = this.getExpressionType(node.left);
-                const commonNumberType = getCommonNumberType(leftType, rightType);
 
-                if (commonNumberType === WebAssemblyType.INT_32) {
+                if (getCommonNumberType(leftType, rightType) === WebAssemblyType.INT_32) {
                     this.expressions.push(this.module.i32.rem_s(left, right));
                 } else {
                     throw new Error('Modulo is not allowed with float values');

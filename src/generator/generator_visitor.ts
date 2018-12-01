@@ -304,11 +304,10 @@ class GeneratorVisitor extends Visitor {
             this.visit(argument);
 
             const signatureType = calleeSignature.parameterTypes[i];
-            const argumentExpressionType = this.getExpressionType(argument);
-            const commonType = getCommonNumberType(signatureType, argumentExpressionType);
+            const argumentType = this.getExpressionType(argument);
+            const commonType = getCommonNumberType(signatureType, argumentType);
 
-            const argumentExpression = this.convertType(this.popExpression(), argumentExpressionType, commonType);
-            parameterExpressions.push(argumentExpression);
+            parameterExpressions.push(this.convertType(this.popExpression(), argumentType, commonType));
         }
 
         const type = this.getExpressionType(node);

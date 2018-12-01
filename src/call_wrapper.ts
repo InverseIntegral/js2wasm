@@ -146,9 +146,8 @@ class CallWrapper {
         if (this.outParameters !== undefined) {
             if (hasArrayParameters) {
                 const exportedMemory = instance.exports.memory;
-                const readableMemory = new Uint32Array(exportedMemory.buffer);
 
-                this.readMemory(parameters, fixedParameters, readableMemory);
+                this.readMemory(parameters, fixedParameters, exportedMemory, currentSignature);
             } else {
                 throw new Error('Output parameters with no memory dependent parameters');
             }
@@ -172,19 +171,33 @@ class CallWrapper {
         return result;
     }
 
-    private readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
-        for (const outParameter of this.outParameters) {
-            const outParameterIndex = parameters.indexOf(outParameter);
+    private readMemory(parameters: any[],
+                       fixedParameters: any[],
+                       memory: WebAssembly.Memory,
+                       signature: FunctionSignature) {
 
-            if (outParameterIndex === -1) {
+        const i32Memory = new Uint32Array(memory.buffer);
+        const f64Memory = new Float64Array(memory.buffer);
+
+        for (const outParameter of this.outParameters) {
+            if (!parameters.includes(outParameter)) {
                 throw new Error('Output parameter not found in call parameter list');
             }
 
-            const outArray = parameters[outParameterIndex];
-            const memoryBaseIndex = fixedParameters[outParameterIndex] / 4;
+            const index = parameters.indexOf(outParameter);
+
+            const outArray = parameters[index];
+            const baseAddress = fixedParameters[index];
+            const type = signature.parameterTypes[index];
 
             for (let j = 0; j < outArray.length; j++) {
-                outArray[j] = readableMemory[memoryBaseIndex + j];
+                if (type === WebAssemblyType.INT_32_ARRAY) {
+                    outArray[j] = i32Memory[baseAddress / 4 + j];
+                } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
+                    outArray[j] = f64Memory[baseAddress / 8 + j];
+                } else {
+                    throw new Error(`Tried to export unknown type ${WebAssemblyType[type]}`);
+                }
             }
         }
     }

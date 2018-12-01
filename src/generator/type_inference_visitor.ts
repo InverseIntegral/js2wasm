@@ -171,18 +171,7 @@ class TypeInferenceVisitor extends Visitor {
         if (isIdentifier(node.left)) {
             this.assignToIdentifier(node);
         } else if (isMemberExpression(node.left)) {
-            this.assignToArray(node);
-        }
-    }
-
-    private assignToArray(node: AssignmentExpression) {
-        const {left: memberExpression, right: expression} = node;
-
-        if (isMemberExpression(memberExpression)) {
-            super.visit(memberExpression);
-
-            const rightSideType = this.getTypeOfExpression(expression);
-            this.expressionTypes.set(memberExpression, rightSideType);
+            super.visit(node.left);
         }
     }
 

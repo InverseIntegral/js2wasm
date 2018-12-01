@@ -8,15 +8,16 @@ import {
     Identifier,
     isIdentifier,
     isMemberExpression,
-    LogicalExpression,
+    LogicalExpression, LVal,
     MemberExpression,
     NumericLiteral,
     UnaryExpression,
+    UpdateExpression,
     VariableDeclarator,
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
-import {getNumberType, WebAssemblyType} from './wasm_type';
+import {getCommonNumberType, getNumberType, WebAssemblyType} from './wasm_type';
 
 type ExpressionTypes = Map<Expression, WebAssemblyType>;
 type VariableTypes = Map<string, WebAssemblyType>;
@@ -25,7 +26,7 @@ class TypeInferenceVisitor extends Visitor {
 
     private signatures: FunctionSignatures;
     private expressionTypes: ExpressionTypes = new Map();
-    private variableTypes: VariableTypes = new Map();
+    private identifierTypes: VariableTypes = new Map();
 
     public run(tree: FunctionDeclaration,
                signature: FunctionSignature,
@@ -36,7 +37,7 @@ class TypeInferenceVisitor extends Visitor {
 
         this.visit(tree.body);
 
-        return [this.expressionTypes, this.variableTypes];
+        return [this.expressionTypes, this.identifierTypes];
     }
 
     protected visitBinaryExpression(node: BinaryExpression): void {
@@ -46,7 +47,10 @@ class TypeInferenceVisitor extends Visitor {
         let type;
 
         if (['+', '-', '/', '%', '*'].includes(operator)) {
-            type = WebAssemblyType.INT_32;
+            const leftType = this.getTypeOfExpression(node.left);
+            const rightType = this.getTypeOfExpression(node.right);
+
+            type = getCommonNumberType(leftType, rightType);
         } else if (['<', '<=', '==', '!=', '>=', '>'].includes(operator)) {
             type = WebAssemblyType.BOOLEAN;
         } else {
@@ -65,12 +69,17 @@ class TypeInferenceVisitor extends Visitor {
         if (operator === '!') {
             type = WebAssemblyType.BOOLEAN;
         } else if (['+', '-'].includes(operator)) {
-            type = WebAssemblyType.INT_32;
+            type = this.getTypeOfExpression(node.argument);
         } else {
             throw new Error(`Unknown operator ${operator}`);
         }
 
         this.expressionTypes.set(node, type);
+    }
+
+    protected visitUpdateExpression(node: UpdateExpression) {
+        super.visitUpdateExpression(node);
+        this.expressionTypes.set(node, this.getTypeOfExpression(node.argument));
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
@@ -94,13 +103,7 @@ class TypeInferenceVisitor extends Visitor {
     protected visitIdentifier(node: Identifier) {
         super.visitIdentifier(node);
 
-        const identifierType = this.getTypeOfIdentifier(node);
-
-        if (identifierType === undefined) {
-            throw new Error(`Unknown type for identifier ${node.name}`);
-        }
-
-        this.expressionTypes.set(node, identifierType);
+        this.expressionTypes.set(node, this.getTypeOfIdentifier(node));
     }
 
     protected visitCallExpression(node: CallExpression): void {
@@ -155,14 +158,10 @@ class TypeInferenceVisitor extends Visitor {
         super.visitVariableDeclarator(node);
 
         if (node.init !== null && isIdentifier(node.id)) {
-            const rightSideType = this.expressionTypes.get(node.init);
-
-            if (rightSideType === undefined) {
-                throw new Error(`Unknown type for right side of assignment to ${node.id.name}`);
-            }
+            const rightSideType = this.getTypeOfExpression(node.init);
 
             this.expressionTypes.set(node.id, rightSideType);
-            this.updateVariableType(node.id, rightSideType);
+            this.updateIdentifierType(node.id, rightSideType);
         }
     }
 
@@ -170,26 +169,37 @@ class TypeInferenceVisitor extends Visitor {
         super.visit(node.right);
 
         if (isIdentifier(node.left)) {
-            const rightSideType = this.expressionTypes.get(node.right);
-
-            if (rightSideType === undefined) {
-                throw new Error(`Unknown type for right side of assignment to ${node.left.name}`);
-            }
-
-            this.expressionTypes.set(node.left, rightSideType);
-            this.updateVariableType(node.left, rightSideType);
+            this.assignToIdentifier(node);
         } else if (isMemberExpression(node.left)) {
-            super.visit(node.left);
+            this.assignToArray(node);
+        }
+    }
 
-            const rightSideType = this.expressionTypes.get(node.right);
+    private assignToArray(node: AssignmentExpression) {
+        const {left: memberExpression, right: expression} = node;
 
-            if (rightSideType === undefined) {
-                if (isIdentifier(node.left.object)) {
-                    throw new Error(`Unknown type for right side of assignment to ${node.left.object.name}`);
-                }
+        if (isMemberExpression(memberExpression)) {
+            super.visit(memberExpression);
+
+            const rightSideType = this.getTypeOfExpression(expression);
+            this.expressionTypes.set(memberExpression, rightSideType);
+        }
+    }
+
+    private assignToIdentifier(node: AssignmentExpression) {
+        const {left: identifier, right: expression, operator} = node;
+
+        if (isIdentifier(identifier)) {
+            let rightSideType = this.getTypeOfExpression(expression);
+
+            if (operator !== '=') {
+                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
+                this.checkIfTypeIsUnchanged(identifier, rightSideType);
             } else {
-                this.expressionTypes.set(node.left, rightSideType);
+                this.updateIdentifierType(identifier, rightSideType);
             }
+
+            this.expressionTypes.set(identifier, rightSideType);
         }
     }
 
@@ -199,6 +209,8 @@ class TypeInferenceVisitor extends Visitor {
                 return value;
             }
         }
+
+        throw new Error(`Unknown type for identifier ${identifier.name}`);
     }
 
     private initializeParameterTypes(tree: FunctionDeclaration, signature: FunctionSignature) {
@@ -211,23 +223,31 @@ class TypeInferenceVisitor extends Visitor {
         });
     }
 
-    private updateVariableType(identifier: Identifier, rightSideType: WebAssemblyType) {
-        const variableName = identifier.name;
+    private checkIfTypeIsUnchanged(identifier: Identifier, type: WebAssemblyType) {
+        const name = identifier.name;
 
-        if (this.variableTypes.has(variableName)) {
-            const currentValue = this.variableTypes.get(variableName);
+        if (this.identifierTypes.has(name)) {
+            const currentValue = this.identifierTypes.get(name);
 
-            if (currentValue !== rightSideType) {
+            if (currentValue !== type) {
                 if (currentValue === undefined) {
-                    throw new Error(`Tried to change the value type of ${variableName}
-                    from undefined to ${WebAssemblyType[rightSideType]}`);
+                    throw new Error(`Tried to change the value type of ${name}
+                    from undefined to ${WebAssemblyType[type]}`);
                 } else {
-                    throw new Error(`Tried to change the value type of ${variableName}
-                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[rightSideType]}`);
+                    throw new Error(`Tried to change the value type of ${name}
+                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
                 }
             }
-        } else {
-            this.variableTypes.set(variableName, rightSideType);
+        }
+    }
+
+    private updateIdentifierType(identifier: Identifier, type: WebAssemblyType) {
+        this.checkIfTypeIsUnchanged(identifier, type);
+
+        const name = identifier.name;
+
+        if (!this.identifierTypes.has(name)) {
+            this.identifierTypes.set(name, type);
         }
     }
 

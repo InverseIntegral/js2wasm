@@ -24,11 +24,13 @@ import {
     VariableDeclarator,
     WhileStatement,
 } from '@babel/types';
-import {Expression, i32, Module, Statement} from 'binaryen';
+import {Expression, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
-import {toBinaryenType, WebAssemblyType} from './wasm_type';
+import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
+
+type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
 
 class GeneratorVisitor extends Visitor {
 
@@ -63,7 +65,8 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitNumericLiteral(node: NumericLiteral) {
-        this.expressions.push(this.getOperationsInstance(node).const(node.value));
+        const instance = this.getOperationsInstance(this.getExpressionType(node));
+        this.expressions.push(instance.const(node.value));
     }
 
     protected visitBooleanLiteral(node: BooleanLiteral) {
@@ -87,7 +90,8 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(operand);
                 break;
             case '-':
-                this.expressions.push(this.module.i32.sub(this.module.i32.const(0), operand));
+                const instance = this.getOperationsInstance(this.getExpressionType(node));
+                this.expressions.push(instance.sub(instance.const(0), operand));
                 break;
             case '!':
                 this.expressions.push(this.module.i32.eqz(operand));
@@ -100,42 +104,50 @@ class GeneratorVisitor extends Visitor {
     protected visitBinaryExpression(node: BinaryExpression) {
         super.visitBinaryExpression(node);
 
-        const right = this.popExpression();
-        const left = this.popExpression();
-
         switch (node.operator) {
             case '+':
-                this.expressions.push(this.module.i32.add(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-':
-                this.expressions.push(this.module.i32.sub(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*':
-                this.expressions.push(this.module.i32.mul(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/':
-                this.expressions.push(this.module.i32.div_s(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             case '%':
-                this.expressions.push(this.module.i32.rem_s(left, right));
+                const right = this.popExpression();
+                const left = this.popExpression();
+
+                const rightType = this.getExpressionType(node.right);
+                const leftType = this.getExpressionType(node.left);
+
+                if (getCommonNumberType(leftType, rightType) === WebAssemblyType.INT_32) {
+                    this.expressions.push(this.module.i32.rem_s(left, right));
+                } else {
+                    throw new Error('Modulo is not allowed with float values');
+                }
+
                 break;
             case '==':
-                this.expressions.push(this.module.i32.eq(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.eq, this.module.f64.eq));
                 break;
             case '!=':
-                this.expressions.push(this.module.i32.ne(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.ne, this.module.f64.ne));
                 break;
             case '<':
-                this.expressions.push(this.module.i32.lt_s(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.lt_s, this.module.f64.lt));
                 break;
             case '<=':
-                this.expressions.push(this.module.i32.le_s(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.le_s, this.module.f64.le));
                 break;
             case '>':
-                this.expressions.push(this.module.i32.gt_s(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.gt_s, this.module.f64.gt));
                 break;
             case '>=':
-                this.expressions.push(this.module.i32.ge_s(left, right));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.ge_s, this.module.f64.ge));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -166,12 +178,14 @@ class GeneratorVisitor extends Visitor {
         const currentValue = this.popExpression();
         let updatedValue;
 
+        const instance = this.getOperationsInstance(this.getExpressionType(node));
+
         switch (node.operator) {
             case '++':
-                updatedValue = this.module.i32.add(currentValue, this.module.i32.const(1));
+                updatedValue = instance.add(currentValue, instance.const(1));
                 break;
             case '--':
-                updatedValue = this.module.i32.sub(currentValue, this.module.i32.const(1));
+                updatedValue = instance.sub(currentValue, instance.const(1));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -229,10 +243,10 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitAssignmentExpression(node: AssignmentExpression) {
-        this.visit(node.right);
-
         if (node.operator !== '=') {
             this.handleShorthandAssignment(node);
+        } else {
+            this.visit(node.right);
         }
 
         this.handleAssignment(node.left);
@@ -273,7 +287,8 @@ class GeneratorVisitor extends Visitor {
             parameterExpressions.push(this.popExpression());
         }
 
-        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
+        const type = this.getExpressionType(node);
+        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, toBinaryenType(type)));
     }
 
     protected visitExpressionStatement(node: ExpressionStatement) {
@@ -320,25 +335,56 @@ class GeneratorVisitor extends Visitor {
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {
-        this.visit(node.left);
-        const currentValue = this.popExpression();
-        const assignedValue = this.popExpression();
+        super.visitAssignmentExpression(node);
+
+        if (!isIdentifier(node.left) && !isMemberExpression(node.left)) {
+            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
+        }
+
+        const commonNode = {
+            left: node.left,
+            operator: node.operator,
+            right: node.right,
+        };
 
         switch (node.operator) {
             case '+=':
-                this.expressions.push(this.module.i32.add(currentValue, assignedValue));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.add, this.module.f64.add));
                 break;
             case '-=':
-                this.expressions.push(this.module.i32.sub(currentValue, assignedValue));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*=':
-                this.expressions.push(this.module.i32.mul(currentValue, assignedValue));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/=':
-                this.expressions.push(this.module.i32.div_s(currentValue, assignedValue));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.div_s, this.module.f64.div));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
+        }
+    }
+
+    private getBinaryOperation(node: { left: BabelExpression; right: BabelExpression; operator: string; },
+                               i32operation: BinaryExpressionFunction,
+                               f64operation: BinaryExpressionFunction) {
+
+        let right = this.popExpression();
+        let left = this.popExpression();
+
+        const rightType = this.getExpressionType(node.right);
+        const leftType = this.getExpressionType(node.left);
+        const commonNumberType = getCommonNumberType(leftType, rightType);
+
+        left = this.convertType(left, leftType, commonNumberType);
+        right = this.convertType(right, rightType, commonNumberType);
+
+        if (commonNumberType === WebAssemblyType.INT_32) {
+            return i32operation(left, right);
+        } else if (commonNumberType === WebAssemblyType.FLOAT_64) {
+            return f64operation(left, right);
+        } else {
+            throw new Error(`Operation ${node.operator} not supported on type ${WebAssemblyType[commonNumberType]}`);
         }
     }
 
@@ -449,9 +495,7 @@ class GeneratorVisitor extends Visitor {
         return 'label_' + this.labelCounter++;
     }
 
-    private getOperationsInstance(expression: BabelExpression) {
-        const type = this.getExpressionType(expression);
-
+    private getOperationsInstance(type: WebAssemblyType) {
         if (type === WebAssemblyType.FLOAT_64) {
             return this.module.f64;
         } else {
@@ -467,6 +511,18 @@ class GeneratorVisitor extends Visitor {
         }
 
         return type;
+    }
+
+    private convertType(expression: Expression, from: WebAssemblyType, to: WebAssemblyType) {
+        if (from !== to) {
+            if (from === WebAssemblyType.INT_32 && to === WebAssemblyType.FLOAT_64) {
+                return this.module.f64.convert_s.i32(expression);
+            } else {
+                throw new Error('Unsupported conversion performed');
+            }
+        }
+
+        return expression;
     }
 }
 

@@ -34,6 +34,14 @@ function getNumberType(value: number) {
     }
 }
 
+function getCommonNumberType(first: WebAssemblyType, second: WebAssemblyType) {
+    if (first === WebAssemblyType.FLOAT_64 || second === WebAssemblyType.FLOAT_64) {
+        return WebAssemblyType.FLOAT_64;
+    } else {
+        return WebAssemblyType.INT_32;
+    }
+}
+
 function isOfType(toCheck: any, type: WebAssemblyType) {
     switch (type) {
         case WebAssemblyType.INT_32:
@@ -70,4 +78,4 @@ function isArray(value: any, type: WebAssemblyType) {
     }
 }
 
-export {WebAssemblyType, toBinaryenType, getNumberType, isOfType};
+export {WebAssemblyType, toBinaryenType, getNumberType, getCommonNumberType, isOfType};

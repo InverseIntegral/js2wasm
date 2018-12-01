@@ -87,7 +87,7 @@ describe('Transpiler', function() {
                 .setSignature('quickSortPartition', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .setSignature('quickSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
-                    WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .setSignature('quickSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('quickSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('quickSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)

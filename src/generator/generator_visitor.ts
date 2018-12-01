@@ -244,10 +244,10 @@ class GeneratorVisitor extends Visitor {
     }
 
     protected visitAssignmentExpression(node: AssignmentExpression) {
-        this.visit(node.right);
-
         if (node.operator !== '=') {
             this.handleShorthandAssignment(node);
+        } else {
+            this.visit(node.right);
         }
 
         this.handleAssignment(node.left);
@@ -336,9 +336,7 @@ class GeneratorVisitor extends Visitor {
     }
 
     private handleShorthandAssignment(node: AssignmentExpression) {
-        const right = this.popExpression();
-        this.visit(node.left);
-        this.expressions.push(right);
+        super.visitAssignmentExpression(node);
 
         if (!isIdentifier(node.left) && !isMemberExpression(node.left)) {
             throw new Error('Shorthand assignment only allowed on an identifier or an array member');

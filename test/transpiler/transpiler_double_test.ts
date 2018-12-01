@@ -146,6 +146,7 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(6.81)).to.equal(10.29);
             expect(wrapper.call(11.76)).to.equal(15.24);
+            expect(wrapper.call(-31.23)).to.equal(-27.75);
 
             const wrapper2 = new Transpiler()
                 .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
@@ -154,6 +155,7 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call(9.22)).to.closeTo(15.01, 0.001);
             expect(wrapper2.call(4.63)).to.equal(10.42);
+            expect(wrapper2.call(-6.15)).to.closeTo(-0.36, 0.001);
         });
 
         it('should handle double-int combination addition', () => {
@@ -187,6 +189,8 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.13, [1, 2])).to.equal(2.13);
             expect(wrapper.call(6.72, [3, 4])).to.closeTo(9.72, 0.001);
+            expect(wrapper.call(-3.72, [5, 6])).to.closeTo(1.28, 0.001);
+            expect(wrapper.call(-2.93, [-7, -8])).to.equal(-9.93);
 
             const wrapper2 = transpiler
                 .setSignature('add', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64)
@@ -195,6 +199,8 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call([1, 2], 2.45)).to.equal(3.45);
             expect(wrapper2.call([3, 4], 9.22)).to.equal(12.22);
+            expect(wrapper2.call([5, 6], -31.24)).to.equal(-26.24);
+            expect(wrapper2.call([-7, -8], -4.84)).to.equal(-11.84);
         });
 
         it('should handle double subtraction', () => {
@@ -215,6 +221,7 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(6.81)).to.closeTo(3.33, 0.001);
             expect(wrapper.call(11.76)).to.equal(8.28);
+            expect(wrapper.call(-31.23)).to.equal(-34.71);
 
             const wrapper2 = new Transpiler()
                 .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
@@ -223,6 +230,7 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call(9.22)).to.closeTo(-3.43, 0.001);
             expect(wrapper2.call(4.63)).to.closeTo(1.16, 0.001);
+            expect(wrapper2.call(-6.15)).to.closeTo(11.94, 0.001);
         });
 
         it('should handle double-int combination subtraction', () => {
@@ -256,6 +264,8 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.13, [1, 2])).to.closeTo(0.13, 0.001);
             expect(wrapper.call(6.72, [3, 4])).to.closeTo(3.72, 0.001);
+            expect(wrapper.call(-3.72, [5, 6])).to.equal(-8.72);
+            expect(wrapper.call(-2.93, [-7, -8])).to.equal(4.07);
 
             const wrapper2 = transpiler
                 .setSignature('sub', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64)
@@ -264,6 +274,8 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call([1, 2], 2.45)).to.closeTo(-1.45, 0.001);
             expect(wrapper2.call([3, 4], 9.22)).to.closeTo(-6.22, 0.001);
+            expect(wrapper2.call([5, 6], -31.24)).to.closeTo(36.24, 0.001);
+            expect(wrapper2.call([-7, -8], -4.84)).to.equal(-2.16);
         });
 
         it('should handle double multiplication', () => {
@@ -285,6 +297,7 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(6.81)).to.equal(23.6988);
             expect(wrapper.call(11.76)).to.equal(40.9248);
+            expect(wrapper.call(-31.23)).to.equal(-108.6804);
 
             const wrapper2 = new Transpiler()
                 .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
@@ -293,6 +306,7 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call(9.22)).to.equal(53.3838);
             expect(wrapper2.call(4.63)).to.equal(26.8077);
+            expect(wrapper2.call(-6.15)).to.equal(-35.6085);
         });
 
         it('should handle double-int combination multiplication', () => {
@@ -326,6 +340,8 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.13, [1, 2])).to.equal(1.13);
             expect(wrapper.call(6.72, [3, 4])).to.equal(20.16);
+            expect(wrapper.call(-3.72, [5, 6])).to.equal(-18.6);
+            expect(wrapper.call(-2.93, [-7, -8])).to.equal(20.51);
 
             const wrapper2 = transpiler
                 .setSignature('mul', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64)
@@ -334,6 +350,8 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call([1, 2], 2.45)).to.equal(2.45);
             expect(wrapper2.call([3, 4], 9.22)).to.closeTo(27.66, 0.001);
+            expect(wrapper2.call([5, 6], -31.24)).to.equal(-156.2);
+            expect(wrapper2.call([-7, -8], -4.84)).to.closeTo(33.88, 0.001);
         });
 
         it('should handle double division', () => {
@@ -354,6 +372,7 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(6.81)).to.equal(1.956896551724138);
             expect(wrapper.call(11.76)).to.closeTo(3.379310344827586, 0.000000000000001);
+            expect(wrapper.call(-31.23)).to.equal(-8.974137931034483);
 
             const wrapper2 = new Transpiler()
                 .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
@@ -362,6 +381,7 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call(9.22)).to.closeTo(0.6279826464208243, 0.000000000000001);
             expect(wrapper2.call(4.63)).to.closeTo(1.250539956803456, 0.000000000000001);
+            expect(wrapper2.call(-6.15)).to.equal(-0.9414634146341463);
         });
 
         it('should handle double-int combination division', () => {
@@ -395,6 +415,8 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1.13, [1, 2])).to.equal(1.13);
             expect(wrapper.call(6.72, [3, 4])).to.closeTo(2.24, 0.001);
+            expect(wrapper.call(-3.72, [5, 6])).to.equal(-0.744);
+            expect(wrapper.call(-2.93, [-7, -8])).to.equal(0.4185714285714286);
 
             const wrapper2 = transpiler
                 .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64)
@@ -403,6 +425,8 @@ describe('Transpiler', () => {
 
             expect(wrapper2.call([1, 2], 2.45)).to.equal(0.4081632653061224);
             expect(wrapper2.call([3, 4], 9.22)).to.closeTo(0.3253796095444685, 0.000000000000001);
+            expect(wrapper2.call([5, 6], -31.24)).to.closeTo(-0.1600512163892446, 0.000000000000001);
+            expect(wrapper2.call([-7, -8], -4.84)).to.closeTo(1.446280991735537, 0.000000000000001);
         });
 
         it('should handle double division by 0', () => {

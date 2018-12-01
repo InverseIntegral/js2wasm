@@ -1,1 +1,2 @@
-export default function sum(): void;
+export function sumDoubles(): void;
+export function sumDoublesWhile(): void;

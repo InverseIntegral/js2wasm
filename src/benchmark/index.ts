@@ -21,6 +21,7 @@ import {
     quickSortWhile,
 } from './cases/quicksort';
 import {sumArray, sumArrayFill, sumArrayFor} from './cases/sum_array';
+import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
 
@@ -64,6 +65,16 @@ const sumIntegersFunc = {
     signatures: new Map([
         ['sumIntegers', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
         ['sumIntegersWhile', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
+    ]),
+};
+
+const sumDoublesFunc = {
+    arguments: [],
+    expectedResult: 499999950.0644165,
+    func: [sumDoublesWhile, sumDoubles],
+    signatures: new Map([
+        ['sumDoubles', { parameterTypes: [WebAssemblyType.FLOAT_64], returnType: WebAssemblyType.FLOAT_64 }],
+        ['sumDoublesWhile', { parameterTypes: [], returnType: WebAssemblyType.FLOAT_64 }],
     ]),
 };
 
@@ -137,6 +148,7 @@ const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
     ['Sum Array', sumArrayFunc],
     ['Sum Integers', sumIntegersFunc],
+    ['Sum Doubles', sumDoublesFunc],
     ['isPrime', isPrimeFunc],
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],

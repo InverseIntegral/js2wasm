@@ -1,5 +1,4 @@
-function sum() {
-    var sum = 0;
+function sumDoubles(sum) {
     var i = 0.0001;
 
     while (i < 100) {
@@ -10,4 +9,15 @@ function sum() {
     return sum;
 }
 
-module.exports = sum;
+function sumDoublesWhile() {
+    var i = 0;
+
+    while (i < 1000) {
+        sumDoubles(0);
+        i++;
+    }
+
+    return sumDoubles(0);
+}
+
+module.exports = {sumDoubles, sumDoublesWhile};

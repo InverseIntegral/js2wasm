@@ -303,5 +303,50 @@ describe('Transpiler', () => {
 
             expect(() => wrapper.setFunctionName('arrayExport').setOutParameters([71, 72]).call([71, 72])).to.throw();
         });
+
+        it('should handle mixed array parameters', () => {
+            const content = 'function arrayExport(arr1, arr2, arr3) { return arr1[0] + arr2[0] + arr3[0]; }';
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.FLOAT_64,
+                    WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            wrapper.setFunctionName('arrayExport');
+
+            expect(wrapper.call([5.5], [1, 2], [3.8, 4.4])).to.eq(10.3);
+        });
+
+        it('should handle mixed array parameters 2', () => {
+            const content = 'function arrayExport(arr1, arr2, arr3) { return arr1[0] + arr2[0] + arr3[0]; }';
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.FLOAT_64,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
+
+            wrapper.setFunctionName('arrayExport');
+
+            expect(wrapper.call([1, 2], [5.5], [3, 4])).to.eq(9.5);
+        });
+
+        it('should handle mixed empty arrays', () => {
+            const content = 'function arrayExport(arr1, arr2, arr3) { ' +
+                'return arr1.length + arr2.length + arr3.length; ' +
+                '}';
+
+            const wrapper = transpiler
+                .setSignature('arrayExport', WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
+
+            wrapper.setFunctionName('arrayExport');
+
+            expect(wrapper.call([], [5.5], [])).to.eq(1);
+            expect(wrapper.call([1], [5.5], [])).to.eq(2);
+            expect(wrapper.call([], [5.5], [2])).to.eq(2);
+            expect(wrapper.call([1], [5.5], [3])).to.eq(3);
+            expect(wrapper.call([1], [], [2])).to.eq(2);
+            expect(wrapper.call([1], [], [])).to.eq(1);
+            expect(wrapper.call([], [], [2])).to.eq(1);
+        });
     });
 });

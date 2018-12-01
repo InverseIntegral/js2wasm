@@ -157,30 +157,38 @@ class TypeInferenceVisitor extends Visitor {
         super.visit(node.right);
 
         if (isIdentifier(node.left)) {
-            this.assignToIdentifier(node.left, node.right, node.operator);
+            this.assignToIdentifier(node);
         } else if (isMemberExpression(node.left)) {
-            this.assignToArray(node.left, node.right);
+            this.assignToArray(node);
         }
     }
 
-    private assignToArray(memberExpression: MemberExpression, expression: Expression) {
-        super.visit(memberExpression);
+    private assignToArray(node: AssignmentExpression) {
+        const {left: memberExpression, right: expression} = node;
 
-        const rightSideType = this.getTypeOfExpression(expression);
-        this.expressionTypes.set(memberExpression, rightSideType);
+        if (isMemberExpression(memberExpression)) {
+            super.visit(memberExpression);
+
+            const rightSideType = this.getTypeOfExpression(expression);
+            this.expressionTypes.set(memberExpression, rightSideType);
+        }
     }
 
-    private assignToIdentifier(identifier: Identifier, expression: Expression, operator: string) {
-        let rightSideType = this.getTypeOfExpression(expression);
+    private assignToIdentifier(node: AssignmentExpression) {
+        const {left: identifier, right: expression, operator} = node;
 
-        if (operator !== '=') {
-            rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
-            this.checkIfTypeIsUnchanged(identifier, rightSideType);
-        } else {
-            this.updateIdentifierType(identifier, rightSideType);
+        if (isIdentifier(identifier)) {
+            let rightSideType = this.getTypeOfExpression(expression);
+
+            if (operator !== '=') {
+                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
+                this.checkIfTypeIsUnchanged(identifier, rightSideType);
+            } else {
+                this.updateIdentifierType(identifier, rightSideType);
+            }
+
+            this.expressionTypes.set(identifier, rightSideType);
         }
-
-        this.expressionTypes.set(identifier, rightSideType);
     }
 
     private getTypeOfIdentifier(identifier: Identifier) {

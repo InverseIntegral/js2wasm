@@ -998,6 +998,22 @@ describe('Transpiler', () => {
             expect(wrapper.call(-2.13)).to.equal(0);
         });
 
+        it('should handle double in while loop with double index', () => {
+            const content = 'function loop(a) {' +
+                'var times = 0, i = 1.5;' +
+                'while (i < a) { i++; times++; }' +
+                'return times; }';
+            const wrapper = transpiler
+                .setSignature('loop', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('loop');
+
+            expect(wrapper.call(2.51)).to.equal(2);
+            expect(wrapper.call(2.5)).to.equal(1);
+            expect(wrapper.call(1.5)).to.equal(0);
+            expect(wrapper.call(-2.13)).to.equal(0);
+        });
+
         it('should handle double in for loop', () => {
             const content = 'function loop() { var times = 0, i = 0;' +
                 'for (var a = 4.21; i < a; i++) { times++; }' +

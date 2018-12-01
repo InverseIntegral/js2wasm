@@ -12,7 +12,9 @@ import {
     IfStatement,
     isAssignmentExpression,
     isIdentifier,
+    isJSXNamespacedName,
     isMemberExpression,
+    isSpreadElement,
     isUpdateExpression,
     LogicalExpression,
     LVal,
@@ -29,6 +31,7 @@ import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
 import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
+import {FunctionSignatures} from './generator';
 
 type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
 
@@ -37,6 +40,7 @@ class GeneratorVisitor extends Visitor {
     private readonly module: Module;
     private readonly variableMapping: VariableMapping;
     private readonly expressionTypes: ExpressionTypes;
+    private readonly signatures: FunctionSignatures;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
@@ -45,12 +49,14 @@ class GeneratorVisitor extends Visitor {
 
     constructor(module: Module,
                 variableMapping: VariableMapping,
-                expressionType: ExpressionTypes) {
+                expressionType: ExpressionTypes,
+                signatures: FunctionSignatures) {
 
         super();
         this.module = module;
         this.variableMapping = variableMapping;
         this.expressionTypes = expressionType;
+        this.signatures = signatures;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -281,14 +287,31 @@ class GeneratorVisitor extends Visitor {
         }
 
         const parameterExpressions = [];
+        const calleeName = node.callee.name;
+        const calleeSignature = this.signatures.get(calleeName);
 
-        for (const argument of node.arguments) {
+        if (calleeSignature === undefined) {
+            throw new Error(`Signature of function ${calleeName} could not be found`);
+        }
+
+        for (let i = 0; i < node.arguments.length; i++) {
+            const argument = node.arguments[i];
+
+            if (isJSXNamespacedName(argument) || isSpreadElement(argument)) {
+                throw new Error('Only expressions are allowed as function parameters');
+            }
+
             this.visit(argument);
-            parameterExpressions.push(this.popExpression());
+
+            const signatureType = calleeSignature.parameterTypes[i];
+            const argumentType = this.getExpressionType(argument);
+            const commonType = getCommonNumberType(signatureType, argumentType);
+
+            parameterExpressions.push(this.convertType(this.popExpression(), argumentType, commonType));
         }
 
         const type = this.getExpressionType(node);
-        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, toBinaryenType(type)));
+        this.expressions.push(this.module.call(calleeName, parameterExpressions, toBinaryenType(type)));
     }
 
     protected visitExpressionStatement(node: ExpressionStatement) {

@@ -341,22 +341,24 @@ class GeneratorVisitor extends Visitor {
             throw new Error('Shorthand assignment only allowed on an identifier or an array member');
         }
 
+        const commonNode = {
+            left: node.left,
+            operator: node.operator,
+            right: node.right,
+        };
+
         switch (node.operator) {
             case '+=':
-                // @ts-ignore
-                this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.add, this.module.f64.add));
                 break;
             case '-=':
-                // @ts-ignore
-                this.expressions.push(this.getBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*=':
-                // @ts-ignore
-                this.expressions.push(this.getBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/=':
-                // @ts-ignore
-                this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
+                this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.div_s, this.module.f64.div));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);

@@ -66,7 +66,6 @@ class GeneratorVisitor extends Visitor {
 
     protected visitNumericLiteral(node: NumericLiteral) {
         const instance = this.getOperationsInstance(this.getExpressionType(node));
-
         this.expressions.push(instance.const(node.value));
     }
 
@@ -92,7 +91,6 @@ class GeneratorVisitor extends Visitor {
                 break;
             case '-':
                 const instance = this.getOperationsInstance(this.getExpressionType(node));
-
                 this.expressions.push(instance.sub(instance.const(0), operand));
                 break;
             case '!':

@@ -24,13 +24,13 @@ import {
     VariableDeclarator,
     WhileStatement,
 } from '@babel/types';
-import {Expression, i32, Module, Statement} from 'binaryen';
+import {Expression, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
 import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
 
-type BinaryExpressionFunction = (e1: Expression, e2: Expression) => Expression;
+type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
 
 class GeneratorVisitor extends Visitor {
 
@@ -344,15 +344,19 @@ class GeneratorVisitor extends Visitor {
 
         switch (node.operator) {
             case '+=':
+                // @ts-ignore
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-=':
+                // @ts-ignore
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*=':
+                // @ts-ignore
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/=':
+                // @ts-ignore
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             default:
@@ -360,7 +364,7 @@ class GeneratorVisitor extends Visitor {
         }
     }
 
-    private getBinaryOperation(node: BinaryExpression | AssignmentExpression,
+    private getBinaryOperation(node: { left: BabelExpression; right: BabelExpression; operator: string; },
                                i32operation: BinaryExpressionFunction,
                                f64operation: BinaryExpressionFunction) {
 
@@ -368,7 +372,6 @@ class GeneratorVisitor extends Visitor {
         let left = this.popExpression();
 
         const rightType = this.getExpressionType(node.right);
-        // @ts-ignore the analyser doesn't recognise the check
         const leftType = this.getExpressionType(node.left);
         const commonNumberType = getCommonNumberType(leftType, rightType);
 

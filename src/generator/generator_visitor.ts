@@ -340,6 +340,10 @@ class GeneratorVisitor extends Visitor {
         this.visit(node.left);
         this.expressions.push(right);
 
+        if (!isIdentifier(node.left) && !isMemberExpression(node.left)) {
+            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
+        }
+
         switch (node.operator) {
             case '+=':
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
@@ -364,10 +368,6 @@ class GeneratorVisitor extends Visitor {
 
         let right = this.popExpression();
         let left = this.popExpression();
-
-        if (isAssignmentExpression(node) && !isIdentifier(node.left) && !isMemberExpression(node.left)) {
-            throw new Error('Shorthand assignment only allowed on an identifier or an array member');
-        }
 
         const rightType = this.getExpressionType(node.right);
         // @ts-ignore the analyser doesn't recognise the check

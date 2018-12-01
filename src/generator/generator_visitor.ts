@@ -106,16 +106,16 @@ class GeneratorVisitor extends Visitor {
 
         switch (node.operator) {
             case '+':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.add, this.module.f64.add));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             case '%':
                 const right = this.popExpression();
@@ -133,22 +133,22 @@ class GeneratorVisitor extends Visitor {
 
                 break;
             case '==':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.eq, this.module.f64.eq));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.eq, this.module.f64.eq));
                 break;
             case '!=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.ne, this.module.f64.ne));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.ne, this.module.f64.ne));
                 break;
             case '<':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.lt_s, this.module.f64.lt));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.lt_s, this.module.f64.lt));
                 break;
             case '<=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.le_s, this.module.f64.le));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.le_s, this.module.f64.le));
                 break;
             case '>':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.gt_s, this.module.f64.gt));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.gt_s, this.module.f64.gt));
                 break;
             case '>=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.ge_s, this.module.f64.ge));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.ge_s, this.module.f64.ge));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
@@ -342,25 +342,25 @@ class GeneratorVisitor extends Visitor {
 
         switch (node.operator) {
             case '+=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.add, this.module.f64.add));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.add, this.module.f64.add));
                 break;
             case '-=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.sub, this.module.f64.sub));
                 break;
             case '*=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.mul, this.module.f64.mul));
                 break;
             case '/=':
-                this.expressions.push(this.executeBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
+                this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }
     }
 
-    private executeBinaryOperation(node: BinaryExpression | AssignmentExpression,
-                                   i32operation: BinaryExpressionFunction,
-                                   f64operation: BinaryExpressionFunction) {
+    private getBinaryOperation(node: BinaryExpression | AssignmentExpression,
+                               i32operation: BinaryExpressionFunction,
+                               f64operation: BinaryExpressionFunction) {
 
         let right = this.popExpression();
         let left = this.popExpression();

@@ -986,5 +986,102 @@ describe('Transpiler', () => {
 
             expect(wrapper.call()).to.equal(5);
         });
+
+        it('should handle double parameter as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main(a) { return func(a); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call(3.53)).to.closeTo(3.53, 0.001);
+            expect(wrapper.call(-32.13)).to.closeTo(-32.13, 0.001);
+        });
+
+        it('should handle double variable as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main() { var b = 8.49; return func(b); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(8.49, 0.001);
+        });
+
+        it('should handle double literal as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main() { return func(3.71); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(3.71, 0.001);
+        });
+
+        it('should handle double expression as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main() { return func(1.73 + 6.82); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(8.55, 0.001);
+        });
+
+        it('should handle double function call return value in calculation', () => {
+            const content = 'function func() { return 18.34; }' +
+                'function main() { return 5.29 + func(); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(23.63, 0.001);
+        });
+
+        it('should handle double function call return value in declaration', () => {
+            const content = 'function func() { return 8.73; }' +
+                'function main() { var x = func(); return x; }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(8.73, 0.001);
+        });
+
+        it('should handle double function call return value in assignment', () => {
+            const content = 'function func() { return 1.67; }' +
+                'function main() { var x; x = func(); return x; }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(1.67, 0.001);
+        });
+
+        it('should handle double function call return value in shorthand assignment', () => {
+            const content = 'function func() { return 4.82; }' +
+                'function main() { var x = 5.23; x += func(); return x; }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.closeTo(10.05, 0.001);
+        });
     });
 });

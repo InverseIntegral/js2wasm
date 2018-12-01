@@ -290,7 +290,8 @@ class GeneratorVisitor extends Visitor {
             parameterExpressions.push(this.popExpression());
         }
 
-        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, i32));
+        const type = this.getExpressionType(node);
+        this.expressions.push(this.module.call(node.callee.name, parameterExpressions, toBinaryenType(type)));
     }
 
     protected visitExpressionStatement(node: ExpressionStatement) {

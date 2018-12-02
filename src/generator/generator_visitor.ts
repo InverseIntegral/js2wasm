@@ -438,7 +438,7 @@ class GeneratorVisitor extends Visitor {
                 const pointer2 = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
                 return this.module.f64.load(0, CallWrapper.FLOAT_64_OFFSET, pointer2);
             default:
-                throw new Error(`Unknown type of member expression: ${type}`);
+                throw new Error(`Unknown type of member expression: ${WebAssemblyType[type]}`);
         }
     }
 
@@ -457,7 +457,7 @@ class GeneratorVisitor extends Visitor {
                 const address2 = this.module.i32.sub(this.popExpression(), offset2);
                 return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, address2);
             default:
-                throw new Error(`Can\'t access length property of unknown type: ${type}`);
+                throw new Error(`Can\'t access length property of unknown type: ${WebAssemblyType[type]}`);
         }
     }
 
@@ -477,7 +477,7 @@ class GeneratorVisitor extends Visitor {
                 // @ts-ignore
                 return this.module.f64.store(0, CallWrapper.FLOAT_64_OFFSET, pointer2, value);
             default:
-                throw new Error(`Can\'t write to array with type: ${type}`);
+                throw new Error(`Can\'t write to array with type: ${WebAssemblyType[type]}`);
         }
     }
 

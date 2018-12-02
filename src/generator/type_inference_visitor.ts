@@ -143,7 +143,7 @@ class TypeInferenceVisitor extends Visitor {
                     type = WebAssemblyType.FLOAT_64;
                     break;
                 default:
-                    throw new Error(`Unknown array type ${arrayType}`);
+                    throw new Error(`Unknown array type ${WebAssemblyType[arrayType]}`);
             }
         } else if (isIdentifier(node.property) && node.property.name === 'length') {
             type = WebAssemblyType.INT_32;

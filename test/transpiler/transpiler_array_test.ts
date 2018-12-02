@@ -11,6 +11,7 @@ describe('Transpiler', () => {
     });
 
     describe('#transpile()', () => {
+
         it('should handle array access', () => {
             const wrapper = transpiler
                 .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
@@ -44,20 +45,13 @@ describe('Transpiler', () => {
             expect(wrapper.setFunctionName('array').call([111, 112], [114, 115, 116])).to.equal(116);
         });
 
-        it('should handle array size', () => {
-            const wrapper = transpiler
-                .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .transpile('function array(arr) { return arr[-1]; }');
-            expect(wrapper.setFunctionName('array').call([1, 2, 4, 8])).to.equal(4);
-        });
-
-        it('should handle indexoutofbounds', () => {
+        it('should handle out of bounds access', () => {
             const wrapper = transpiler
                 .setSignature('array', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32)
                 .transpile('function array(arr, i) { return arr[i]; }');
             wrapper.setFunctionName('array');
 
-            expect(wrapper.call([1, 2], 2)).to.equal(0);
+            expect(() => wrapper.call([1, 2], 20000)).to.throw();
             expect(() => wrapper.call([1, 2], -2)).to.throw();
         });
 
@@ -68,6 +62,7 @@ describe('Transpiler', () => {
 
             const array = [100, 200, 300];
             wrapper.setFunctionName('array').call(array);
+
             expect(array).to.eql([100, 200, 300]);
         });
 

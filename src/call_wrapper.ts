@@ -3,26 +3,84 @@ import {isOfType, WebAssemblyType} from './generator/wasm_type';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
+type MemoryLayoutValue = [number, WebAssemblyType];
+type MemoryLayout = Map<number, MemoryLayoutValue>;
+
 class CallWrapper {
 
-    private static fillMemory(parameters: any[], writeableMemory: Uint32Array) {
-        // A copy of the parameters array is needed, to not override the content of the original one
+    public static readonly INT_32_OFFSET = 4;
+    public static readonly FLOAT_64_OFFSET = 8;
+
+    private static fillMemory(memoryLayout: MemoryLayout, memory: WebAssembly.Memory) {
+        const i32Memory = new Uint32Array(memory.buffer);
+        const f64Memory = new Float64Array(memory.buffer);
+
+        for (const entry of memoryLayout.entries()) {
+            const key = entry[0];
+            const [value, type] = entry[1];
+
+            if (type === WebAssemblyType.INT_32) {
+                i32Memory[key  / CallWrapper.INT_32_OFFSET] = value;
+            } else if (type === WebAssemblyType.FLOAT_64) {
+                f64Memory[key / CallWrapper.FLOAT_64_OFFSET] = value;
+            }
+        }
+    }
+
+    private static getMemoryLayout(parameters: any[], signature: FunctionSignature):
+        [Map<number, MemoryLayoutValue>, any[]] {
+
         const fixedParameters = parameters.concat();
-        let index = 0;
+        const memory = new Map<number, MemoryLayoutValue>();
 
-        for (let i = 0; i < fixedParameters.length; i++) {
-            if (fixedParameters[i] instanceof Array) {
-                const array = fixedParameters[i];
-                writeableMemory[index++] = array.length;
-                fixedParameters[i] = index * 4;
+        let wasmMemoryIndex = 0;
 
-                for (const element of array) {
-                    writeableMemory[index++] = element;
+        for (let i = 0; i < parameters.length; i++) {
+            const current = parameters[i];
+            const type = signature.parameterTypes[i];
+
+            let offset;
+            let elementType;
+
+            if (type === WebAssemblyType.INT_32_ARRAY) {
+                offset = CallWrapper.INT_32_OFFSET;
+                elementType = WebAssemblyType.INT_32;
+            } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
+
+                if (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET !== 0) {
+                    wasmMemoryIndex += (CallWrapper.FLOAT_64_OFFSET - (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET));
                 }
+
+                offset = CallWrapper.FLOAT_64_OFFSET;
+                elementType = WebAssemblyType.FLOAT_64;
+            } else {
+                continue;
+            }
+
+            memory.set(wasmMemoryIndex, [current.length, WebAssemblyType.INT_32]);
+            wasmMemoryIndex += offset;
+
+            fixedParameters[i] = wasmMemoryIndex;
+
+            for (const element of current) {
+                memory.set(wasmMemoryIndex, [element, elementType]);
+                wasmMemoryIndex += offset;
             }
         }
 
-        return fixedParameters;
+        return [memory, fixedParameters];
+    }
+
+    private static getAmountOfPages(memoryLayout: MemoryLayout) {
+        let maxAddress = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
+
+        if (isOfType(memoryLayout.get(maxAddress), WebAssemblyType.INT_32)) {
+            maxAddress += CallWrapper.INT_32_OFFSET;
+        } else {
+            maxAddress += CallWrapper.FLOAT_64_OFFSET;
+        }
+
+        return Math.ceil(maxAddress / Math.pow(2, 16));
     }
 
     private readonly hooks: TranspilerHooks;
@@ -76,12 +134,17 @@ class CallWrapper {
         const hasArrayParameters = parameters.some((parameter) => parameter instanceof Array);
 
         if (hasArrayParameters) {
-            const memoryDescriptor = { initial: this.calculateInitialMemorySize(parameters) };
 
-            const memory = new WebAssembly.Memory(memoryDescriptor);
-            const writeableMemory = new Uint32Array(memory.buffer);
+            const tuple = CallWrapper.getMemoryLayout(parameters, currentSignature);
 
-            fixedParameters = CallWrapper.fillMemory(fixedParameters, writeableMemory);
+            const memoryLayout = tuple[0];
+            fixedParameters = tuple[1];
+
+            const memory = new WebAssembly.Memory({
+                initial: CallWrapper.getAmountOfPages(memoryLayout),
+            });
+
+            CallWrapper.fillMemory(memoryLayout, memory);
             importObject = { transpilerImports: { memory } };
         }
 
@@ -97,9 +160,8 @@ class CallWrapper {
         if (this.outParameters !== undefined) {
             if (hasArrayParameters) {
                 const exportedMemory = instance.exports.memory;
-                const readableMemory = new Uint32Array(exportedMemory.buffer);
 
-                this.readMemory(parameters, fixedParameters, readableMemory);
+                this.readMemory(parameters, fixedParameters, exportedMemory, currentSignature);
             } else {
                 throw new Error('Output parameters with no memory dependent parameters');
             }
@@ -123,31 +185,35 @@ class CallWrapper {
         return result;
     }
 
-    private readMemory(parameters: any[], fixedParameters: any[], readableMemory: Uint32Array) {
-        for (const outParameter of this.outParameters) {
-            const outParameterIndex = parameters.indexOf(outParameter);
+    private readMemory(parameters: any[],
+                       fixedParameters: any[],
+                       memory: WebAssembly.Memory,
+                       signature: FunctionSignature) {
 
-            if (outParameterIndex === -1) {
+        const i32Memory = new Uint32Array(memory.buffer);
+        const f64Memory = new Float64Array(memory.buffer);
+
+        for (const outParameter of this.outParameters) {
+            if (!parameters.includes(outParameter)) {
                 throw new Error('Output parameter not found in call parameter list');
             }
 
-            const outArray = parameters[outParameterIndex];
-            const memoryBaseIndex = fixedParameters[outParameterIndex] / 4;
+            const index = parameters.indexOf(outParameter);
+
+            const outArray = parameters[index];
+            const baseAddress = fixedParameters[index];
+            const type = signature.parameterTypes[index];
 
             for (let j = 0; j < outArray.length; j++) {
-                outArray[j] = readableMemory[memoryBaseIndex + j];
+                if (type === WebAssemblyType.INT_32_ARRAY) {
+                    outArray[j] = i32Memory[baseAddress / CallWrapper.INT_32_OFFSET + j];
+                } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
+                    outArray[j] = f64Memory[baseAddress / CallWrapper.FLOAT_64_OFFSET + j];
+                } else {
+                    throw new Error(`Tried to export unknown type ${WebAssemblyType[type]}`);
+                }
             }
         }
-    }
-
-    private calculateInitialMemorySize(parameters: any[]): number {
-        const pageSize = Math.pow(2, 16);
-        const memoryElementCount = parameters
-            .filter((parameter) => parameter instanceof Array)
-            .map((array) => array.length + 1)
-            .reduce((accumulator, current) => accumulator + current, 0);
-
-        return Math.ceil((memoryElementCount * 4) / pageSize);
     }
 
     private getCurrentSignature() {

@@ -27,6 +27,7 @@ import {
     WhileStatement,
 } from '@babel/types';
 import {Expression, Module, Statement} from 'binaryen';
+import CallWrapper from '../call_wrapper';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
@@ -450,23 +451,57 @@ class GeneratorVisitor extends Visitor {
     private getArrayElement(node: MemberExpression) {
         super.visitMemberExpression(node);
 
-        // The offset can not be used, because the memberaccess value can also be a mathematical term or a variable
-        return this.module.i32.load(0, 4, this.getPointer());
+        const type = this.getExpressionType(node);
+
+        switch (type) {
+            case WebAssemblyType.INT_32:
+                const intArrayPointer = this.getPointer(CallWrapper.INT_32_OFFSET);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, intArrayPointer);
+            case WebAssemblyType.FLOAT_64:
+                const doubleArrayPointer = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
+                return this.module.f64.load(0, CallWrapper.FLOAT_64_OFFSET, doubleArrayPointer);
+            default:
+                throw new Error(`Unknown type of member expression: ${WebAssemblyType[type]}`);
+        }
     }
 
     private getArrayLength(node: MemberExpression) {
         this.visit(node.object);
 
-        const address = this.module.i32.sub(this.popExpression(), this.module.i32.const(4));
-        return this.module.i32.load(0, 4, address);
+        const type = this.getExpressionType(node.object);
+
+        switch (type) {
+            case WebAssemblyType.INT_32_ARRAY:
+                const intOffset = this.module.i32.const(CallWrapper.INT_32_OFFSET);
+                const intAddressPointer = this.module.i32.sub(this.popExpression(), intOffset);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, intAddressPointer);
+            case WebAssemblyType.FLOAT_64_ARRAY:
+                const doubleOffset = this.module.i32.const(CallWrapper.FLOAT_64_OFFSET);
+                const doubleAddressPointer = this.module.i32.sub(this.popExpression(), doubleOffset);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, doubleAddressPointer);
+            default:
+                throw new Error(`Can\'t access length property of unknown type: ${WebAssemblyType[type]}`);
+        }
     }
 
     private setArrayElement(memberExpression: MemberExpression, value: Expression): Statement {
         this.visit(memberExpression.object);
         this.visit(memberExpression.property);
 
-        // @ts-ignore because store() returns an expression
-        return this.module.i32.store(0, 4, this.getPointer(), value);
+        const type = this.getExpressionType(memberExpression.object);
+
+        switch (type) {
+            case WebAssemblyType.INT_32_ARRAY:
+                const intArrayPointer = this.getPointer(CallWrapper.INT_32_OFFSET);
+                // @ts-ignore
+                return this.module.i32.store(0, CallWrapper.INT_32_OFFSET, intArrayPointer, value);
+            case WebAssemblyType.FLOAT_64_ARRAY:
+                const doubleArrayPointer = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
+                // @ts-ignore
+                return this.module.f64.store(0, CallWrapper.FLOAT_64_OFFSET, doubleArrayPointer, value);
+            default:
+                throw new Error(`Can\'t write to array with type: ${WebAssemblyType[type]}`);
+        }
     }
 
     private getVariableIndex(name: string) {
@@ -479,11 +514,11 @@ class GeneratorVisitor extends Visitor {
         return index;
     }
 
-    private getPointer() {
+    private getPointer(factor: number) {
         const index = this.popExpression();
         const basePointer = this.popExpression();
 
-        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(4)));
+        return this.module.i32.add(basePointer, this.module.i32.mul(index, this.module.i32.const(factor)));
     }
 
     private generateLabel() {

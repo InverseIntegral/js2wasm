@@ -232,10 +232,10 @@ class TypeInferenceVisitor extends Visitor {
 
             if (currentValue !== type) {
                 if (currentValue === undefined) {
-                    throw new Error(`Tried to change the type of ${name}` +
+                    throw new Error(`Tried to change the type of ${name} ` +
                     `from undefined to ${WebAssemblyType[type]}`);
                 } else {
-                    throw new Error(`Tried to change the type of ${name}` +
+                    throw new Error(`Tried to change the type of ${name} ` +
                     `from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
                 }
             }

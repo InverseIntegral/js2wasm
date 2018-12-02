@@ -175,7 +175,7 @@ class TypeInferenceVisitor extends Visitor {
 
             if (isIdentifier(node.left.object)) {
                 const rightType = this.getTypeOfExpression(node.right);
-                const leftType = this.getTypeOfExpression(node.left);
+                const leftType = this.getTypeOfIdentifier(node.left.object);
 
                 if (leftType === WebAssemblyType.INT_32_ARRAY && rightType === WebAssemblyType.FLOAT_64) {
                     throw new Error('Unable to assign double value to int array element');

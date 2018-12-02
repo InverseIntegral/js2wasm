@@ -16,7 +16,10 @@ describe('Transpiler', () => {
             const wrapper = transpiler
                 .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[0]; }');
+
             expect(wrapper.setFunctionName('array').call([1.5, 2.0, 3.0])).to.equal(1.5);
+            expect(wrapper.setFunctionName('array').call([-1.5, 2.0, 3.0])).to.equal(-1.5);
+            expect(wrapper.setFunctionName('array').call([6.656])).to.equal(6.656);
         });
 
         it('should handle array access using variable', () => {
@@ -34,7 +37,10 @@ describe('Transpiler', () => {
             const wrapper = transpiler
                 .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[1 + 2]; }');
+
             expect(wrapper.setFunctionName('array').call([101.9, 102.8, 103.7, 104.6, 105.5])).to.equal(104.6);
+            expect(wrapper.setFunctionName('array').call([11.9, 12.8, 13.7, -14.6, 15.5])).to.equal(-14.6);
+            expect(wrapper.setFunctionName('array').call([-11.9, -12.8, -13.7, 14.6])).to.equal(14.6);
         });
 
         it('should handle multiple arrays', () => {
@@ -42,7 +48,10 @@ describe('Transpiler', () => {
                 .setSignature('array', WebAssemblyType.FLOAT_64,
                     WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr, arr2) { return arr2[2]; }');
+
             expect(wrapper.setFunctionName('array').call([111.11, 112.12], [114.14, 115.15, 116.15])).to.equal(116.15);
+            expect(wrapper.setFunctionName('array').call([], [114.14, 115.15, 116.15])).to.equal(116.15);
+            expect(wrapper.setFunctionName('array').call([-5.5], [-4.1, -15.15, -16.32])).to.equal(-16.32);
         });
 
         it('should handle out of bounds access', () => {
@@ -60,10 +69,17 @@ describe('Transpiler', () => {
                 .setSignature('array', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile('function array(arr) { return arr[0]; }');
 
-            const array = [10.01, 20.01, 30.01];
+            let array = [10.01, 20.01, 30.01];
             wrapper.setFunctionName('array').call(array);
-
             expect(array).to.eql([10.01, 20.01, 30.01]);
+
+            array = [3.5];
+            wrapper.setFunctionName('array').call(array);
+            expect(array).to.eql([3.5]);
+
+            array = [-5.555, -3.9];
+            wrapper.setFunctionName('array').call(array);
+            expect(array).to.eql([-5.555, -3.9]);
         });
 
         it('should handle length property', () => {
@@ -314,18 +330,21 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('arrayExport');
 
             expect(wrapper.call([5.5], [1, 2], [3.8, 4.4])).to.eq(10.3);
-        });
+            expect(wrapper.call([-5.5, 4.5], [3], [5.5, -4.4])).to.eq(3);
+            expect(wrapper.call([5.5, 4.5], [3], [-5.5])).to.eq(3);
 
-        it('should handle mixed array parameters 2', () => {
-            const content = 'function arrayExport(arr1, arr2, arr3) { return arr1[0] + arr2[0] + arr3[0]; }';
-            const wrapper = transpiler
+            const content2 = 'function arrayExport(arr1, arr2, arr3) { return arr1[0] + arr2[0] + arr3[0]; }';
+            const wrapper2 = transpiler
                 .setSignature('arrayExport', WebAssemblyType.FLOAT_64,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32_ARRAY)
-                .transpile(content);
+                .transpile(content2);
 
-            wrapper.setFunctionName('arrayExport');
+            wrapper2.setFunctionName('arrayExport');
 
-            expect(wrapper.call([1, 2], [5.5], [3, 4])).to.eq(9.5);
+            expect(wrapper2.call([1, 2], [5.5], [3, 4])).to.eq(9.5);
+            expect(wrapper2.call([-1, 2], [5.5], [1, 4])).to.eq(5.5);
+            expect(wrapper2.call([-1, 2], [-5.5], [1, 4])).to.eq(-5.5);
+            expect(wrapper2.call([-1], [-5.5, 3], [1, 5, 6])).to.eq(-5.5);
         });
 
         it('should handle mixed empty arrays', () => {
@@ -347,6 +366,7 @@ describe('Transpiler', () => {
             expect(wrapper.call([1], [], [2])).to.eq(2);
             expect(wrapper.call([1], [], [])).to.eq(1);
             expect(wrapper.call([], [], [2])).to.eq(1);
+            expect(wrapper.call([], [], [])).to.eq(0);
         });
     });
 });

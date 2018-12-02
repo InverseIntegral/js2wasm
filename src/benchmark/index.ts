@@ -36,6 +36,7 @@ import {
     quickSortSwapInteger,
     quickSortWhileInteger,
 } from './cases/quicksort_integer';
+import {sumArrayDouble, sumArrayFillDouble, sumArrayForDouble} from './cases/sum_array_double';
 import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from './cases/sum_array_integer';
 import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
@@ -63,7 +64,7 @@ const gcdFunc = {
     ]),
 };
 
-const sumArrayFunc = {
+const sumArrayIntegerFunc = {
     arguments: [new Array(65535)],
     expectedResult: 2147385345,
     func: [sumArrayForInteger, sumArrayFillInteger, sumArrayInteger],
@@ -71,6 +72,19 @@ const sumArrayFunc = {
         ['sumArrayInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
         ['sumArrayFillInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
         ['sumArrayForInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+    ]),
+};
+
+const sumArrayDoubleFunc = {
+    arguments: [new Array(65535)],
+    expectedResult: 1073692672.5,
+    func: [sumArrayForDouble, sumArrayFillDouble, sumArrayDouble],
+    signatures: new Map([
+        ['sumArrayDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY], returnType: WebAssemblyType.FLOAT_64 }],
+        ['sumArrayFillDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayForDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.FLOAT_64 }],
     ]),
 };
 
@@ -220,7 +234,8 @@ const quicksortDoubleFunc = {
 
 const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
-    ['Sum Array', sumArrayFunc],
+    ['Sum Array Integer', sumArrayIntegerFunc],
+    ['Sum Array Double', sumArrayDoubleFunc],
     ['Sum Integers', sumIntegersFunc],
     ['Sum Doubles', sumDoublesFunc],
     ['isPrime', isPrimeFunc],

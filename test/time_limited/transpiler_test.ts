@@ -34,6 +34,7 @@ import {
     quickSortSwapInteger,
     quickSortWhileInteger,
 } from '../../src/benchmark/cases/quicksort_integer';
+import {sumArrayFillDouble, sumArrayForDouble, sumArrayDouble} from '../../src/benchmark/cases/sum_array_double';
 import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from '../../src/benchmark/cases/sum_array_integer';
 import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
@@ -82,7 +83,7 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should run sum array faster than 6.25 seconds', () => {
+        it('should run integer sum array faster than X seconds', () => {
             const content = sumArrayInteger.toString() + sumArrayFillInteger.toString() + sumArrayForInteger.toString();
             const wrapper = transpiler
                 .setSignature('sumArrayInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
@@ -92,6 +93,18 @@ describe('Transpiler', function() {
 
             expect(wrapper.setFunctionName('sumArrayForInteger').call(new Array(65535))).to.equal(2147385345);
             expect(hooks.getCompleteTime()).to.be.lessThan(6250);
+        });
+
+        it('should run double sum array faster than 6.5 seconds', () => {
+            const content = sumArrayDouble.toString() + sumArrayFillDouble.toString() + sumArrayForDouble.toString();
+            const wrapper = transpiler
+                .setSignature('sumArrayDouble', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('sumArrayFillDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('sumArrayForDouble', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('sumArrayForDouble').call(new Array(65535))).to.equal(1073692672.5);
+            expect(hooks.getCompleteTime()).to.be.lessThan(6500);
         });
 
         it('should run integer quicksort faster than 6 seconds', () => {

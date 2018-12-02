@@ -34,30 +34,29 @@ class CallWrapper {
             const current = parameters[i];
             const type = signature.parameterTypes[i];
 
+            let offset;
+
             if (type === WebAssemblyType.INT_32_ARRAY) {
-                memory.set(wasmMemoryIndex, current.length);
-                wasmMemoryIndex += CallWrapper.INT_32_OFFSET;
-
-                fixedParameters[i] = wasmMemoryIndex;
-
-                for (const element of current) {
-                    memory.set(wasmMemoryIndex, element);
-                    wasmMemoryIndex += CallWrapper.INT_32_OFFSET;
-                }
+                offset = CallWrapper.INT_32_OFFSET;
             } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
+
                 if (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET !== 0) {
                     wasmMemoryIndex += (CallWrapper.FLOAT_64_OFFSET - (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET));
                 }
 
-                memory.set(wasmMemoryIndex, current.length);
-                wasmMemoryIndex += CallWrapper.FLOAT_64_OFFSET;
+                offset = CallWrapper.FLOAT_64_OFFSET;
+            } else {
+                continue;
+            }
 
-                fixedParameters[i] = wasmMemoryIndex;
+            memory.set(wasmMemoryIndex, current.length);
+            wasmMemoryIndex += offset;
 
-                for (const element of current) {
-                    memory.set(wasmMemoryIndex, element);
-                    wasmMemoryIndex += CallWrapper.FLOAT_64_OFFSET;
-                }
+            fixedParameters[i] = wasmMemoryIndex;
+
+            for (const element of current) {
+                memory.set(wasmMemoryIndex, element);
+                wasmMemoryIndex += offset;
             }
         }
 

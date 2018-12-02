@@ -64,6 +64,10 @@ class CallWrapper {
         return [memory, fixedParameters];
     }
 
+    private static getAmountOfPages(topAddress: number) {
+        return Math.ceil(topAddress / Math.pow(2, 16));
+    }
+
     private readonly hooks: TranspilerHooks;
     private readonly wasmModule: Module;
     private readonly signatures: FunctionSignatures;
@@ -121,16 +125,16 @@ class CallWrapper {
             const memoryLayout = tuple[0];
             fixedParameters = tuple[1];
 
-            let maxKey = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
+            let maxAddress = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
 
-            if (isOfType(memoryLayout.get(maxKey), WebAssemblyType.INT_32)) {
-                maxKey += CallWrapper.INT_32_OFFSET;
+            if (isOfType(memoryLayout.get(maxAddress), WebAssemblyType.INT_32)) {
+                maxAddress += CallWrapper.INT_32_OFFSET;
             } else {
-                maxKey += CallWrapper.FLOAT_64_OFFSET;
+                maxAddress += CallWrapper.FLOAT_64_OFFSET;
             }
 
             const memory = new WebAssembly.Memory({
-                initial: Math.ceil(maxKey / Math.pow(2, 16)),
+                initial: CallWrapper.getAmountOfPages(maxAddress),
             });
 
             CallWrapper.fillMemory(memoryLayout, memory);

@@ -5,6 +5,9 @@ import Module = WebAssembly.Module;
 
 class CallWrapper {
 
+    private static INT_32_OFFSET = 4;
+    private static FLOAT_64_OFFSET = 8;
+
     private static fillMemory(memoryLayout: Map<number, number>, memory: WebAssembly.Memory) {
         const i32Memory = new Uint32Array(memory.buffer);
         const f64Memory = new Float64Array(memory.buffer);
@@ -14,9 +17,9 @@ class CallWrapper {
             const value = entry[1];
 
             if (isOfType(value, WebAssemblyType.INT_32)) {
-                i32Memory[key  / 4] = value;
+                i32Memory[key  / CallWrapper.INT_32_OFFSET] = value;
             } else if (isOfType(value, WebAssemblyType.FLOAT_64)) {
-                f64Memory[key / 8] = value;
+                f64Memory[key / CallWrapper.FLOAT_64_OFFSET] = value;
             }
         }
     }
@@ -33,27 +36,27 @@ class CallWrapper {
 
             if (type === WebAssemblyType.INT_32_ARRAY) {
                 memory.set(wasmMemoryIndex, current.length);
-                wasmMemoryIndex += 4;
+                wasmMemoryIndex += CallWrapper.INT_32_OFFSET;
 
                 fixedParameters[i] = wasmMemoryIndex;
 
                 for (const element of current) {
                     memory.set(wasmMemoryIndex, element);
-                    wasmMemoryIndex += 4;
+                    wasmMemoryIndex += CallWrapper.INT_32_OFFSET;
                 }
             } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
-                if (wasmMemoryIndex % 8 !== 0) {
-                    wasmMemoryIndex += (8 - (wasmMemoryIndex % 8));
+                if (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET !== 0) {
+                    wasmMemoryIndex += (CallWrapper.FLOAT_64_OFFSET - (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET));
                 }
 
                 memory.set(wasmMemoryIndex, current.length);
-                wasmMemoryIndex += 8;
+                wasmMemoryIndex += CallWrapper.FLOAT_64_OFFSET;
 
                 fixedParameters[i] = wasmMemoryIndex;
 
                 for (const element of current) {
                     memory.set(wasmMemoryIndex, element);
-                    wasmMemoryIndex += 8;
+                    wasmMemoryIndex += CallWrapper.FLOAT_64_OFFSET;
                 }
             }
         }
@@ -121,9 +124,9 @@ class CallWrapper {
             let maxKey = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
 
             if (isOfType(memoryLayout.get(maxKey), WebAssemblyType.INT_32)) {
-                maxKey += 4;
+                maxKey += CallWrapper.INT_32_OFFSET;
             } else {
-                maxKey += 8;
+                maxKey += CallWrapper.FLOAT_64_OFFSET;
             }
 
             const memory = new WebAssembly.Memory({
@@ -192,9 +195,9 @@ class CallWrapper {
 
             for (let j = 0; j < outArray.length; j++) {
                 if (type === WebAssemblyType.INT_32_ARRAY) {
-                    outArray[j] = i32Memory[baseAddress / 4 + j];
+                    outArray[j] = i32Memory[baseAddress / CallWrapper.INT_32_OFFSET + j];
                 } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
-                    outArray[j] = f64Memory[baseAddress / 8 + j];
+                    outArray[j] = f64Memory[baseAddress / CallWrapper.FLOAT_64_OFFSET + j];
                 } else {
                     throw new Error(`Tried to export unknown type ${WebAssemblyType[type]}`);
                 }

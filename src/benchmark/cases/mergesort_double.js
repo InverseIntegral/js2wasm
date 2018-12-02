@@ -83,7 +83,6 @@ function mergeSortFillDouble(array) {
 
         if (state) {
             current++;
-            current *= 1.32165;
         }
 
         state = !state;

@@ -36,7 +36,7 @@ import {
     quickSortSwapInteger,
     quickSortWhileInteger,
 } from './cases/quicksort_integer';
-import {sumArray, sumArrayFill, sumArrayFor} from './cases/sum_array';
+import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from './cases/sum_array_integer';
 import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
@@ -66,11 +66,11 @@ const gcdFunc = {
 const sumArrayFunc = {
     arguments: [new Array(65535)],
     expectedResult: 2147385345,
-    func: [sumArrayFor, sumArrayFill, sumArray],
+    func: [sumArrayForInteger, sumArrayFillInteger, sumArrayInteger],
     signatures: new Map([
-        ['sumArray', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
-        ['sumArrayFill', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
-        ['sumArrayFor', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayFillInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
+        ['sumArrayForInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 

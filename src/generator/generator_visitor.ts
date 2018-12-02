@@ -30,9 +30,9 @@ import {Expression, Module, Statement} from 'binaryen';
 import CallWrapper from '../call_wrapper';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
+import {FunctionSignatures} from './generator';
 import {ExpressionTypes} from './type_inference_visitor';
 import {getCommonType, toBinaryenType, WebAssemblyType} from './wasm_type';
-import {FunctionSignatures} from './generator';
 
 type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
 

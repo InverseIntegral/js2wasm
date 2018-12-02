@@ -81,6 +81,7 @@ describe('Transpiler', () => {
 
             expect(wrapper.call(1, 2)).to.equal(0);
             expect(wrapper.call(10, 2)).to.equal(5);
+            expect(wrapper.call(-5, 2)).to.equal(-2);
             expect(wrapper.call(-10, 2)).to.equal(-5);
         });
 

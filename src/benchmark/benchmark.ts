@@ -27,8 +27,9 @@ class Benchmark {
         const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
+            const argsDeepCopy = JSON.parse(JSON.stringify(args));
             const start = performance.now();
-            const result = algorithm(...args);
+            const result = algorithm(...argsDeepCopy);
             const executionTime = performance.now() - start;
 
             Benchmark.assert(result, expectedResult);

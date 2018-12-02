@@ -4,13 +4,14 @@ import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
 type MemoryLayoutValue = [number, WebAssemblyType];
+type MemoryLayout = Map<number, MemoryLayoutValue>;
 
 class CallWrapper {
 
     public static readonly INT_32_OFFSET = 4;
     public static readonly FLOAT_64_OFFSET = 8;
 
-    private static fillMemory(memoryLayout: Map<number, MemoryLayoutValue>, memory: WebAssembly.Memory) {
+    private static fillMemory(memoryLayout: MemoryLayout, memory: WebAssembly.Memory) {
         const i32Memory = new Uint32Array(memory.buffer);
         const f64Memory = new Float64Array(memory.buffer);
 
@@ -70,8 +71,16 @@ class CallWrapper {
         return [memory, fixedParameters];
     }
 
-    private static getAmountOfPages(topAddress: number) {
-        return Math.ceil(topAddress / Math.pow(2, 16));
+    private static getAmountOfPages(memoryLayout: MemoryLayout) {
+        let maxAddress = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
+
+        if (isOfType(memoryLayout.get(maxAddress), WebAssemblyType.INT_32)) {
+            maxAddress += CallWrapper.INT_32_OFFSET;
+        } else {
+            maxAddress += CallWrapper.FLOAT_64_OFFSET;
+        }
+
+        return Math.ceil(maxAddress / Math.pow(2, 16));
     }
 
     private readonly hooks: TranspilerHooks;
@@ -131,16 +140,8 @@ class CallWrapper {
             const memoryLayout = tuple[0];
             fixedParameters = tuple[1];
 
-            let maxAddress = [...memoryLayout.keys()].reduce((a, b) => Math.max(a, b));
-
-            if (isOfType(memoryLayout.get(maxAddress), WebAssemblyType.INT_32)) {
-                maxAddress += CallWrapper.INT_32_OFFSET;
-            } else {
-                maxAddress += CallWrapper.FLOAT_64_OFFSET;
-            }
-
             const memory = new WebAssembly.Memory({
-                initial: CallWrapper.getAmountOfPages(maxAddress),
+                initial: CallWrapper.getAmountOfPages(memoryLayout),
             });
 
             CallWrapper.fillMemory(memoryLayout, memory);

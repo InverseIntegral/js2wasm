@@ -21,13 +21,13 @@ import {
 } from './cases/mergesort_integer';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {
-    quickSort,
-    quickSortFill,
-    quickSortIsSorted,
-    quickSortPartition,
-    quickSortSwap,
-    quickSortWhile,
-} from './cases/quicksort';
+    quickSortFillInteger,
+    quickSortInteger,
+    quickSortIsSortedInteger,
+    quickSortPartitionInteger,
+    quickSortSwapInteger,
+    quickSortWhileInteger,
+} from './cases/quicksort_integer';
 import {sumArray, sumArrayFill, sumArrayFor} from './cases/sum_array';
 import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
 import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
@@ -135,6 +135,7 @@ const mergeSortIntegerFunc = {
             returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
+
 const mergeSortDoubleFunc = {
     arguments: [new Array(Math.pow(2, 20)).fill(0), new Array(Math.pow(2, 20)).fill(0)],
     expectedResult: true,
@@ -163,22 +164,26 @@ const mergeSortDoubleFunc = {
     ]),
 };
 
-const quicksortFunc = {
+const quicksortIntegerFunc = {
     arguments: [new Array(1000000)],
     expectedResult: true,
-    func: [quickSortWhile, quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortSwap],
+    func: [quickSortWhileInteger, quickSortIsSortedInteger, quickSortFillInteger,
+        quickSortInteger, quickSortPartitionInteger, quickSortSwapInteger],
     signatures: new Map([
-        ['quickSortSwap', { parameterTypes: [WebAssemblyType.INT_32_ARRAY,
-                WebAssemblyType.INT_32,
-                WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
-        ['quickSortPartition', { parameterTypes: [WebAssemblyType.INT_32_ARRAY,
+        ['quickSortSwapInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY,
             WebAssemblyType.INT_32,
             WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
-        ['quickSort', { parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32],
-            returnType: WebAssemblyType.INT_32_ARRAY }],
-        ['quickSortFill', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.INT_32 }],
-        ['quickSortIsSorted', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
-        ['quickSortWhile', { parameterTypes: [WebAssemblyType.INT_32_ARRAY], returnType: WebAssemblyType.BOOLEAN }],
+        ['quickSortPartitionInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortFillInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY],
+            returnType: WebAssemblyType.INT_32 }],
+        ['quickSortIsSortedInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
+        ['quickSortWhileInteger', { parameterTypes: [WebAssemblyType.INT_32_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
 
@@ -190,7 +195,7 @@ const algorithms = new Map<string, Algorithm>([
     ['isPrime', isPrimeFunc],
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],
-    ['Quicksort', quicksortFunc],
+    ['Quicksort Integer', quicksortIntegerFunc],
     ['Mergesort Integer', mergeSortIntegerFunc],
     ['Mergesort Double', mergeSortDoubleFunc],
 ]);

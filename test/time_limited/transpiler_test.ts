@@ -19,13 +19,13 @@ import {
     mergeSortWhileInteger,
 } from '../../src/benchmark/cases/mergesort_integer';
 import {
-    quickSort,
-    quickSortFill,
-    quickSortIsSorted,
-    quickSortPartition,
-    quickSortSwap,
-    quickSortWhile,
-} from '../../src/benchmark/cases/quicksort';
+    quickSortFillInteger,
+    quickSortInteger,
+    quickSortIsSortedInteger,
+    quickSortPartitionInteger,
+    quickSortSwapInteger,
+    quickSortWhileInteger,
+} from '../../src/benchmark/cases/quicksort_integer';
 import {sumArray, sumArrayFill, sumArrayFor} from '../../src/benchmark/cases/sum_array';
 import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
@@ -87,21 +87,22 @@ describe('Transpiler', function() {
         });
 
         it('should run quicksort faster than 6 seconds', () => {
-            const content = quickSortSwap.toString() + quickSortPartition.toString() + quickSort.toString() +
-                quickSortFill.toString() + quickSortIsSorted.toString() + quickSortWhile.toString();
+            const content = quickSortSwapInteger.toString() + quickSortPartitionInteger.toString() +
+                quickSortInteger.toString() + quickSortFillInteger.toString() +
+                quickSortIsSortedInteger.toString() + quickSortWhileInteger.toString();
             const wrapper = transpiler
-                .setSignature('quickSortSwap', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('quickSortSwapInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSortPartition', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('quickSortPartitionInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSort', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('quickSortInteger', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortFillInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortIsSortedInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(true);
+            expect(wrapper.setFunctionName('quickSortWhileInteger').call(new Array(1000000))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(6000);
         });
 

@@ -1,4 +1,4 @@
-function quickSortSwap(items, first, second) {
+function quickSortSwapInteger(items, first, second) {
     var temp = items[first];
     items[first] = items[second];
     items[second] = temp;
@@ -6,7 +6,7 @@ function quickSortSwap(items, first, second) {
     return 0;
 }
 
-function quickSortPartition(items, left, right) {
+function quickSortPartitionInteger(items, left, right) {
     var pivot = items[left];
     var i = left;
     var j = right;
@@ -21,7 +21,7 @@ function quickSortPartition(items, left, right) {
         }
 
         if (i <= j) {
-            quickSortSwap(items, i, j);
+            quickSortSwapInteger(items, i, j);
             i++;
             j--;
         }
@@ -30,25 +30,25 @@ function quickSortPartition(items, left, right) {
     return i;
 }
 
-function quickSort(items, left, right) {
+function quickSortInteger(items, left, right) {
     if (items.length <= 1) {
         return items;
     }
 
-    var index = quickSortPartition(items, left, right);
+    var index = quickSortPartitionInteger(items, left, right);
 
     if (left < index - 1) {
-        quickSort(items, left, index - 1);
+        quickSortInteger(items, left, index - 1);
     }
 
     if (index < right) {
-        quickSort(items, index, right);
+        quickSortInteger(items, index, right);
     }
 
     return items;
 }
 
-function quickSortFill(array) {
+function quickSortFillInteger(array) {
     var i = 0;
 
     var current = 1;
@@ -70,7 +70,7 @@ function quickSortFill(array) {
     return 0;
 }
 
-function quickSortIsSorted(array) {
+function quickSortIsSortedInteger(array) {
     var i = 0;
 
     while (i < array.length - 1) {
@@ -84,14 +84,14 @@ function quickSortIsSorted(array) {
     return true;
 }
 
-function quickSortWhile(items) {
+function quickSortWhileInteger(items) {
     var i = 0;
 
     while (i < 100) {
-        quickSortFill(items);
-        quickSort(items, 0, items.length - 1);
+        quickSortFillInteger(items);
+        quickSortInteger(items, 0, items.length - 1);
 
-        if (!quickSortIsSorted(items)) {
+        if (!quickSortIsSortedInteger(items)) {
             return false;
         }
 
@@ -101,4 +101,4 @@ function quickSortWhile(items) {
     return true;
 }
 
-module.exports = {quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortWhile, quickSortSwap};
+module.exports = {quickSortIsSortedInteger, quickSortFillInteger, quickSortInteger, quickSortPartitionInteger, quickSortWhileInteger, quickSortSwapInteger};

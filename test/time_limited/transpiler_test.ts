@@ -3,13 +3,13 @@ import {fibonacci, fibonacciWhile} from '../../src/benchmark/cases/fibonacci';
 import {gcd, gcdWhile} from '../../src/benchmark/cases/gcd';
 import {isPrime, isPrimeWhile} from '../../src/benchmark/cases/is_prime';
 import {
-    mergeSort,
-    mergeSortCopyArray,
-    mergeSortFill,
-    mergeSortIsSorted,
-    mergeSortMerge,
-    mergeSortWhile,
-} from '../../src/benchmark/cases/mergesort';
+    mergeSortCopyArrayInteger,
+    mergeSortFillInteger,
+    mergeSortInteger,
+    mergeSortIsSortedInteger,
+    mergeSortMergeInteger,
+    mergeSortWhileInteger,
+} from '../../src/benchmark/cases/mergesort_integer';
 import {
     quickSort,
     quickSortFill,
@@ -98,24 +98,25 @@ describe('Transpiler', function() {
         });
 
         it('should run mergesort faster than 8.75 seconds', () => {
-            const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
-                mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
+            const content = mergeSortCopyArrayInteger.toString() + mergeSortInteger.toString() +
+                mergeSortMergeInteger.toString() + mergeSortIsSortedInteger.toString() +
+                mergeSortFillInteger.toString() + mergeSortWhileInteger.toString();
             const wrapper = transpiler
-                .setSignature('mergeSortCopyArray', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortCopyArrayInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSortMerge', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortMergeInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32,
                     WebAssemblyType.INT_32)
-                .setSignature('mergeSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('mergeSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('mergeSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortIsSortedInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('mergeSortFillInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('mergeSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
             const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(true);
+            expect(wrapper.setFunctionName('mergeSortWhileInteger').call(...parameters)).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(8750);
         });
     });

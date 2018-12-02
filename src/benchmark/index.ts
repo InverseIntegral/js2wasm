@@ -4,6 +4,14 @@ import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
 import {isPrime, isPrimeWhile} from './cases/is_prime';
 import {
+    mergeSortCopyArrayDouble,
+    mergeSortDouble,
+    mergeSortFillDouble,
+    mergeSortIsSortedDouble,
+    mergeSortMergeDouble,
+    mergeSortWhileDouble,
+} from './cases/mergesort_double';
+import {
     mergeSortCopyArrayInteger,
     mergeSortFillInteger,
     mergeSortInteger,
@@ -127,6 +135,33 @@ const mergeSortIntegerFunc = {
             returnType: WebAssemblyType.BOOLEAN }],
     ]),
 };
+const mergeSortDoubleFunc = {
+    arguments: [new Array(Math.pow(2, 20)).fill(0), new Array(Math.pow(2, 20)).fill(0)],
+    expectedResult: true,
+    func: [mergeSortWhileDouble, mergeSortCopyArrayDouble, mergeSortFillDouble,
+        mergeSortIsSortedDouble, mergeSortMergeDouble, mergeSortDouble],
+    signatures: new Map([
+        ['mergeSortCopyArrayDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.FLOAT_64_ARRAY }],
+        ['mergeSortDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.FLOAT_64_ARRAY }],
+        ['mergeSortMergeDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.FLOAT_64_ARRAY }],
+        ['mergeSortIsSortedDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
+        ['mergeSortFillDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.INT_32 }],
+        ['mergeSortWhileDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
+    ]),
+};
 
 const quicksortFunc = {
     arguments: [new Array(1000000)],
@@ -157,6 +192,7 @@ const algorithms = new Map<string, Algorithm>([
     ['gcd', gcdFunc],
     ['Quicksort', quicksortFunc],
     ['Mergesort Integer', mergeSortIntegerFunc],
+    ['Mergesort Double', mergeSortDoubleFunc],
 ]);
 
 function sum(value1: number, value2: number): number {

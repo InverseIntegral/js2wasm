@@ -30,7 +30,7 @@ import {Expression, Module, Statement} from 'binaryen';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
 import {ExpressionTypes} from './type_inference_visitor';
-import {getCommonNumberType, toBinaryenType, WebAssemblyType} from './wasm_type';
+import {getCommonType, toBinaryenType, WebAssemblyType} from './wasm_type';
 import {FunctionSignatures} from './generator';
 
 type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
@@ -130,7 +130,7 @@ class GeneratorVisitor extends Visitor {
                 const rightType = this.getExpressionType(node.right);
                 const leftType = this.getExpressionType(node.left);
 
-                if (getCommonNumberType(leftType, rightType) === WebAssemblyType.INT_32) {
+                if (getCommonType(leftType, rightType) === WebAssemblyType.INT_32) {
                     this.expressions.push(this.module.i32.rem_s(left, right));
                 } else {
                     throw new Error('Modulo is not allowed with float values');
@@ -305,7 +305,7 @@ class GeneratorVisitor extends Visitor {
 
             const signatureType = calleeSignature.parameterTypes[i];
             const argumentType = this.getExpressionType(argument);
-            const commonType = getCommonNumberType(signatureType, argumentType);
+            const commonType = getCommonType(signatureType, argumentType);
 
             parameterExpressions.push(this.convertType(this.popExpression(), argumentType, commonType));
         }
@@ -397,7 +397,7 @@ class GeneratorVisitor extends Visitor {
 
         const rightType = this.getExpressionType(node.right);
         const leftType = this.getExpressionType(node.left);
-        const commonNumberType = getCommonNumberType(leftType, rightType);
+        const commonNumberType = getCommonType(leftType, rightType);
 
         left = this.convertType(left, leftType, commonNumberType);
         right = this.convertType(right, rightType, commonNumberType);

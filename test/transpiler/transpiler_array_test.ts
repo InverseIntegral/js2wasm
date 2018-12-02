@@ -211,6 +211,19 @@ describe('Transpiler', () => {
             expect(wrapper.call([15, 16])).to.equal(0);
         });
 
+        it('should handle array as parameter of function call', () => {
+            const content = 'function func(arr) { return arr[0]; }' +
+                'function main(arr) { return func(arr); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('func', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call([11, 22])).to.equal(11);
+            expect(wrapper.call([-33, -44])).to.equal(-33);
+        });
+
         it('should handle array export', () => {
             const wrapper = transpiler
                 .setSignature('arrayExport', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)

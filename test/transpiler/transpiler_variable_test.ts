@@ -77,7 +77,26 @@ describe('Transpiler', () => {
             expect(wrapper.setFunctionName('variables').call(100)).to.equal(10);
         });
 
+        it('should handle boolean parameters', () => {
+            const content = 'function variables(x) { return x; }';
+            const wrapper = transpiler
+                .setSignature('variables', WebAssemblyType.BOOLEAN, WebAssemblyType.BOOLEAN)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('variables').call(true)).to.equal(true);
+            expect(wrapper.setFunctionName('variables').call(false)).to.equal(false);
+        });
+
         it('should handle boolean variable', () => {
+            const content = 'function variables() { var x = true; return x; }';
+            const wrapper = transpiler
+                .setSignature('variables', WebAssemblyType.BOOLEAN)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('variables').call()).to.equal(true);
+        });
+
+        it('should handle boolean variables in expression', () => {
             const content = 'function variables() { var x = true; var y; y = false; return x || y; }';
             const wrapper = transpiler
                 .setSignature('variables', WebAssemblyType.BOOLEAN)

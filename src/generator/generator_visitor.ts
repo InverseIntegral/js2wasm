@@ -30,9 +30,9 @@ import {Expression, Module, Statement} from 'binaryen';
 import CallWrapper from '../call_wrapper';
 import Visitor from '../visitor';
 import {VariableMapping} from './declaration_visitor';
+import {FunctionSignature, FunctionSignatures} from './generator';
 import {ExpressionTypes} from './type_inference_visitor';
-import {getCommonType, toBinaryenType, WebAssemblyType} from './wasm_type';
-import {FunctionSignatures} from './generator';
+import {getCommonType, isTypeCompatible, toBinaryenType, WebAssemblyType} from './wasm_type';
 
 type BinaryExpressionFunction = (first: Expression, second: Expression) => Expression;
 
@@ -42,6 +42,7 @@ class GeneratorVisitor extends Visitor {
     private readonly variableMapping: VariableMapping;
     private readonly expressionTypes: ExpressionTypes;
     private readonly signatures: FunctionSignatures;
+    private readonly signature: FunctionSignature;
 
     private statements: Statement[] = [];
     private expressions: Expression[] = [];
@@ -51,13 +52,15 @@ class GeneratorVisitor extends Visitor {
     constructor(module: Module,
                 variableMapping: VariableMapping,
                 expressionType: ExpressionTypes,
-                signatures: FunctionSignatures) {
+                signatures: FunctionSignatures,
+                signature: FunctionSignature) {
 
         super();
         this.module = module;
         this.variableMapping = variableMapping;
         this.expressionTypes = expressionType;
         this.signatures = signatures;
+        this.signature = signature;
     }
 
     public run(tree: FunctionDeclaration): Statement {
@@ -83,8 +86,14 @@ class GeneratorVisitor extends Visitor {
     protected visitReturnStatement(node: ReturnStatement) {
         super.visitReturnStatement(node);
 
-        const returnStatement = this.module.return(this.expressions.pop());
-        this.statements.push(returnStatement);
+        if (node.argument !== null) {
+            if (!isTypeCompatible(this.getExpressionType(node.argument), this.signature.returnType)) {
+                throw new Error(`Returned value is not compatible with ` +
+                `returntype ${WebAssemblyType[this.signature.returnType]}`);
+            }
+        }
+
+        this.statements.push(this.module.return(this.popExpression()));
     }
 
     protected visitUnaryExpression(node: UnaryExpression) {

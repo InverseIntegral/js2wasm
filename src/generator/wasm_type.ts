@@ -48,6 +48,12 @@ function getCommonType(first: WebAssemblyType, second: WebAssemblyType) {
     }
 }
 
+function isTypeCompatible(toCheck: WebAssemblyType, type: WebAssemblyType) {
+    return (toCheck === type) ||
+        (toCheck === WebAssemblyType.INT_32 && type === WebAssemblyType.FLOAT_64) ||
+        (toCheck === WebAssemblyType.INT_32_ARRAY && type === WebAssemblyType.FLOAT_64_ARRAY);
+}
+
 function isOfType(toCheck: any, type: WebAssemblyType) {
     switch (type) {
         case WebAssemblyType.INT_32:
@@ -88,4 +94,4 @@ function isArray(value: any, type: WebAssemblyType) {
     }
 }
 
-export {WebAssemblyType, toBinaryenType, getNumberType, getCommonType, isOfType};
+export {WebAssemblyType, toBinaryenType, getNumberType, getCommonType, isTypeCompatible, isOfType};

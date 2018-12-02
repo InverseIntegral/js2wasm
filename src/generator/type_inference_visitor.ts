@@ -17,7 +17,7 @@ import {
 } from '@babel/types';
 import Visitor from '../visitor';
 import {FunctionSignature, FunctionSignatures} from './generator';
-import {getCommonNumberType, getNumberType, WebAssemblyType} from './wasm_type';
+import {getCommonType, getNumberType, WebAssemblyType} from './wasm_type';
 
 type ExpressionTypes = Map<Expression, WebAssemblyType>;
 type VariableTypes = Map<string, WebAssemblyType>;
@@ -50,7 +50,7 @@ class TypeInferenceVisitor extends Visitor {
             const leftType = this.getTypeOfExpression(node.left);
             const rightType = this.getTypeOfExpression(node.right);
 
-            type = getCommonNumberType(leftType, rightType);
+            type = getCommonType(leftType, rightType);
         } else if (['<', '<=', '==', '!=', '>=', '>'].includes(operator)) {
             type = WebAssemblyType.BOOLEAN;
         } else {
@@ -193,7 +193,7 @@ class TypeInferenceVisitor extends Visitor {
             if (operator === '=') {
                 this.updateIdentifierType(identifier, rightSideType);
             } else {
-                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
+                rightSideType = getCommonType(this.getTypeOfIdentifier(identifier), rightSideType);
                 this.checkIfTypeIsUnchanged(identifier, rightSideType);
             }
 

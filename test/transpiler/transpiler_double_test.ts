@@ -1064,6 +1064,56 @@ describe('Transpiler', () => {
             expect(wrapper.call()).to.equal(3.71);
         });
 
+        it('should handle double int parameter as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main(a) { return func(a); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call(3)).to.equal(3);
+            expect(wrapper.call(-32)).to.equal(-32);
+        });
+
+        it('should handle double int variable as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main() { var b = 8; return func(b); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.equal(8);
+        });
+
+        it('should handle double int array as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main(a) { return func(a[0]); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call([1, 2])).to.equal(1);
+            expect(wrapper.call([-3, -4])).to.equal(-3);
+        });
+
+        it('should handle double int literal as function call parameter', () => {
+            const content = 'function func(a) { return a; }' +
+                'function main() { return func(3); }';
+            const wrapper = transpiler
+                .setSignature('main', WebAssemblyType.FLOAT_64)
+                .setSignature('func', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile(content);
+            wrapper.setFunctionName('main');
+
+            expect(wrapper.call()).to.equal(3);
+        });
+
         it('should handle double expression as function call parameter', () => {
             const content = 'function func(a) { return a; }' +
                 'function main() { return func(1.73 + 6.82); }';

@@ -379,7 +379,7 @@ describe('Transpiler', () => {
                 .transpile(content)).to.throw();
         });
 
-        it('should throw an error if the type of a double array is changed 2', () => {
+        it('should throw an error if the type of a double array is changed', () => {
             const content = 'function arrayExport(arr) { ' +
                 'arr[0] += 3.14; return true;' +
                 '}';

@@ -368,5 +368,25 @@ describe('Transpiler', () => {
             expect(wrapper.call([], [], [2])).to.eq(1);
             expect(wrapper.call([], [], [])).to.eq(0);
         });
+
+        it('should throw an error if double is assigned to int array', () => {
+            const content = 'function arrayExport(arr) { ' +
+                'arr[0] = 3.14; return true;' +
+                '}';
+
+            expect(() => transpiler
+                .setSignature('arrayExport', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content)).to.throw();
+        });
+
+        it('should throw an error if the type of a double array is changed 2', () => {
+            const content = 'function arrayExport(arr) { ' +
+                'arr[0] += 3.14; return true;' +
+                '}';
+
+            expect(() => transpiler
+                .setSignature('arrayExport', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content)).to.throw();
+        });
     });
 });

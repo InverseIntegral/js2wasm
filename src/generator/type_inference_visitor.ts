@@ -8,7 +8,7 @@ import {
     Identifier,
     isIdentifier,
     isMemberExpression,
-    LogicalExpression, LVal,
+    LogicalExpression,
     MemberExpression,
     NumericLiteral,
     UnaryExpression,
@@ -172,6 +172,15 @@ class TypeInferenceVisitor extends Visitor {
             this.assignToIdentifier(node);
         } else if (isMemberExpression(node.left)) {
             super.visit(node.left);
+
+            if (isIdentifier(node.left.object)) {
+                const rightType = this.getTypeOfExpression(node.right);
+                const leftType = this.getTypeOfExpression(node.left);
+
+                if (leftType === WebAssemblyType.INT_32_ARRAY && rightType === WebAssemblyType.FLOAT_64) {
+                    throw new Error('Unable to assign double value to int array element');
+                }
+            }
         }
     }
 
@@ -181,13 +190,13 @@ class TypeInferenceVisitor extends Visitor {
         if (isIdentifier(identifier)) {
             let rightSideType = this.getTypeOfExpression(expression);
 
-            if (operator !== '=') {
-                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
-                this.checkIfTypeIsUnchanged(identifier, rightSideType);
-            } else {
+            if (operator === '=') {
                 this.updateIdentifierType(identifier, rightSideType);
+            } else {
+                rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
             }
 
+            this.checkIfTypeIsUnchanged(identifier, rightSideType);
             this.expressionTypes.set(identifier, rightSideType);
         }
     }
@@ -208,7 +217,10 @@ class TypeInferenceVisitor extends Visitor {
                 throw new Error('Parameter is not of type identifier');
             }
 
-            this.expressionTypes.set(parameter, signature.parameterTypes[index]);
+            const type = signature.parameterTypes[index];
+
+            this.updateIdentifierType(parameter, type);
+            this.expressionTypes.set(parameter, type);
         });
     }
 
@@ -220,11 +232,27 @@ class TypeInferenceVisitor extends Visitor {
 
             if (currentValue !== type) {
                 if (currentValue === undefined) {
-                    throw new Error(`Tried to change the value type of ${name}
-                    from undefined to ${WebAssemblyType[type]}`);
+                    throw new Error(`Tried to change the type of ${name}` +
+                    `from undefined to ${WebAssemblyType[type]}`);
                 } else {
-                    throw new Error(`Tried to change the value type of ${name}
-                    from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
+                    throw new Error(`Tried to change the type of ${name}` +
+                    `from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
+                }
+            }
+        }
+    }
+
+    private checkIfTypeOfExpressionIsUnchanged(expression: Expression, type: WebAssemblyType) {
+        if (this.expressionTypes.has(expression)) {
+            const currentValue = this.expressionTypes.get(expression);
+
+            if (currentValue !== type) {
+                if (currentValue === undefined) {
+                    throw new Error(`Tried to change the type of an expression`
+                    + `from undefined to ${WebAssemblyType[type]}`);
+                } else {
+                    throw new Error(`Tried to change the type of an expression`
+                    + `from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
                 }
             }
         }

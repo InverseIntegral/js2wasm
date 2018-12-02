@@ -37,6 +37,8 @@ wrapper.setFunctionName('add').call(21, 21);
   The WebAssembly int32 type.
 * **FLOAT_64** <br />
   The WebAssembly float64 type.
+* **FLOAT_64_ARRAY** <br />
+  An array of `FLOAT_64` elements.
 * **INT_32_ARRAY** <br />
   An array of `INT_32` elements.
 * **BOOLEAN** <br />

@@ -242,22 +242,6 @@ class TypeInferenceVisitor extends Visitor {
         }
     }
 
-    private checkIfTypeOfExpressionIsUnchanged(expression: Expression, type: WebAssemblyType) {
-        if (this.expressionTypes.has(expression)) {
-            const currentValue = this.expressionTypes.get(expression);
-
-            if (currentValue !== type) {
-                if (currentValue === undefined) {
-                    throw new Error(`Tried to change the type of an expression`
-                    + `from undefined to ${WebAssemblyType[type]}`);
-                } else {
-                    throw new Error(`Tried to change the type of an expression`
-                    + `from ${WebAssemblyType[currentValue]} to ${WebAssemblyType[type]}`);
-                }
-            }
-        }
-    }
-
     private updateIdentifierType(identifier: Identifier, type: WebAssemblyType) {
         this.checkIfTypeIsUnchanged(identifier, type);
 

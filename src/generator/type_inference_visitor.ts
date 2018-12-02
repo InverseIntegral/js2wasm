@@ -194,9 +194,9 @@ class TypeInferenceVisitor extends Visitor {
                 this.updateIdentifierType(identifier, rightSideType);
             } else {
                 rightSideType = getCommonNumberType(this.getTypeOfIdentifier(identifier), rightSideType);
+                this.checkIfTypeIsUnchanged(identifier, rightSideType);
             }
 
-            this.checkIfTypeIsUnchanged(identifier, rightSideType);
             this.expressionTypes.set(identifier, rightSideType);
         }
     }

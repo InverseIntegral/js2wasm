@@ -39,5 +39,23 @@ describe('Transpiler', () => {
                 .transpile('function alwaysFalse() { return false; }');
             expect(wrapper2.setFunctionName('alwaysFalse').call()).to.equal(false);
         });
+
+        it('should handle integer as boolean values', () => {
+            expect(() => transpiler
+                .setSignature('integer', WebAssemblyType.BOOLEAN)
+                .transpile('function integer() { return 0; }')).to.throw();
+
+            expect(() => new Transpiler()
+                .setSignature('integer', WebAssemblyType.BOOLEAN)
+                .transpile('function integer() { return 1; }')).to.throw();
+
+            expect(() => new Transpiler()
+                .setSignature('integer', WebAssemblyType.BOOLEAN)
+                .transpile('function integer() { return 2; }')).to.throw();
+
+            expect(() => new Transpiler()
+                .setSignature('integer', WebAssemblyType.BOOLEAN)
+                .transpile('function integer() { return -2; }')).to.throw();
+        });
     });
 });

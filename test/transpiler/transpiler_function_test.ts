@@ -83,17 +83,9 @@ describe('Transpiler', () => {
         });
 
         it('should handle function call with not matching return type conversion', () => {
-            const content = 'function func(value) { return value; }';
-
-            const wrapper = transpiler
+            expect(() => transpiler
                 .setSignature('func', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
-                .transpile(content);
-            wrapper.setFunctionName('func');
-
-            expect(wrapper.call(1)).to.equal(true);
-            expect(wrapper.call(0)).to.equal(false);
-            expect(() => wrapper.call(2)).to.throw();
-            expect(() => wrapper.call(-1)).to.throw();
+                .transpile('function func(value) { return value; }')).to.throw();
         });
 
         it('should handle different types for one variable', () => {

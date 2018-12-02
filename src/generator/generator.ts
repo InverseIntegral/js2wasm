@@ -68,7 +68,7 @@ class Generator {
 
         const totalMapping = Generator.mergeMappings(parameterMapping, variableMapping);
 
-        const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes, signatures);
+        const generatorVisitor = new GeneratorVisitor(module, totalMapping, expressionTypes, signatures, signature);
         const body = generatorVisitor.run(tree);
 
         const {parameterTypes, returnType} = signature;

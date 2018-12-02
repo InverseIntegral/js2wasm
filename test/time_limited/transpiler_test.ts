@@ -86,7 +86,7 @@ describe('Transpiler', function() {
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .setSignature('quickSortPartition', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('quickSort', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32, WebAssemblyType.INT_32)
                 .setSignature('quickSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .setSignature('quickSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
@@ -101,11 +101,11 @@ describe('Transpiler', function() {
             const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
                 mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
             const wrapper = transpiler
-                .setSignature('mergeSortCopyArray', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortCopyArray', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSort', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSortMerge', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortMerge', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32,
                     WebAssemblyType.INT_32)
                 .setSignature('mergeSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)

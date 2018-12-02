@@ -21,6 +21,14 @@ import {
 } from './cases/mergesort_integer';
 import {newtonsMethod, newtonsMethodWhile} from './cases/newtons_method';
 import {
+    quickSortDouble,
+    quickSortFillDouble,
+    quickSortIsSortedDouble,
+    quickSortPartitionDouble,
+    quickSortSwapDouble,
+    quickSortWhileDouble,
+} from './cases/quicksort_double';
+import {
     quickSortFillInteger,
     quickSortInteger,
     quickSortIsSortedInteger,
@@ -187,6 +195,29 @@ const quicksortIntegerFunc = {
     ]),
 };
 
+const quicksortDoubleFunc = {
+    arguments: [new Array(1000000)],
+    expectedResult: true,
+    func: [quickSortWhileDouble, quickSortIsSortedDouble, quickSortFillDouble,
+        quickSortDouble, quickSortPartitionDouble, quickSortSwapDouble],
+    signatures: new Map([
+        ['quickSortSwapDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortPartitionDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY,
+            WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.INT_32 }],
+        ['quickSortDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32,
+            WebAssemblyType.INT_32], returnType: WebAssemblyType.FLOAT_64_ARRAY }],
+        ['quickSortFillDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.INT_32 }],
+        ['quickSortIsSortedDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
+        ['quickSortWhileDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
+            returnType: WebAssemblyType.BOOLEAN }],
+    ]),
+};
+
 const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
     ['Sum Array', sumArrayFunc],
@@ -196,6 +227,7 @@ const algorithms = new Map<string, Algorithm>([
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],
     ['Quicksort Integer', quicksortIntegerFunc],
+    ['Quicksort Double', quicksortDoubleFunc],
     ['Mergesort Integer', mergeSortIntegerFunc],
     ['Mergesort Double', mergeSortDoubleFunc],
 ]);

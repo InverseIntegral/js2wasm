@@ -19,6 +19,14 @@ import {
     mergeSortWhileInteger,
 } from '../../src/benchmark/cases/mergesort_integer';
 import {
+    quickSortDouble,
+    quickSortFillDouble,
+    quickSortIsSortedDouble,
+    quickSortPartitionDouble,
+    quickSortSwapDouble,
+    quickSortWhileDouble,
+} from '../../src/benchmark/cases/quicksort_double';
+import {
     quickSortFillInteger,
     quickSortInteger,
     quickSortIsSortedInteger,
@@ -86,7 +94,7 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(6250);
         });
 
-        it('should run quicksort faster than 6 seconds', () => {
+        it('should run integer quicksort faster than 6 seconds', () => {
             const content = quickSortSwapInteger.toString() + quickSortPartitionInteger.toString() +
                 quickSortInteger.toString() + quickSortFillInteger.toString() +
                 quickSortIsSortedInteger.toString() + quickSortWhileInteger.toString();
@@ -104,6 +112,26 @@ describe('Transpiler', function() {
 
             expect(wrapper.setFunctionName('quickSortWhileInteger').call(new Array(1000000))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(6000);
+        });
+
+        it('should run double quicksort faster than 6.5 seconds', () => {
+            const content = quickSortSwapDouble.toString() + quickSortPartitionDouble.toString() +
+                quickSortDouble.toString() + quickSortFillDouble.toString() +
+                quickSortIsSortedDouble.toString() + quickSortWhileDouble.toString();
+            const wrapper = transpiler
+                .setSignature('quickSortSwapDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortPartitionDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortDouble', WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortFillDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('quickSortIsSortedDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('quickSortWhileDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('quickSortWhileDouble').call(new Array(1000000))).to.equal(true);
+            expect(hooks.getCompleteTime()).to.be.lessThan(6500);
         });
 
         it('should run integer mergesort faster than 8.75 seconds', () => {

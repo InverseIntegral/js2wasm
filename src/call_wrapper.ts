@@ -5,8 +5,8 @@ import Module = WebAssembly.Module;
 
 class CallWrapper {
 
-    private static INT_32_OFFSET = 4;
-    private static FLOAT_64_OFFSET = 8;
+    public static readonly INT_32_OFFSET = 4;
+    public static readonly FLOAT_64_OFFSET = 8;
 
     private static fillMemory(memoryLayout: Map<number, number>, memory: WebAssembly.Memory) {
         const i32Memory = new Uint32Array(memory.buffer);

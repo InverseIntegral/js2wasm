@@ -3,30 +3,34 @@ import {isOfType, WebAssemblyType} from './generator/wasm_type';
 import TranspilerHooks from './transpiler_hooks';
 import Module = WebAssembly.Module;
 
+type MemoryLayoutValue = [number, WebAssemblyType];
+
 class CallWrapper {
 
     public static readonly INT_32_OFFSET = 4;
     public static readonly FLOAT_64_OFFSET = 8;
 
-    private static fillMemory(memoryLayout: Map<number, number>, memory: WebAssembly.Memory) {
+    private static fillMemory(memoryLayout: Map<number, MemoryLayoutValue>, memory: WebAssembly.Memory) {
         const i32Memory = new Uint32Array(memory.buffer);
         const f64Memory = new Float64Array(memory.buffer);
 
         for (const entry of memoryLayout.entries()) {
             const key = entry[0];
-            const value = entry[1];
+            const [value, type] = entry[1];
 
-            if (isOfType(value, WebAssemblyType.INT_32)) {
+            if (type === WebAssemblyType.INT_32) {
                 i32Memory[key  / CallWrapper.INT_32_OFFSET] = value;
-            } else if (isOfType(value, WebAssemblyType.FLOAT_64)) {
+            } else if (type === WebAssemblyType.FLOAT_64) {
                 f64Memory[key / CallWrapper.FLOAT_64_OFFSET] = value;
             }
         }
     }
 
-    private static getMemoryLayout(parameters: any[], signature: FunctionSignature): [Map<number, number>, any[]] {
+    private static getMemoryLayout(parameters: any[], signature: FunctionSignature):
+        [Map<number, MemoryLayoutValue>, any[]] {
+
         const fixedParameters = parameters.concat();
-        const memory = new Map<number, number>();
+        const memory = new Map<number, MemoryLayoutValue>();
 
         let wasmMemoryIndex = 0;
 
@@ -35,9 +39,11 @@ class CallWrapper {
             const type = signature.parameterTypes[i];
 
             let offset;
+            let elementType;
 
             if (type === WebAssemblyType.INT_32_ARRAY) {
                 offset = CallWrapper.INT_32_OFFSET;
+                elementType = WebAssemblyType.INT_32;
             } else if (type === WebAssemblyType.FLOAT_64_ARRAY) {
 
                 if (wasmMemoryIndex % CallWrapper.FLOAT_64_OFFSET !== 0) {
@@ -45,17 +51,18 @@ class CallWrapper {
                 }
 
                 offset = CallWrapper.FLOAT_64_OFFSET;
+                elementType = WebAssemblyType.FLOAT_64;
             } else {
                 continue;
             }
 
-            memory.set(wasmMemoryIndex, current.length);
+            memory.set(wasmMemoryIndex, [current.length, WebAssemblyType.INT_32]);
             wasmMemoryIndex += offset;
 
             fixedParameters[i] = wasmMemoryIndex;
 
             for (const element of current) {
-                memory.set(wasmMemoryIndex, element);
+                memory.set(wasmMemoryIndex, [element, elementType]);
                 wasmMemoryIndex += offset;
             }
         }

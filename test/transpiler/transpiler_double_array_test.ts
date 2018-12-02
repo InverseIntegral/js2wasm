@@ -388,5 +388,18 @@ describe('Transpiler', () => {
                 .setSignature('arrayExport', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content)).to.throw();
         });
+
+        it('should handle integers in double array', () => {
+            const content = 'function getSecond(arr) { return arr[1]; }';
+
+            const wrapper = transpiler
+                .setSignature('getSecond', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            wrapper.setFunctionName('getSecond');
+
+            expect(wrapper.call([1.5, 2.5])).to.eq(2.5);
+            expect(wrapper.call([1.5, 2])).to.eq(2);
+        });
     });
 });

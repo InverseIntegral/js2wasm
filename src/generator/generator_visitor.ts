@@ -432,11 +432,11 @@ class GeneratorVisitor extends Visitor {
 
         switch (type) {
             case WebAssemblyType.INT_32:
-                const pointer = this.getPointer(CallWrapper.INT_32_OFFSET);
-                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, pointer);
+                const intArrayPointer = this.getPointer(CallWrapper.INT_32_OFFSET);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, intArrayPointer);
             case WebAssemblyType.FLOAT_64:
-                const pointer2 = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
-                return this.module.f64.load(0, CallWrapper.FLOAT_64_OFFSET, pointer2);
+                const doubleArrayPointer = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
+                return this.module.f64.load(0, CallWrapper.FLOAT_64_OFFSET, doubleArrayPointer);
             default:
                 throw new Error(`Unknown type of member expression: ${WebAssemblyType[type]}`);
         }
@@ -449,13 +449,13 @@ class GeneratorVisitor extends Visitor {
 
         switch (type) {
             case WebAssemblyType.INT_32_ARRAY:
-                const offset = this.module.i32.const(CallWrapper.INT_32_OFFSET);
-                const address = this.module.i32.sub(this.popExpression(), offset);
-                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, address);
+                const intOffset = this.module.i32.const(CallWrapper.INT_32_OFFSET);
+                const intAddressPointer = this.module.i32.sub(this.popExpression(), intOffset);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, intAddressPointer);
             case WebAssemblyType.FLOAT_64_ARRAY:
-                const offset2 = this.module.i32.const(CallWrapper.FLOAT_64_OFFSET);
-                const address2 = this.module.i32.sub(this.popExpression(), offset2);
-                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, address2);
+                const doubleOffset = this.module.i32.const(CallWrapper.FLOAT_64_OFFSET);
+                const doubleAddressPointer = this.module.i32.sub(this.popExpression(), doubleOffset);
+                return this.module.i32.load(0, CallWrapper.INT_32_OFFSET, doubleAddressPointer);
             default:
                 throw new Error(`Can\'t access length property of unknown type: ${WebAssemblyType[type]}`);
         }
@@ -469,13 +469,13 @@ class GeneratorVisitor extends Visitor {
 
         switch (type) {
             case WebAssemblyType.INT_32_ARRAY:
-                const pointer = this.getPointer(CallWrapper.INT_32_OFFSET);
+                const intArrayPointer = this.getPointer(CallWrapper.INT_32_OFFSET);
                 // @ts-ignore
-                return this.module.i32.store(0, CallWrapper.INT_32_OFFSET, pointer, value);
+                return this.module.i32.store(0, CallWrapper.INT_32_OFFSET, intArrayPointer, value);
             case WebAssemblyType.FLOAT_64_ARRAY:
-                const pointer2 = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
+                const doubleArrayPointer = this.getPointer(CallWrapper.FLOAT_64_OFFSET);
                 // @ts-ignore
-                return this.module.f64.store(0, CallWrapper.FLOAT_64_OFFSET, pointer2, value);
+                return this.module.f64.store(0, CallWrapper.FLOAT_64_OFFSET, doubleArrayPointer, value);
             default:
                 throw new Error(`Can\'t write to array with type: ${WebAssemblyType[type]}`);
         }

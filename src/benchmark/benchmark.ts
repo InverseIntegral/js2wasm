@@ -27,7 +27,16 @@ class Benchmark {
         const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
-            const argsDeepCopy = JSON.parse(JSON.stringify(args));
+            const argsDeepCopy = [];
+
+            for (const element of args) {
+                if (element instanceof Array) {
+                    argsDeepCopy.push(element.slice());
+                } else {
+                    argsDeepCopy.push(element);
+                }
+            }
+
             const start = performance.now();
             const result = algorithm(...argsDeepCopy);
             const executionTime = performance.now() - start;

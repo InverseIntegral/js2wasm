@@ -159,7 +159,7 @@ const mergeSortIntegerFunc = {
 };
 
 const mergeSortDoubleFunc = {
-    arguments: [new Array(Math.pow(2, 20)).fill(0), new Array(Math.pow(2, 20)).fill(0)],
+    arguments: [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))],
     expectedResult: true,
     func: [mergeSortWhileDouble, mergeSortCopyArrayDouble, mergeSortFillDouble,
         mergeSortIsSortedDouble, mergeSortMergeDouble, mergeSortDouble],

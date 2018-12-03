@@ -60,7 +60,7 @@ function quickSortFillDouble(array) {
         current *= -1;
 
         if (state) {
-            current++;
+            current += 0.5;
         }
 
         state = !state;

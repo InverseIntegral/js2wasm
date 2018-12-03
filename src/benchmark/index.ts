@@ -187,7 +187,7 @@ const mergeSortDoubleFunc = {
 };
 
 const quicksortIntegerFunc = {
-    arguments: [new Array(1000000)],
+    arguments: [new Array(Math.pow(2, 20))],
     expectedResult: true,
     func: [quickSortWhileInteger, quickSortIsSortedInteger, quickSortFillInteger,
         quickSortInteger, quickSortPartitionInteger, quickSortSwapInteger],
@@ -210,7 +210,7 @@ const quicksortIntegerFunc = {
 };
 
 const quicksortDoubleFunc = {
-    arguments: [new Array(1000000)],
+    arguments: [new Array(Math.pow(2, 20))],
     expectedResult: true,
     func: [quickSortWhileDouble, quickSortIsSortedDouble, quickSortFillDouble,
         quickSortDouble, quickSortPartitionDouble, quickSortSwapDouble],

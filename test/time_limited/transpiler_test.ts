@@ -83,7 +83,7 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should run integer sum array faster than X seconds', () => {
+        it('should run integer sum array faster than 6.25 seconds', () => {
             const content = sumArrayInteger.toString() + sumArrayFillInteger.toString() + sumArrayForInteger.toString();
             const wrapper = transpiler
                 .setSignature('sumArrayInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
@@ -123,7 +123,7 @@ describe('Transpiler', function() {
                 .setSignature('quickSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('quickSortWhileInteger').call(new Array(1000000))).to.equal(true);
+            expect(wrapper.setFunctionName('quickSortWhileInteger').call(new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(6000);
         });
 
@@ -143,7 +143,7 @@ describe('Transpiler', function() {
                 .setSignature('quickSortWhileDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('quickSortWhileDouble').call(new Array(1000000))).to.equal(true);
+            expect(wrapper.setFunctionName('quickSortWhileDouble').call(new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(6500);
         });
 

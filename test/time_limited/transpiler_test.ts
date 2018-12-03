@@ -34,7 +34,7 @@ import {
     quickSortSwapInteger,
     quickSortWhileInteger,
 } from '../../src/benchmark/cases/quicksort_integer';
-import {sumArrayFillDouble, sumArrayForDouble, sumArrayDouble} from '../../src/benchmark/cases/sum_array_double';
+import {sumArrayDouble, sumArrayFillDouble, sumArrayForDouble} from '../../src/benchmark/cases/sum_array_double';
 import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from '../../src/benchmark/cases/sum_array_integer';
 import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
@@ -164,9 +164,9 @@ describe('Transpiler', function() {
                 .setSignature('mergeSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
-            const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhileInteger').call(...parameters)).to.equal(true);
+            expect(wrapper.setFunctionName('mergeSortWhileInteger')
+                .call(new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(8750);
         });
 
@@ -188,9 +188,9 @@ describe('Transpiler', function() {
                 .setSignature('mergeSortWhileDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY,
                     WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile(content);
-            const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhileDouble').call(...parameters)).to.equal(true);
+            expect(wrapper.setFunctionName('mergeSortWhileDouble')
+                .call(new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(9000);
         });
     });

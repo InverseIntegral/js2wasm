@@ -3,22 +3,39 @@ import {fibonacci, fibonacciWhile} from '../../src/benchmark/cases/fibonacci';
 import {gcd, gcdWhile} from '../../src/benchmark/cases/gcd';
 import {isPrime, isPrimeWhile} from '../../src/benchmark/cases/is_prime';
 import {
-    mergeSort,
-    mergeSortCopyArray,
-    mergeSortFill,
-    mergeSortIsSorted,
-    mergeSortMerge,
-    mergeSortWhile,
-} from '../../src/benchmark/cases/mergesort';
+    mergeSortCopyArrayDouble,
+    mergeSortDouble,
+    mergeSortFillDouble,
+    mergeSortIsSortedDouble,
+    mergeSortMergeDouble,
+    mergeSortWhileDouble,
+} from '../../src/benchmark/cases/mergesort_double';
 import {
-    quickSort,
-    quickSortFill,
-    quickSortIsSorted,
-    quickSortPartition,
-    quickSortSwap,
-    quickSortWhile,
-} from '../../src/benchmark/cases/quicksort';
-import {sumArray, sumArrayFill, sumArrayFor} from '../../src/benchmark/cases/sum_array';
+    mergeSortCopyArrayInteger,
+    mergeSortFillInteger,
+    mergeSortInteger,
+    mergeSortIsSortedInteger,
+    mergeSortMergeInteger,
+    mergeSortWhileInteger,
+} from '../../src/benchmark/cases/mergesort_integer';
+import {
+    quickSortDouble,
+    quickSortFillDouble,
+    quickSortIsSortedDouble,
+    quickSortPartitionDouble,
+    quickSortSwapDouble,
+    quickSortWhileDouble,
+} from '../../src/benchmark/cases/quicksort_double';
+import {
+    quickSortFillInteger,
+    quickSortInteger,
+    quickSortIsSortedInteger,
+    quickSortPartitionInteger,
+    quickSortSwapInteger,
+    quickSortWhileInteger,
+} from '../../src/benchmark/cases/quicksort_integer';
+import {sumArrayDouble, sumArrayFillDouble, sumArrayForDouble} from '../../src/benchmark/cases/sum_array_double';
+import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from '../../src/benchmark/cases/sum_array_integer';
 import {WebAssemblyType} from '../../src/generator/wasm_type';
 import Transpiler from '../../src/transpiler';
 import NodeBenchmarkHooks from './node_benchmark_hooks';
@@ -66,57 +83,115 @@ describe('Transpiler', function() {
             expect(hooks.getCompleteTime()).to.be.lessThan(11000);
         });
 
-        it('should run sum array faster than 6.25 seconds', () => {
-            const content = sumArray.toString() + sumArrayFill.toString() + sumArrayFor.toString();
+        it('should run integer sum array faster than 6.25 seconds', () => {
+            const content = sumArrayInteger.toString() + sumArrayFillInteger.toString() + sumArrayForInteger.toString();
             const wrapper = transpiler
-                .setSignature('sumArray', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('sumArrayFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('sumArrayFor', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('sumArrayInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('sumArrayFillInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('sumArrayForInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('sumArrayFor').call(new Array(65535))).to.equal(2147385345);
+            expect(wrapper.setFunctionName('sumArrayForInteger').call(new Array(65535))).to.equal(2147385345);
             expect(hooks.getCompleteTime()).to.be.lessThan(6250);
         });
 
-        it('should run quicksort faster than 6 seconds', () => {
-            const content = quickSortSwap.toString() + quickSortPartition.toString() + quickSort.toString() +
-                quickSortFill.toString() + quickSortIsSorted.toString() + quickSortWhile.toString();
+        it('should run double sum array faster than 6.5 seconds', () => {
+            const content = sumArrayDouble.toString() + sumArrayFillDouble.toString() + sumArrayForDouble.toString();
             const wrapper = transpiler
-                .setSignature('quickSortSwap', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
-                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSortPartition', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
-                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
-                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('quickSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('quickSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('sumArrayDouble', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('sumArrayFillDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('sumArrayForDouble', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64_ARRAY)
                 .transpile(content);
 
-            expect(wrapper.setFunctionName('quickSortWhile').call(new Array(1000000))).to.equal(true);
+            expect(wrapper.setFunctionName('sumArrayForDouble').call(new Array(65535))).to.equal(1073692672.5);
+            expect(hooks.getCompleteTime()).to.be.lessThan(6500);
+        });
+
+        it('should run integer quicksort faster than 6 seconds', () => {
+            const content = quickSortSwapInteger.toString() + quickSortPartitionInteger.toString() +
+                quickSortInteger.toString() + quickSortFillInteger.toString() +
+                quickSortIsSortedInteger.toString() + quickSortWhileInteger.toString();
+            const wrapper = transpiler
+                .setSignature('quickSortSwapInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortPartitionInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortInteger', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortFillInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortIsSortedInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('quickSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('quickSortWhileInteger').call(new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(6000);
         });
 
-        it('should run mergesort faster than 8.75 seconds', () => {
-            const content = mergeSortCopyArray.toString() + mergeSort.toString() + mergeSortMerge.toString() +
-                mergeSortIsSorted.toString() + mergeSortFill.toString() + mergeSortWhile.toString();
+        it('should run double quicksort faster than 6.5 seconds', () => {
+            const content = quickSortSwapDouble.toString() + quickSortPartitionDouble.toString() +
+                quickSortDouble.toString() + quickSortFillDouble.toString() +
+                quickSortIsSortedDouble.toString() + quickSortWhileDouble.toString();
             const wrapper = transpiler
-                .setSignature('mergeSortCopyArray', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('quickSortSwapDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortPartitionDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortDouble', WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('quickSortFillDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('quickSortIsSortedDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('quickSortWhileDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('quickSortWhileDouble').call(new Array(Math.pow(2, 20)))).to.equal(true);
+            expect(hooks.getCompleteTime()).to.be.lessThan(6500);
+        });
+
+        it('should run integer mergesort faster than 8.75 seconds', () => {
+            const content = mergeSortCopyArrayInteger.toString() + mergeSortInteger.toString() +
+                mergeSortMergeInteger.toString() + mergeSortIsSortedInteger.toString() +
+                mergeSortFillInteger.toString() + mergeSortWhileInteger.toString();
+            const wrapper = transpiler
+                .setSignature('mergeSortCopyArrayInteger', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSort', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortInteger', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
-                .setSignature('mergeSortMerge', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortMergeInteger', WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32,
                     WebAssemblyType.INT_32)
-                .setSignature('mergeSortIsSorted', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('mergeSortFill', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
-                .setSignature('mergeSortWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
+                .setSignature('mergeSortIsSortedInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('mergeSortFillInteger', WebAssemblyType.INT_32, WebAssemblyType.INT_32_ARRAY)
+                .setSignature('mergeSortWhileInteger', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32_ARRAY,
                     WebAssemblyType.INT_32_ARRAY)
                 .transpile(content);
-            const parameters = [new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20))];
 
-            expect(wrapper.setFunctionName('mergeSortWhile').call(...parameters)).to.equal(true);
+            expect(wrapper.setFunctionName('mergeSortWhileInteger')
+                .call(new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(true);
             expect(hooks.getCompleteTime()).to.be.lessThan(8750);
+        });
+
+        it('should run double mergesort faster than 9 seconds', () => {
+            const content = mergeSortCopyArrayDouble.toString() + mergeSortDouble.toString() +
+                mergeSortMergeDouble.toString() + mergeSortIsSortedDouble.toString() +
+                mergeSortFillDouble.toString() + mergeSortWhileDouble.toString();
+            const wrapper = transpiler
+                .setSignature('mergeSortCopyArrayDouble', WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('mergeSortDouble', WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .setSignature('mergeSortMergeDouble', WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.FLOAT_64_ARRAY, WebAssemblyType.INT_32, WebAssemblyType.INT_32,
+                    WebAssemblyType.INT_32)
+                .setSignature('mergeSortIsSortedDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('mergeSortFillDouble', WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64_ARRAY)
+                .setSignature('mergeSortWhileDouble', WebAssemblyType.BOOLEAN, WebAssemblyType.FLOAT_64_ARRAY,
+                    WebAssemblyType.FLOAT_64_ARRAY)
+                .transpile(content);
+
+            expect(wrapper.setFunctionName('mergeSortWhileDouble')
+                .call(new Array(Math.pow(2, 20)), new Array(Math.pow(2, 20)))).to.equal(true);
+            expect(hooks.getCompleteTime()).to.be.lessThan(9000);
         });
     });
 });

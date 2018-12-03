@@ -27,8 +27,18 @@ class Benchmark {
         const times: Measurement[] = [];
 
         for (let i = 0; i < rounds; i++) {
+            const argsDeepCopy = [];
+
+            for (const element of args) {
+                if (element instanceof Array) {
+                    argsDeepCopy.push(element.slice());
+                } else {
+                    argsDeepCopy.push(element);
+                }
+            }
+
             const start = performance.now();
-            const result = algorithm(...args);
+            const result = algorithm(...argsDeepCopy);
             const executionTime = performance.now() - start;
 
             Benchmark.assert(result, expectedResult);

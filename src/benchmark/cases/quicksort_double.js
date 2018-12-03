@@ -1,4 +1,4 @@
-function quickSortSwap(items, first, second) {
+function quickSortSwapDouble(items, first, second) {
     var temp = items[first];
     items[first] = items[second];
     items[second] = temp;
@@ -6,7 +6,7 @@ function quickSortSwap(items, first, second) {
     return 0;
 }
 
-function quickSortPartition(items, left, right) {
+function quickSortPartitionDouble(items, left, right) {
     var pivot = items[left];
     var i = left;
     var j = right;
@@ -21,7 +21,7 @@ function quickSortPartition(items, left, right) {
         }
 
         if (i <= j) {
-            quickSortSwap(items, i, j);
+            quickSortSwapDouble(items, i, j);
             i++;
             j--;
         }
@@ -30,28 +30,28 @@ function quickSortPartition(items, left, right) {
     return i;
 }
 
-function quickSort(items, left, right) {
+function quickSortDouble(items, left, right) {
     if (items.length <= 1) {
         return items;
     }
 
-    var index = quickSortPartition(items, left, right);
+    var index = quickSortPartitionDouble(items, left, right);
 
     if (left < index - 1) {
-        quickSort(items, left, index - 1);
+        quickSortDouble(items, left, index - 1);
     }
 
     if (index < right) {
-        quickSort(items, index, right);
+        quickSortDouble(items, index, right);
     }
 
     return items;
 }
 
-function quickSortFill(array) {
+function quickSortFillDouble(array) {
     var i = 0;
 
-    var current = 1;
+    var current = 0.5;
     var state = false;
 
     while (i < array.length) {
@@ -60,7 +60,7 @@ function quickSortFill(array) {
         current *= -1;
 
         if (state) {
-            current++;
+            current += 0.5;
         }
 
         state = !state;
@@ -70,7 +70,7 @@ function quickSortFill(array) {
     return 0;
 }
 
-function quickSortIsSorted(array) {
+function quickSortIsSortedDouble(array) {
     var i = 0;
 
     while (i < array.length - 1) {
@@ -84,14 +84,14 @@ function quickSortIsSorted(array) {
     return true;
 }
 
-function quickSortWhile(items) {
+function quickSortWhileDouble(items) {
     var i = 0;
 
     while (i < 100) {
-        quickSortFill(items);
-        quickSort(items, 0, items.length - 1);
+        quickSortFillDouble(items);
+        quickSortDouble(items, 0, items.length - 1);
 
-        if (!quickSortIsSorted(items)) {
+        if (!quickSortIsSortedDouble(items)) {
             return false;
         }
 
@@ -101,4 +101,4 @@ function quickSortWhile(items) {
     return true;
 }
 
-module.exports = {quickSortIsSorted, quickSortFill, quickSort, quickSortPartition, quickSortWhile, quickSortSwap};
+module.exports = {quickSortIsSortedDouble, quickSortFillDouble, quickSortDouble, quickSortPartitionDouble, quickSortWhileDouble, quickSortSwapDouble};

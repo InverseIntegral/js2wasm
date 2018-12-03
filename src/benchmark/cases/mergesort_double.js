@@ -1,4 +1,4 @@
-function mergeSortCopyArray(destination, source, fromIndex, toIndex) {
+function mergeSortCopyArrayDouble(destination, source, fromIndex, toIndex) {
     var i = fromIndex;
 
     while (i < toIndex) {
@@ -9,21 +9,21 @@ function mergeSortCopyArray(destination, source, fromIndex, toIndex) {
     return destination;
 }
 
-function mergeSort(array, workspaceArray, left, right) {
+function mergeSortDouble(array, workspaceArray, left, right) {
     if (right - left == 1) {
         return workspaceArray;
     }
 
     var middle = (left + right) / 2;
-    mergeSort(array, workspaceArray, left, middle);
-    mergeSort(array, workspaceArray, middle, right);
+    mergeSortDouble(array, workspaceArray, left, middle);
+    mergeSortDouble(array, workspaceArray, middle, right);
 
-    mergeSortMerge(array, workspaceArray, left, middle, right);
+    mergeSortMergeDouble(array, workspaceArray, left, middle, right);
 
     return workspaceArray;
 }
 
-function mergeSortMerge(array, workspaceArray, left, middle, right) {
+function mergeSortMergeDouble(array, workspaceArray, left, middle, right) {
     var leftIndex = left;
     var rightIndex = middle;
     var index = left;
@@ -52,11 +52,11 @@ function mergeSortMerge(array, workspaceArray, left, middle, right) {
         index++;
     }
 
-    mergeSortCopyArray(array, workspaceArray, left, right);
+    mergeSortCopyArrayDouble(array, workspaceArray, left, right);
     return workspaceArray;
 }
 
-function mergeSortIsSorted(array) {
+function mergeSortIsSortedDouble(array) {
     var i = 0;
 
     while (i < array.length - 1) {
@@ -70,10 +70,10 @@ function mergeSortIsSorted(array) {
     return true;
 }
 
-function mergeSortFill(array) {
+function mergeSortFillDouble(array) {
     var i = 0;
 
-    var current = 1;
+    var current = 0.5;
     var state = false;
 
     while (i < array.length) {
@@ -82,7 +82,7 @@ function mergeSortFill(array) {
         current *= -1;
 
         if (state) {
-            current++;
+            current += 0.5;
         }
 
         state = !state;
@@ -92,14 +92,14 @@ function mergeSortFill(array) {
     return 0;
 }
 
-function mergeSortWhile(array, workspaceArray) {
+function mergeSortWhileDouble(array, workspaceArray) {
     var i = 0;
 
     while (i < 100) {
-        mergeSortFill(array);
-        mergeSort(array, workspaceArray, 0, array.length);
+        mergeSortFillDouble(array);
+        mergeSortDouble(array, workspaceArray, 0, array.length);
 
-        if (!mergeSortIsSorted(array)) {
+        if (!mergeSortIsSortedDouble(array)) {
             return false;
         }
 
@@ -109,4 +109,4 @@ function mergeSortWhile(array, workspaceArray) {
     return true;
 }
 
-module.exports = {mergeSortWhile, mergeSortFill, mergeSortIsSorted, mergeSortMerge, mergeSort, mergeSortCopyArray};
+module.exports = {mergeSortWhileDouble, mergeSortFillDouble, mergeSortIsSortedDouble, mergeSortMergeDouble, mergeSortDouble, mergeSortCopyArrayDouble};

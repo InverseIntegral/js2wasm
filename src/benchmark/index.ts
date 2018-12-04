@@ -119,14 +119,14 @@ const isPrimeFunc = {
 };
 
 const newtonsMethodFunc = {
-    arguments: [200, 32],
-    expectedResult: 24,
+    arguments: [200, 32.1],
+    expectedResult: 24.73863375370596,
     func: [newtonsMethodWhile, newtonsMethod],
     signatures: new Map([
-        ['newtonsMethod', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
-            returnType: WebAssemblyType.INT_32 }],
-        ['newtonsMethodWhile', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.INT_32],
-            returnType: WebAssemblyType.INT_32 }],
+        ['newtonsMethod', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64],
+            returnType: WebAssemblyType.FLOAT_64 }],
+        ['newtonsMethodWhile', { parameterTypes: [WebAssemblyType.INT_32, WebAssemblyType.FLOAT_64],
+            returnType: WebAssemblyType.FLOAT_64 }],
     ]),
 };
 

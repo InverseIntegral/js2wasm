@@ -125,18 +125,7 @@ class GeneratorVisitor extends Visitor {
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.div_s, this.module.f64.div));
                 break;
             case '%':
-                const right = this.popExpression();
-                const left = this.popExpression();
-
-                const rightType = this.getExpressionType(node.right);
-                const leftType = this.getExpressionType(node.left);
-
-                if (getCommonType(leftType, rightType) === WebAssemblyType.INT_32) {
-                    this.expressions.push(this.module.i32.rem_s(left, right));
-                } else {
-                    throw new Error('Modulo is not allowed with float values');
-                }
-
+                this.expressions.push(this.getModuloBinaryOperation(node));
                 break;
             case '==':
                 this.expressions.push(this.getBinaryOperation(node, this.module.i32.eq, this.module.f64.eq));
@@ -384,6 +373,9 @@ class GeneratorVisitor extends Visitor {
             case '/=':
                 this.expressions.push(this.getBinaryOperation(commonNode, this.module.i32.div_s, this.module.f64.div));
                 break;
+            case '%=':
+                this.expressions.push(this.getModuloBinaryOperation(commonNode));
+                break;
             default:
                 throw new Error(`Unhandled operator ${node.operator}`);
         }
@@ -409,6 +401,20 @@ class GeneratorVisitor extends Visitor {
             return f64operation(left, right);
         } else {
             throw new Error(`Operation ${node.operator} not supported on type ${WebAssemblyType[commonNumberType]}`);
+        }
+    }
+
+    private getModuloBinaryOperation(node: { left: BabelExpression; right: BabelExpression; }) {
+        const right = this.popExpression();
+        const left = this.popExpression();
+
+        const rightType = this.getExpressionType(node.right);
+        const leftType = this.getExpressionType(node.left);
+
+        if (getCommonType(leftType, rightType) === WebAssemblyType.INT_32) {
+            return this.module.i32.rem_s(left, right);
+        } else {
+            throw new Error('Modulo is not allowed with float values');
         }
     }
 

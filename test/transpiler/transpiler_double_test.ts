@@ -932,6 +932,15 @@ describe('Transpiler', () => {
             expect(wrapper.call(-5.15)).to.closeTo(-0.2194174757281553, 0.000000000000001);
         });
 
+        it('should handle double shorthand with zero', () => {
+            const wrapper = transpiler
+                .setSignature('div', WebAssemblyType.FLOAT_64)
+                .transpile('function div() { var x = 1.13; x /= 0; return x; }');
+            wrapper.setFunctionName('div');
+
+            expect(wrapper.call()).to.equal(Infinity);
+        });
+
         it('should handle double-int combination shorthand division', () => {
             const wrapper = transpiler
                 .setSignature('div', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
@@ -957,6 +966,28 @@ describe('Transpiler', () => {
             wrapper.setFunctionName('div');
 
             expect(wrapper.call([2, 3])).to.equal(0.565);
+        });
+
+        it('should handle double shorthand modulo', () => {
+            expect(() => transpiler
+                .setSignature('mod', WebAssemblyType.FLOAT_64)
+                .transpile('function mod() { var x = 1.13; x %= 2.24; return x; }')).to.throw();
+        });
+
+        it('should handle double-int combination shorthand modulo', () => {
+            expect(() => transpiler
+                .setSignature('mod', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32)
+                .transpile('function mod(a) { var x = 1.13; x %= a; return x; }')).to.throw();
+
+            expect(() => new Transpiler()
+                .setSignature('mod', WebAssemblyType.FLOAT_64, WebAssemblyType.FLOAT_64)
+                .transpile('function mod(a) { var x = 3; a %= x; return a; }')).to.throw();
+        });
+
+        it('should handle double shorthand division with array', () => {
+            expect(() => transpiler
+                .setSignature('mod', WebAssemblyType.FLOAT_64, WebAssemblyType.INT_32_ARRAY)
+                .transpile('function mod(a) { var x = 1.13; x %= a[0]; return x; }')).to.throw();
         });
 
         it('should handle double in if', () => {

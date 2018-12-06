@@ -56,6 +56,37 @@ describe('Transpiler', () => {
             expect(wrapper.call(-5)).to.equal(-2);
         });
 
+        it('should handle division shorthand assignment with zero', () => {
+            const content = 'function divAssign() { var b = 10; b /= 0; return b; }';
+            const wrapper = transpiler
+                .setSignature('divAssign', WebAssemblyType.INT_32)
+                .transpile(content);
+            wrapper.setFunctionName('divAssign');
+
+            expect(() => wrapper.call()).to.throw();
+        });
+
+        it('should handle modulo shorthand assignment', () => {
+            const content = 'function modAssign(a) { var b = 10; b %= a; return b; }';
+            const wrapper = transpiler
+                .setSignature('modAssign', WebAssemblyType.INT_32, WebAssemblyType.INT_32)
+                .transpile(content);
+            wrapper.setFunctionName('modAssign');
+
+            expect(wrapper.call(4)).to.equal(2);
+            expect(wrapper.call(-5)).to.equal(0);
+        });
+
+        it('should handle modulo shorthand assignment with zero', () => {
+            const content = 'function modAssign() { var b = 10; b %= 0; return b; }';
+            const wrapper = transpiler
+                .setSignature('modAssign', WebAssemblyType.INT_32)
+                .transpile(content);
+            wrapper.setFunctionName('modAssign');
+
+            expect(() => wrapper.call()).to.throw();
+        });
+
         it('should handle shorthand assignment to not declared variable', () => {
             expect(() => transpiler
                 .setSignature('shorthandAssignment', WebAssemblyType.INT_32)

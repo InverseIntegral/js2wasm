@@ -1,8 +1,8 @@
 import {WebAssemblyType} from '../generator/wasm_type';
 import {Algorithm, Benchmark} from './benchmark';
+import {countPrimes, isPrime} from './cases/count_primes';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
-import {isPrime, isPrimeWhile} from './cases/is_prime';
 import {
     mergeSortCopyArrayDouble,
     mergeSortDouble,
@@ -86,13 +86,13 @@ const sumArrayDoubleFunc = {
     ]),
 };
 
-const isPrimeFunc = {
-    arguments: [46327],
-    expectedResult: true,
-    func: [isPrimeWhile, isPrime],
+const countPrimesFunc = {
+    arguments: [],
+    expectedResult: 1270606,
+    func: [countPrimes, isPrime],
     signatures: new Map([
         ['isPrime', { parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
-        ['isPrimeWhile', { parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
+        ['countPrimes', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -214,7 +214,7 @@ const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
     ['Sum Array Integer', sumArrayIntegerFunc],
     ['Sum Array Double', sumArrayDoubleFunc],
-    ['isPrime', isPrimeFunc],
+    ['Count Primes', countPrimesFunc],
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],
     ['Quicksort Integer', quicksortIntegerFunc],

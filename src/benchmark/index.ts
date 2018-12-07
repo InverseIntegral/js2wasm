@@ -38,8 +38,6 @@ import {
 } from './cases/quicksort_integer';
 import {sumArrayDouble, sumArrayFillDouble, sumArrayForDouble} from './cases/sum_array_double';
 import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from './cases/sum_array_integer';
-import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
-import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
 
 const fibonacciFunc = {
@@ -85,26 +83,6 @@ const sumArrayDoubleFunc = {
             returnType: WebAssemblyType.INT_32 }],
         ['sumArrayForDouble', { parameterTypes: [WebAssemblyType.FLOAT_64_ARRAY],
             returnType: WebAssemblyType.FLOAT_64 }],
-    ]),
-};
-
-const sumIntegersFunc = {
-    arguments: [],
-    expectedResult: 2147385345,
-    func: [sumIntegersWhile, sumIntegers],
-    signatures: new Map([
-        ['sumIntegers', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
-        ['sumIntegersWhile', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
-    ]),
-};
-
-const sumDoublesFunc = {
-    arguments: [],
-    expectedResult: 499999950.0644165,
-    func: [sumDoublesWhile, sumDoubles],
-    signatures: new Map([
-        ['sumDoubles', { parameterTypes: [WebAssemblyType.FLOAT_64], returnType: WebAssemblyType.FLOAT_64 }],
-        ['sumDoublesWhile', { parameterTypes: [], returnType: WebAssemblyType.FLOAT_64 }],
     ]),
 };
 
@@ -236,8 +214,6 @@ const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
     ['Sum Array Integer', sumArrayIntegerFunc],
     ['Sum Array Double', sumArrayDoubleFunc],
-    ['Sum Integers', sumIntegersFunc],
-    ['Sum Doubles', sumDoublesFunc],
     ['isPrime', isPrimeFunc],
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],

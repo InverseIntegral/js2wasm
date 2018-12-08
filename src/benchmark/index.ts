@@ -1,8 +1,8 @@
 import {WebAssemblyType} from '../generator/wasm_type';
 import {Algorithm, Benchmark} from './benchmark';
+import {countPrimes, isPrime} from './cases/count_primes';
 import {fibonacci, fibonacciWhile} from './cases/fibonacci';
 import {gcd, gcdWhile} from './cases/gcd';
-import {isPrime, isPrimeWhile} from './cases/is_prime';
 import {
     mergeSortCopyArrayDouble,
     mergeSortDouble,
@@ -38,8 +38,6 @@ import {
 } from './cases/quicksort_integer';
 import {sumArrayDouble, sumArrayFillDouble, sumArrayForDouble} from './cases/sum_array_double';
 import {sumArrayFillInteger, sumArrayForInteger, sumArrayInteger} from './cases/sum_array_integer';
-import {sumDoubles, sumDoublesWhile} from './cases/sum_doubles';
-import {sumIntegers, sumIntegersWhile} from './cases/sum_integers';
 import {Measurement} from './measurement_hooks';
 
 const fibonacciFunc = {
@@ -88,33 +86,13 @@ const sumArrayDoubleFunc = {
     ]),
 };
 
-const sumIntegersFunc = {
+const countPrimesFunc = {
     arguments: [],
-    expectedResult: 2147385345,
-    func: [sumIntegersWhile, sumIntegers],
-    signatures: new Map([
-        ['sumIntegers', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
-        ['sumIntegersWhile', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
-    ]),
-};
-
-const sumDoublesFunc = {
-    arguments: [],
-    expectedResult: 499999950.0644165,
-    func: [sumDoublesWhile, sumDoubles],
-    signatures: new Map([
-        ['sumDoubles', { parameterTypes: [WebAssemblyType.FLOAT_64], returnType: WebAssemblyType.FLOAT_64 }],
-        ['sumDoublesWhile', { parameterTypes: [], returnType: WebAssemblyType.FLOAT_64 }],
-    ]),
-};
-
-const isPrimeFunc = {
-    arguments: [46327],
-    expectedResult: true,
-    func: [isPrimeWhile, isPrime],
+    expectedResult: 1270606,
+    func: [countPrimes, isPrime],
     signatures: new Map([
         ['isPrime', { parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
-        ['isPrimeWhile', { parameterTypes: [WebAssemblyType.INT_32], returnType: WebAssemblyType.BOOLEAN }],
+        ['countPrimes', { parameterTypes: [], returnType: WebAssemblyType.INT_32 }],
     ]),
 };
 
@@ -236,9 +214,7 @@ const algorithms = new Map<string, Algorithm>([
     ['Fibonacci', fibonacciFunc],
     ['Sum Array Integer', sumArrayIntegerFunc],
     ['Sum Array Double', sumArrayDoubleFunc],
-    ['Sum Integers', sumIntegersFunc],
-    ['Sum Doubles', sumDoublesFunc],
-    ['isPrime', isPrimeFunc],
+    ['Count Primes', countPrimesFunc],
     ['Newtons Method', newtonsMethodFunc],
     ['gcd', gcdFunc],
     ['Quicksort Integer', quicksortIntegerFunc],

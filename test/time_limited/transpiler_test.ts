@@ -1,7 +1,7 @@
 import {expect} from 'chai';
+import {countPrimes, isPrime} from '../../src/benchmark/cases/count_primes';
 import {fibonacci, fibonacciWhile} from '../../src/benchmark/cases/fibonacci';
 import {gcd, gcdWhile} from '../../src/benchmark/cases/gcd';
-import {isPrime, isPrimeWhile} from '../../src/benchmark/cases/is_prime';
 import {
     mergeSortCopyArrayDouble,
     mergeSortDouble,
@@ -53,14 +53,14 @@ describe('Transpiler', function() {
     });
 
     describe('#transpile()', () => {
-        it('should run isPrime faster than 6 seconds', () => {
+        it('should run countPrimes faster than 12 seconds', () => {
             const wrapper = transpiler
                 .setSignature('isPrime', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
-                .setSignature('isPrimeWhile', WebAssemblyType.BOOLEAN, WebAssemblyType.INT_32)
-                .transpile(isPrime.toString() + isPrimeWhile.toString());
+                .setSignature('countPrimes', WebAssemblyType.INT_32)
+                .transpile(isPrime.toString() + countPrimes.toString());
 
-            expect(wrapper.setFunctionName('isPrimeWhile').call(46327)).to.equal(true);
-            expect(hooks.getCompleteTime()).to.be.lessThan(6000);
+            expect(wrapper.setFunctionName('countPrimes').call()).to.equal(1270606);
+            expect(hooks.getCompleteTime()).to.be.lessThan(12000);
         });
 
         it('should run fibonacci faster than 7 seconds', () => {

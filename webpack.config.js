@@ -15,13 +15,11 @@ module.exports = {
     resolve: {
         extensions: [ '.ts', '.js' ]
     },
-    entry: {
-        benchmark: './src/benchmark/index.ts',
-        example: './src/example/index.ts'
-    },
+    entry: './src/js2wasm.ts',
     output: {
-        filename: '[name]/bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+        library: 'js2wasm'
     },
     node: {
         fs: 'empty' // binaryen requires fs

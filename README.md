@@ -8,10 +8,12 @@ Currently a direct installation using npm or yarn is not possible. If you want t
 clone the repository.
 
 # Usage
+Run `webpack build` to compile and bundle the code.
 In order to compile a function you have to supply its code as a string and its function signatures as a map to the `transpile` function.
 The returned value is of the type `CallWrapper`.
 
 ```javascript
+const { Transpiler, WebAssemblyType } = js2wasm;
 const wrapper = new Transpiler()
     .setSignature('add', WebAssemblyType.INT_32, WebAssemblyType.INT_32, WebAssemblyType.INT_32)
     .transpile('function add(a, b) { return a + b; }');

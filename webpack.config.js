@@ -16,8 +16,7 @@ module.exports = {
         extensions: [ '.ts', '.js' ]
     },
     entry: {
-        benchmark: './src/benchmark/index.ts',
-        example: './src/example/index.ts'
+        benchmark: './src/benchmark/index.ts'
     },
     output: {
         filename: '[name]/bundle.js',

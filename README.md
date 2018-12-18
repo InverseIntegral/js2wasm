@@ -8,7 +8,7 @@ Currently a direct installation using npm or yarn is not possible. If you want t
 clone the repository.
 
 # Usage
-Run `webpack build` to compile and bundle the code.
+Run `npm run build` to compile and bundle the code.
 In order to compile a function you have to supply its code as a string and its function signatures as a map to the `transpile` function.
 The returned value is of the type `CallWrapper`.
 
@@ -19,6 +19,14 @@ const wrapper = new Transpiler()
     .transpile('function add(a, b) { return a + b; }');
     
 wrapper.setFunctionName('add').call(21, 21);
+```
+
+# Benchmarks
+To run the benchmarks you have to build them using  `npm run build` then open the `dist/benchmark/index.html` in a browser.
+
+The results are printed to the console in the following format:
+```
+jsMean, wasmMean, jsVariance, wasmVariance wasmCompilationMean, wasmImportMean, wasmExecutionMean, wasmExportMean
 ```
 
 # API

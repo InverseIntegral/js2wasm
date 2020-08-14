@@ -1,5 +1,5 @@
 # JS2Wasm
-[![Build Status](https://travis-ci.org/InverseIntegral/js2wasm.svg?branch=develop)](https://travis-ci.org/InverseIntegral/js2wasm)
+[![Build Status](https://github.com/InverseIntegral/js2wasm/workflows/Continuous%20Integration/badge.svg?branch=develop)](https://github.com/InverseIntegral/js2wasm/actions?query=workflow%3A%22Continuous+Integration%22)
 
 JS2Wasm compiles a subset of JavaScript to WebAssembly and runs directly in the browser. It focuses on performance and portability.
 

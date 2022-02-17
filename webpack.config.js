@@ -15,9 +15,12 @@ module.exports = {
     resolve: {
         extensions: [ '.ts', '.js' ]
     },
-    entry: './src/js2wasm.ts',
+    entry: {
+        benchmark: './src/benchmark/index.ts',
+        library: './src/js2wasm.ts'
+    },
     output: {
-        filename: 'bundle.js',
+        filename: '[name]/bundle.js',
         path: path.resolve(__dirname, 'dist'),
         library: 'js2wasm'
     },
